@@ -1,0 +1,1026 @@
+<?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+class Sys_model extends CI_Model {
+	public function __construct() {
+		parent::__construct();
+		$_SESSION['ghi8Asd8'] = 'grenjo8';
+		$_SESSION['1jhA3xBg'] = 'Renzo';
+		$_SESSION['87gBAi89'] = 'Ferreras';
+		$_SESSION['HyA23jas'] = 'Advincula';
+		$_SESSION['oljnAS78'] = '1998-03-21';
+	}
+	public function load_system_datetime()
+	{
+		date_default_timezone_set('Asia/Manila');
+		$current_time = date("h:i A");
+		$current_date = new DateTime(date('Y-m-d'));		
+		$previous_month = clone $current_date;
+		$previous_month->modify('-1 month');
+		
+		$current_date = $current_date->format('Y-m-d');
+		$previous_month = $previous_month->format('Y-m-d');
+
+		$datetime_data = array(
+			'current_time' => $current_time,
+			'current_date' => $current_date,
+			'previous_month' => $previous_month
+		);
+		echo json_encode([$datetime_data]);
+	}
+	public function attempt_login()
+	{
+		$hr_db = $this->load->database('hr_database', TRUE);
+		$sql = "SELECT user_id, last_name, gender, status FROM user_basic_info WHERE username = ?";
+		$query = $hr_db->query($sql, $_POST['username']);
+		foreach ($query->result() as $row) {
+ 			$user_id = $row->user_id;
+ 			$last_name = $row->last_name;
+ 			$gender = $row->gender;
+ 			$status = $row->status;
+		}
+		if (isset($user_id) AND ($status == 500 OR $status == 520)) {
+			$sql = "SELECT pass_key FROM user_pass WHERE user_id = ?";
+			$query = $hr_db->query($sql, $user_id);
+			foreach ($query->result() as $row) {
+	 			$user_pass = $row->pass_key;
+			}
+			if (isset($user_pass) AND $user_pass == $_POST['password']) {
+				$_SESSION['534X39a'] = $user_id;
+				$sql = "SELECT designation_key FROM designations WHERE user_id = ?";
+				$query = $hr_db->query($sql, $_SESSION['534X39a']);
+				foreach ($query->result() as $row) {
+		 			$designation_key = $row->designation_key;
+				}
+				if (isset($designation_key)) {
+					$_SESSION['kJaW31i'] = $designation_key;
+				}
+				else {
+					$_SESSION['kJaW31i'] = '000000';
+				}
+				$attempt_response = array(
+			        'last_name' => $last_name, 
+			        'gender' => $gender
+			    );
+			    echo json_encode([$attempt_response]);
+				$_SESSION['login_attempts'] = 0;
+			}
+			else {
+		        $attempt_response = array(
+			        'last_name' => '', 
+			        'gender' => 'failed'
+			    );
+			    echo json_encode([$attempt_response]);
+			}
+		}
+		else if (isset($user_id) AND $status == 400) {
+			$attempt_response = array(
+		        'last_name' => '', 
+		        'gender' => 'unregistered'
+		    );
+		    echo json_encode([$attempt_response]);
+			$_SESSION['login_attempts'] = 0;
+		}
+		else {
+			$attempt_response = array(
+		        'last_name' => '', 
+		        'gender' => 'failed'
+		    );
+		    echo json_encode([$attempt_response]);
+		}
+	}
+	public function save_child_profile()
+	{
+	    $guardian_name = $_POST['guardian_name'];
+	    $guardian_contact = $_POST['guardian_contact'];
+	    $full_name = $_POST['full_name'];
+	    $gender = $_POST['gender'];
+	    $birthdate = $_POST['birthdate'];
+	    $profile_image_base64 = $_POST['profile_image'];
+	    $profile_image_name = $_POST['profile_image_name'];
+
+		$sql = "SELECT client_id FROM client_profiles WHERE full_name = ? AND birthdate = ?";
+		$query = $this->db->query($sql, array($full_name, $birthdate));
+		foreach ($query->result() as $row) {
+ 			$client_id = $row->client_id;
+		}
+		if (isset($client_id)) {
+			echo "duplicate";
+		}
+		else {
+			$saved_file_path = null;
+		    if (!empty($profile_image_base64)) {
+		        $image_parts = explode(";base64,", $profile_image_base64);
+		        if (count($image_parts) == 2) {
+		            $image_base64 = base64_decode($image_parts[1]);
+		            $file_name = 'profile_' . time() . '.png';
+		            $upload_path = FCPATH . 'photos/profile_pictures/';
+
+		            if (!is_dir($upload_path)) {
+		                mkdir($upload_path, 0755, true);
+		            }
+
+		            file_put_contents($upload_path . $profile_image_name, $image_base64);
+		            $saved_file_path = 'photos/profile_pictures/' . $profile_image_name;
+		        }
+		    }
+
+		    $sql = "INSERT INTO client_profiles (guardian_name, guardian_contact, full_name, gender, birthdate, profile_image)
+		            VALUES (?, ?, ?, ?, ?, ?)";
+		    $this->db->query($sql, array($guardian_name, $guardian_contact, $full_name, $gender, $birthdate, $profile_image_name));
+
+		    if ($this->db->affected_rows() > 0) {
+		        echo "success";
+	        	$client_id = $this->db->insert_id();
+		        $activity = "<strong>Account Created</strong>";
+		        $sql = "INSERT INTO time_logs (client_id, activity)
+		            VALUES (?, ?)";
+		    	$this->db->query($sql, array($client_id, $activity));
+		    } else {
+		        echo "error";
+		    }	
+		}
+	}
+	public function update_child_profile()
+	{
+	    $client_id = $_POST['update_client_id'];
+	    $guardian_name = $_POST['update_guardian_name'];
+	    $guardian_contact = $_POST['update_guardian_contact'];
+	    $full_name = $_POST['update_full_name'];
+	    $gender = $_POST['update_gender'];
+	    $birthdate = $_POST['update_birthdate'];
+	    $profile_image_b64 = $_POST['update_profile_image'];
+	    $profile_image_name = $_POST['update_profile_image_name'];
+
+	    $sql = "SELECT * FROM client_profiles WHERE client_id=?";
+	    $query = $this->db->query($sql, array($client_id));
+	    $current = $query->row_array();
+
+	    $file_path = null;
+	    if (!empty($profile_image_b64)) {
+	        $image_parts = explode(";base64,", $profile_image_b64);
+	        if (count($image_parts) == 2) {
+	            $image_base64 = base64_decode($image_parts[1]);
+	            $file_name = 'profile_' . time() . '.png';
+	            $upload_path = FCPATH . 'photos/profile_pictures/';
+	            if (!is_dir($upload_path)) {
+	                mkdir($upload_path, 0755, true);
+	            }
+	            file_put_contents($upload_path . $file_name, $image_base64);
+	            $profile_image_name = $file_name;
+	            $file_path = 'photos/profile_pictures/' . $file_name;
+	        }
+	    }
+
+	    if ($file_path) {
+	        $sql = "UPDATE client_profiles 
+	                   SET guardian_name=?, guardian_contact=?, full_name=?, gender=?, birthdate=?, profile_image=? 
+	                 WHERE client_id=?";
+	        $update_query = $this->db->query($sql, array($guardian_name,$guardian_contact,$full_name,$gender,$birthdate,$profile_image_name,$client_id));
+	    } else {
+	        $sql = "UPDATE client_profiles 
+	                   SET guardian_name=?, guardian_contact=?, full_name=?, gender=?, birthdate=? 
+	                 WHERE client_id=?";
+	        $update_query = $this->db->query($sql, array($guardian_name,$guardian_contact,$full_name,$gender,$birthdate,$client_id));
+	    }
+
+	    $changed = array();
+	    if ($current['guardian_name'] != $guardian_name) $changed[] = 'Guardian Name';
+	    if ($current['guardian_contact'] != $guardian_contact) $changed[] = 'Guardian Contact';
+	    if ($current['full_name'] != $full_name) $changed[] = 'Full Name';
+	    if ($current['gender'] != $gender) $changed[] = 'Gender';
+	    if ($current['birthdate'] != $birthdate) $changed[] = 'Birthdate';
+	    if ($file_path && $current['profile_image'] != $profile_image_name) $changed[] = 'Profile Image';
+
+	    if ($update_query) {
+	        echo "success";
+	        if (!empty($changed)) {
+	            $activity = "<strong>Updated:</strong><br>" . implode(', ', $changed);
+	            $sql = "INSERT INTO time_logs (client_id, activity) VALUES (?, ?)";
+	            $this->db->query($sql, array($client_id, $activity));
+	        }
+	    } else {
+	        echo "error";
+	    }
+	}
+	public function load_inactive_clients()
+	{
+		$sql = "SELECT * FROM client_profiles WHERE client_id NOT IN(SELECT client_id FROM time_manager) AND client_status = 1";
+		// $sql = "SELECT * FROM client_profiles LEFT JOIN time_manager ON client_profiles.client_id = time_manager.client_id";
+		$query = $this->db->query($sql);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function load_active_clients()
+	{
+		date_default_timezone_set('Asia/Manila');
+		$current_date = date('Y-m-d');
+
+		$sql = "
+			WITH RECURSIVE split_rates AS (
+			    SELECT 
+			        tm.client_id,
+			        tm.time_date,
+			        tm.start_time,
+			        tm.rate_id AS tm_id,
+			        TRIM(SUBSTRING_INDEX(tm.rate_id, ',', 1)) AS single_rate,
+			        CASE 
+			            WHEN INSTR(tm.rate_id, ',') > 0 THEN TRIM(SUBSTR(tm.rate_id, INSTR(tm.rate_id, ',') + 1))
+			            ELSE '' 
+			        END AS rest
+			    FROM time_manager tm
+
+			    UNION ALL
+
+			    SELECT 
+			        client_id,
+			        time_date,
+			        start_time,
+			        tm_id,
+			        TRIM(SUBSTRING_INDEX(rest, ',', 1)),
+			        CASE 
+			            WHEN INSTR(rest, ',') > 0 THEN TRIM(SUBSTR(rest, INSTR(rest, ',') + 1))
+			            ELSE '' 
+			        END
+			    FROM split_rates
+			    WHERE rest <> ''
+			)
+
+			SELECT 
+			    cp.client_id,
+			    FLOOR(SUM(tr.hour * 60 + tr.minute) / 60) AS total_hours,
+			    MOD(SUM(tr.hour * 60 + tr.minute), 60) AS total_minutes,
+			    SUM(tr.price) AS total_price
+			FROM client_profiles cp
+			JOIN time_manager tm 
+			    ON cp.client_id = tm.client_id
+			JOIN split_rates sr 
+			    ON sr.client_id = tm.client_id 
+			    AND sr.time_date = tm.time_date 
+			    AND sr.start_time = tm.start_time
+			JOIN time_rates tr 
+			    ON tr.rate_id = CAST(sr.single_rate AS UNSIGNED)
+			WHERE sr.time_date != ?
+			GROUP BY cp.client_id;
+		";
+		$query = $this->db->query($sql, $current_date);
+		foreach ($query->result() as $row) {
+ 			$res_client_id = $row->client_id;
+ 			$total_hours = $row->total_hours;
+ 			$total_minutes = $row->total_minutes;
+ 			$time = $total_hours.':'.$total_minutes;
+ 			$rate = $row->total_price;
+		}
+		if (isset($res_client_id)) {
+			$sql = "INSERT INTO time_reports (client_id, time, rate)
+		            VALUES (?, ?, ?)";
+		    $this->db->query($sql, array($res_client_id, $time, $rate));
+
+			$sql = "DELETE FROM time_manager WHERE client_id = ?";
+			$this->db->query($sql, [$res_client_id]);	
+		}
+
+		$sql = "
+			WITH RECURSIVE split_rates AS (
+			    SELECT 
+			        tm.client_id,
+			        tm.start_time,
+			        TRIM(SUBSTRING_INDEX(tm.rate_id, ',', 1)) AS single_rate,
+			        CASE 
+			            WHEN INSTR(tm.rate_id, ',') > 0 
+			            THEN TRIM(SUBSTR(tm.rate_id, INSTR(tm.rate_id, ',') + 1))
+			            ELSE '' 
+			        END AS rest
+			    FROM time_manager tm
+
+			    UNION ALL
+
+			    SELECT 
+			        client_id,
+			        start_time,
+			        TRIM(SUBSTRING_INDEX(rest, ',', 1)),
+			        CASE 
+			            WHEN INSTR(rest, ',') > 0 
+			            THEN TRIM(SUBSTR(rest, INSTR(rest, ',') + 1))
+			            ELSE '' 
+			        END
+			    FROM split_rates
+			    WHERE rest <> ''
+			)
+
+			SELECT 
+			    cp.client_id,
+			    cp.full_name,
+			    cp.gender,
+			    cp.birthdate,
+			    cp.profile_image,
+			    cp.guardian_name,
+			    cp.guardian_contact,
+			    MIN(sr.start_time) AS start_time,  -- earliest active time session
+			    FLOOR(SUM(tr.hour * 60 + tr.minute) / 60) AS total_hours,
+			    MOD(SUM(tr.hour * 60 + tr.minute), 60) AS total_minutes,
+			    SUM(tr.price) AS total_price
+			FROM client_profiles cp
+			JOIN split_rates sr ON cp.client_id = sr.client_id
+			JOIN time_rates tr ON tr.rate_id = CAST(sr.single_rate AS UNSIGNED)
+			WHERE cp.client_status = 1
+			GROUP BY cp.client_id;
+		";
+		$query = $this->db->query($sql);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function load_registered_clients()
+	{
+		$sql = "SELECT * FROM client_profiles WHERE client_status = 1";
+		$query = $this->db->query($sql);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function load_archived_clients()
+	{
+		$sql = "SELECT * FROM client_profiles WHERE client_status = 0";
+		$query = $this->db->query($sql);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function load_time_rates()
+	{
+		$sql = "SELECT * FROM time_rates";
+		// $sql = "SELECT * FROM client_profiles LEFT JOIN time_manager ON client_profiles.client_id = time_manager.client_id";
+		$query = $this->db->query($sql);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function new_active_client()
+	{
+		date_default_timezone_set('Asia/Manila');
+		$current_date = date('Y-m-d');
+
+	    $client_id = $_POST['client_id'];
+		$start_time = date("H:i:s");
+	    $time_rate = $_POST['time_rate'];
+
+		$sql = "SELECT client_id FROM time_manager WHERE client_id = ?";
+		$query = $this->db->query($sql, $client_id);
+		foreach ($query->result() as $row) {
+ 			$res_client_id = $row->res_client_id;
+		}
+		if (isset($res_client_id)) {
+			echo "duplicate";
+		}
+		else {
+
+		    $sql = "INSERT INTO time_manager (client_id, time_date, start_time, rate_id)
+		            VALUES (?, ?, ?, ?)";
+		    $this->db->query($sql, array($client_id, $current_date, $start_time, $time_rate));
+
+		    if ($this->db->affected_rows() > 0) {
+		        echo "success";
+		        $sql = "SELECT hour, minute, price FROM time_rates WHERE rate_id = ?";
+				$query = $this->db->query($sql, $time_rate);
+				foreach ($query->result() as $row) {
+		 			$hour = $row->hour;
+		 			$minute = $row->minute;
+		 			$price = $row->price;
+				}
+				$time = '';
+				if ($hour > 0 && $minute > 0) {
+				    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+				} elseif ($hour > 0) {
+				    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+				} elseif ($minute > 0) {
+				    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+				} else {
+				    $time = 'Unlimited';
+				}
+
+	        	$activity = "<strong>Time Created:</strong><br>Time: ".$time.", "."Rate: ₱".$price;
+		        $sql = "INSERT INTO time_logs (client_id, activity)
+		            VALUES (?, ?)";
+		    	$this->db->query($sql, array($client_id, $activity));
+		    } else {
+		        echo "error";
+		    }	
+		}
+	}
+	public function extend_client_time()
+	{
+		date_default_timezone_set('Asia/Manila');
+		$current_date = date('Y-m-d');
+
+	    $client_id = $_POST['extend_client_id'];
+		$start_time = date("H:i:s");
+	    $time_rate = $_POST['extend_time_rate'];
+
+	    if ($time_rate == 0) {
+		    $sql = "UPDATE time_manager SET rate_id = ? WHERE client_id = ?";
+	    }
+	    else {
+	    	$time_rate = ','.$time_rate;
+		    $sql = "UPDATE time_manager SET rate_id = CONCAT(rate_id, ?) WHERE client_id = ?";
+	    }
+
+	    $this->db->query($sql, array($time_rate, $client_id));
+
+	    if ($this->db->affected_rows() > 0) {
+	        echo "success";
+	        $sql = "SELECT hour, minute, price FROM time_rates WHERE rate_id = ?";
+			$query = $this->db->query($sql, [$_POST['extend_time_rate']]);
+			foreach ($query->result() as $row) {
+	 			$hour = $row->hour;
+	 			$minute = $row->minute;
+	 			$price = $row->price;
+			}
+			$time = '';
+			if ($hour > 0 && $minute > 0) {
+			    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+			} elseif ($hour > 0) {
+			    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+			} elseif ($minute > 0) {
+			    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+			} else {
+			    $time = 'Unlimited';
+			}
+
+	        $activity = "<strong>Time Extended:</strong><br>Time: ".$time.", "."Rate: ₱".$price;
+	        $sql = "INSERT INTO time_logs (client_id, activity)
+	            VALUES (?, ?)";
+	    	$this->db->query($sql, array($client_id, $activity));
+	    } else {
+	        echo "error";
+	    }	
+	}
+	public function end_client_time()
+	{
+	    $client_id = $_POST['client_id'];
+
+	    $sql = "WITH RECURSIVE split_rates AS (SELECT tm.rate_id AS tm_id,tm.client_id,tm.start_time,TRIM(SUBSTRING_INDEX(tm.rate_id,',',1)) AS single_rate,CASE WHEN INSTR(tm.rate_id,',')>0 THEN TRIM(SUBSTR(tm.rate_id,INSTR(tm.rate_id,',')+1)) ELSE '' END AS rest FROM time_manager tm UNION ALL SELECT tm_id,client_id,start_time,TRIM(SUBSTRING_INDEX(rest,',',1)),CASE WHEN INSTR(rest,',')>0 THEN TRIM(SUBSTR(rest,INSTR(rest,',')+1)) ELSE '' END FROM split_rates WHERE rest<>'') SELECT cp.client_id,cp.guardian_name,cp.guardian_contact,cp.full_name,cp.gender,cp.birthdate,cp.profile_image,sr.start_time,FLOOR(SUM(tr.hour*60+tr.minute)/60) AS total_hours,MOD(SUM(tr.hour*60+tr.minute),60) AS total_minutes,SUM(tr.price) AS total_price FROM client_profiles cp JOIN time_manager tm ON cp.client_id=tm.client_id JOIN split_rates sr ON sr.tm_id=tm.rate_id JOIN time_rates tr ON tr.rate_id=CAST(sr.single_rate AS UNSIGNED) GROUP BY cp.client_id,sr.start_time";
+		$query = $this->db->query($sql, $client_id);
+		foreach ($query->result() as $row) {
+ 			$res_client_id = $row->client_id;
+ 			$hour = $row->total_hours;
+ 			$minute = $row->total_minutes;
+ 			$time = $hour.':'.$minute;
+ 			$rate = $row->total_price;
+		}
+
+	    $sql = "INSERT INTO time_reports (client_id, time, rate)
+		            VALUES (?, ?, ?)";
+	    $this->db->query($sql, array($client_id, $time, $rate));
+
+	    $time = '';
+		if ($hour > 0 && $minute > 0) {
+		    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+		} elseif ($hour > 0) {
+		    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+		} elseif ($minute > 0) {
+		    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+		} else {
+		    $time = 'Unlimited';
+		}
+	    $activity = "<strong>Time Ended:</strong><br>Time: ".$time.", "."Rate: ₱".$rate;
+        $sql = "INSERT INTO time_logs (client_id, activity)
+            VALUES (?, ?)";
+    	$this->db->query($sql, array($client_id, $activity));
+
+		$sql = "DELETE FROM time_manager WHERE client_id = ?";
+		$query = $this->db->query($sql, [$client_id]);
+
+		if ($query) {
+		    echo 'success';
+		} else {
+		    echo 'error';
+		}
+	}
+	public function remove_client_time()
+	{
+	    $client_id = $_POST['client_id'];
+
+		$sql = "DELETE FROM time_manager WHERE client_id = ?";
+		$query = $this->db->query($sql, [$client_id]);
+
+		if ($query) {
+		    echo 'success';
+		    $activity = "<strong>Time Cancelled</strong>";
+	        $sql = "INSERT INTO time_logs (client_id, activity)
+	            VALUES (?, ?)";
+	    	$this->db->query($sql, array($client_id, $activity));
+		} else {
+		    echo 'error';
+		}
+	}
+	public function archive_client()
+	{
+	    $client_id = $_POST['client_id'];
+
+	    $sql = "UPDATE client_profiles SET client_status = 0 WHERE client_id = ?";
+		$query = $this->db->query($sql, [$client_id]);
+
+		if ($query) {
+		    echo 'success';
+		} else {
+		    echo 'error';
+		}
+	}
+	public function unarchive_client()
+	{
+	    $client_id = $_POST['client_id'];
+
+	    $sql = "UPDATE client_profiles SET client_status = 1 WHERE client_id = ?";
+		$query = $this->db->query($sql, [$client_id]);
+
+		if ($query) {
+		    echo 'success';
+		} else {
+		    echo 'error';
+		}
+	}
+	public function delete_client()
+	{
+	    $client_id = $_POST['client_id'];
+
+	    $sql = "UPDATE client_profiles SET client_status = 3 WHERE client_id = ?";
+		$query = $this->db->query($sql, [$client_id]);
+
+		if ($query) {
+		    echo 'success';
+		} else {
+		    echo 'error';
+		}
+	}
+	public function load_tm_reports()
+	{
+	    $report_type = $_POST['report_type'];
+	    $report_date = $_POST['report_date'];
+
+	    if ($report_type == 'daily') {
+	    	$sql = "SELECT report_id, full_name, birthdate, profile_image, time_reports.client_id, SUM(rate) AS total_rate, FLOOR(SUM(SUBSTRING_INDEX(time, ':', 1)) + (SUM(SUBSTRING_INDEX(time, ':', -1)) DIV 60)) AS total_hours, MOD(SUM(SUBSTRING_INDEX(time, ':', -1)), 60) AS total_minutes FROM client_profiles, time_reports WHERE client_profiles.client_id = time_reports.client_id AND DATE(time_stamp) = ? GROUP BY time_reports.client_id ORDER BY time_reports.client_id ASC";
+	    }
+	    else if ($report_type == 'monthly') {
+	    	$sql = "SELECT report_id, full_name, birthdate, profile_image, time_reports.client_id, SUM(rate) AS total_rate, FLOOR(SUM(SUBSTRING_INDEX(time, ':', 1)) + (SUM(SUBSTRING_INDEX(time, ':', -1)) DIV 60)) AS total_hours, MOD(SUM(SUBSTRING_INDEX(time, ':', -1)), 60) AS total_minutes FROM client_profiles, time_reports WHERE client_profiles.client_id = time_reports.client_id AND DATE_FORMAT(time_stamp, '%Y-%m') = DATE_FORMAT(?, '%Y-%m') GROUP BY time_reports.client_id ORDER BY time_reports.client_id ASC";
+	    }
+	    else if ($report_type == 'annual') {
+	    	$sql = "SELECT report_id, full_name, birthdate, profile_image, time_reports.client_id, SUM(rate) AS total_rate, FLOOR(SUM(SUBSTRING_INDEX(time, ':', 1)) + (SUM(SUBSTRING_INDEX(time, ':', -1)) DIV 60)) AS total_hours, MOD(SUM(SUBSTRING_INDEX(time, ':', -1)), 60) AS total_minutes FROM client_profiles, time_reports WHERE client_profiles.client_id = time_reports.client_id AND YEAR(time_stamp) = YEAR(?) GROUP BY time_reports.client_id ORDER BY time_reports.client_id ASC";
+	    }
+		$query = $this->db->query($sql, $report_date);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function load_tm_logs()
+	{
+	    $log_type = $_POST['log_type'];
+	    $log_date = $_POST['log_date'];
+
+	    if ($log_type == 'daily') {
+	    	$sql = "SELECT * FROM client_profiles JOIN time_logs ON client_profiles.client_id=time_logs.client_id WHERE DATE(time_logs.time_stamp)=? ORDER BY time_logs.log_id ASC";
+	    }
+	    else if ($log_type == 'monthly') {
+	    	$sql = "SELECT * FROM client_profiles JOIN time_logs ON client_profiles.client_id=time_logs.client_id WHERE DATE_FORMAT(time_logs.time_stamp,'%Y-%m')=DATE_FORMAT(?,'%Y-%m') ORDER BY time_logs.log_id ASC";
+	    }
+	    else if ($log_type == 'annual') {
+	    	$sql = "SELECT * FROM client_profiles JOIN time_logs ON client_profiles.client_id=time_logs.client_id WHERE YEAR(time_logs.time_stamp)=YEAR(?) ORDER BY time_logs.log_id ASC";
+	    }
+		$query = $this->db->query($sql, $log_date);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function load_pos_inventory()
+	{
+	    $sql = "SELECT * FROM pos_inventory WHERE pos_item_status != 0";
+		$query = $this->db->query($sql);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function new_pos_item()
+	{
+	    // Handle pluralization of units
+	    function pluralize_unit($unit, $count) {
+	        $unit = strtolower(trim($unit));
+
+	        // Irregular plural forms
+	        $irregulars = [
+	            'man' => 'men',
+	            'woman' => 'women',
+	            'person' => 'people',
+	            'mouse' => 'mice',
+	            'goose' => 'geese',
+	            'tooth' => 'teeth',
+	            'foot' => 'feet',
+	            'child' => 'children',
+	        ];
+
+	        if ($count == 1) {
+	            // Return singular
+	            foreach ($irregulars as $singular => $plural) {
+	                if ($unit === $plural) return $singular;
+	            }
+	            if (preg_match('/(sh|ch|x|z|s)$/', $unit)) {
+	                return preg_replace('/(es)$/', '', $unit);
+	            } else {
+	                return preg_replace('/s$/', '', $unit);
+	            }
+	        } else {
+	            // Return plural
+	            if (array_key_exists($unit, $irregulars)) return $irregulars[$unit];
+	            if (in_array($unit, $irregulars)) return $unit;
+	            if (preg_match('/(sh|ch|x|z|s)$/', $unit)) return $unit . 'es';
+	            return preg_match('/s$/', $unit) ? $unit : $unit . 's';
+	        }
+	    }
+
+	    // Retrieve form inputs
+	    $new_pos_item_name = $_POST['new_pos_item_name'];
+	    $new_pos_item_price = $_POST['new_pos_item_price'];
+	    $new_pos_item_stock = $_POST['new_pos_item_stock'];
+	    $new_pos_item_unit = $_POST['new_pos_item_unit'];
+	    $new_pos_item_low = $_POST['new_pos_item_low'];
+	    $new_pos_item_image_base64 = $_POST['new_pos_item_image'] ?? '';
+	    $new_pos_item_image_name = $_POST['new_pos_item_image_name'] ?? '';
+
+	    // Check for duplicate item name
+	    $sql = "SELECT pos_item_name FROM pos_inventory WHERE pos_item_name = ?";
+	    $query = $this->db->query($sql, [$new_pos_item_name]);
+	    if ($query->num_rows() > 0) {
+	        echo "duplicate";
+	        return;
+	    }
+
+	    // Handle image saving
+	    $saved_file_path = null;
+	    if (!empty($new_pos_item_image_base64)) {
+	        $image_parts = explode(";base64,", $new_pos_item_image_base64);
+	        if (count($image_parts) == 2) {
+	            $image_base64 = base64_decode($image_parts[1]);
+	            $file_name = $new_pos_item_image_name;
+	            $upload_path = FCPATH . 'photos/pos_images/';
+
+	            if (!is_dir($upload_path)) {
+	                mkdir($upload_path, 0755, true);
+	            }
+
+	            file_put_contents($upload_path . $file_name, $image_base64);
+	            $saved_file_path = 'photos/pos_images/' . $file_name;
+	        }
+	    }
+
+	    // Insert new item into the database
+	    $sql = "INSERT INTO pos_inventory (pos_item_name, pos_item_price, pos_item_image, pos_item_stock, pos_item_unit, pos_item_low)
+	            VALUES (?, ?, ?, ?, ?, ?)";
+	    $this->db->query($sql, [
+	        $new_pos_item_name,
+	        $new_pos_item_price,
+	        $new_pos_item_image_name,
+	        $new_pos_item_stock,
+	        $new_pos_item_unit,
+	        $new_pos_item_low
+	    ]);
+
+	    if ($this->db->affected_rows() > 0) {
+	        echo "success";
+
+	        $item_id = $this->db->insert_id();
+	        $unit_label = pluralize_unit($new_pos_item_unit, $new_pos_item_stock);
+
+	        $activity = "
+	            <strong>Item '$new_pos_item_name' created.</strong>
+	            <br>Price: ₱$new_pos_item_price
+	            <br>Stock: $new_pos_item_stock $unit_label
+	            <br>Low: $new_pos_item_stock $unit_label
+	        ";
+
+	        $sql = "INSERT INTO time_logs (client_id, activity) VALUES (?, ?)";
+	        $this->db->query($sql, [$item_id, $activity]);
+	    } else {
+	        echo "error";
+	    }
+	}
+
+	public function update_pos_item()
+	{
+	    $pos_item_id        = $_POST['update_pos_item_id'];
+	    $pos_item_name      = $_POST['update_pos_item_name'];
+	    $pos_item_price     = $_POST['update_pos_item_price'];
+	    $pos_item_unit      = $_POST['update_pos_item_unit'];
+	    $pos_item_stock     = $_POST['update_pos_item_stock'];
+	    $pos_item_low       = $_POST['update_pos_item_low'];
+	    $pos_item_image_b64 = $_POST['update_pos_item_image'];
+	    $pos_item_image_name = $_POST['update_pos_item_image_name'];
+
+	    // Fetch current record for comparison
+	    $sql = "SELECT * FROM pos_inventory WHERE pos_item_id = ?";
+	    $query = $this->db->query($sql, array($pos_item_id));
+	    $current = $query->row_array();
+
+	    // Handle image update (if new image is provided)
+	    $file_path = null;
+	    if (!empty($pos_item_image_b64)) {
+	        $image_parts = explode(";base64,", $pos_item_image_b64);
+	        if (count($image_parts) == 2) {
+	            $image_base64 = base64_decode($image_parts[1]);
+	            $file_name = 'pos_item_' . time() . '.png';
+	            $upload_path = FCPATH . 'photos/pos_items/';
+
+	            if (!is_dir($upload_path)) {
+	                mkdir($upload_path, 0755, true);
+	            }
+
+	            file_put_contents($upload_path . $file_name, $image_base64);
+	            $pos_item_image_name = $file_name;
+	            $file_path = 'photos/pos_items/' . $file_name;
+	        }
+	    }
+
+	    // Prepare update query (with or without image)
+	    if ($file_path) {
+	        $sql = "UPDATE pos_inventory 
+	                   SET pos_item_name=?, pos_item_price=?, pos_item_unit=?, pos_item_stock=?, pos_item_low=?, pos_item_image=? 
+	                 WHERE pos_item_id=?";
+	        $update_query = $this->db->query($sql, array($pos_item_name, $pos_item_price, $pos_item_unit, $pos_item_stock, $pos_item_low, $pos_item_image_name, $pos_item_id));
+	    } else {
+	        $sql = "UPDATE pos_inventory 
+	                   SET pos_item_name=?, pos_item_price=?, pos_item_unit=?, pos_item_stock=?, pos_item_low=? 
+	                 WHERE pos_item_id=?";
+	        $update_query = $this->db->query($sql, array($pos_item_name, $pos_item_price, $pos_item_unit, $pos_item_stock, $pos_item_low, $pos_item_id));
+	    }
+
+	    // Track what changed
+	    $changed = array();
+	    if ($current['pos_item_name'] != $pos_item_name) $changed[] = 'Item Name';
+	    if ($current['pos_item_price'] != $pos_item_price) $changed[] = 'Item Price';
+	    if ($current['pos_item_unit'] != $pos_item_unit) $changed[] = 'Item Unit';
+	    if ($current['pos_item_stock'] != $pos_item_stock) $changed[] = 'Current Stock';
+	    if ($current['pos_item_low'] != $pos_item_low) $changed[] = 'Low Stock Level';
+	    if ($file_path && $current['pos_item_image'] != $pos_item_image_name) $changed[] = 'Item Image';
+
+	    // Respond and log
+	    if ($update_query) {
+	        echo "success";
+	        if (!empty($changed)) {
+	            $activity = "<strong>Updated:</strong><br>" . implode(', ', $changed);
+	            $sql = "INSERT INTO pos_logs (pos_item_id, pos_activity) VALUES (?, ?)";
+	            $this->db->query($sql, array($pos_item_id, $activity));
+	        }
+	    } else {
+	        echo "error";
+	    }
+	}
+
+	public function pos_checkout(){
+	    date_default_timezone_set('Asia/Manila');
+	    $current_date = date('Y-m-d H:i:s');
+
+	    // Generate unique checkout code
+	    $random_code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+	    $pos_checkout_code = 'POS-' . date('Ymd') . '-' . $random_code;
+
+	    // Retrieve posted cart data
+	    $cart_items = $this->input->post('cart_items');
+	    if (is_string($cart_items)) {
+		    $cart_items = json_decode($cart_items, true);
+		}
+	    
+	    // Validate incoming cart data
+	    if (empty($cart_items) || !is_array($cart_items)) {
+	        echo "empty_cart";
+	    }
+
+	    foreach ($cart_items as $item) {
+	        $pos_item_id        = $item['pos_item_id'];
+	        $pos_item_name      = $item['pos_item_name'];
+	        $pos_item_price     = $item['pos_item_price'];
+	        $pos_item_count     = $item['item_count'];
+	        $pos_item_unit      = $item['pos_item_unit'];
+	        $pos_item_image     = $item['pos_item_image'];
+	        $pos_item_subtotal  = $item['total_item_price']; // price * qty from frontend
+
+	        $sql = "INSERT INTO pos_checkouts 
+	                (pos_checkout_code, pos_item_id, pos_item_name, pos_item_price, pos_item_count, pos_item_unit, pos_item_image, pos_item_subtotal, pos_checkout_date)
+	                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	        $insert_query = $this->db->query($sql, array(
+	            $pos_checkout_code,
+	            $pos_item_id,
+	            $pos_item_name,
+	            $pos_item_price,
+	            $pos_item_count,
+	            $pos_item_unit,
+	            $pos_item_image,
+	            $pos_item_subtotal,
+	            $current_date
+	        ));
+
+	        if ($insert_query) {
+	        	$sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock - ? WHERE pos_item_id = ?";
+	    		$update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+	        }
+
+	        if ($this->db->affected_rows() <= 0) {
+	            echo "error";
+	        }
+	        else {
+	    		echo "success";
+	        }
+	    }
+	}
+
+	public function load_pos_checkouts(){
+	    $report_type = $_POST['report_type'];
+		$report_date = $_POST['report_date'];
+
+		if ($report_type == 'daily') {
+		    $sql = "SELECT 
+		                pos_checkout_id,
+		                pos_item_name,
+		                pos_item_image,
+		                pos_item_count,
+		                pos_item_price,
+		                pos_checkout_date AS created_at,
+		                pos_item_subtotal AS pos_total_price
+		            FROM pos_checkouts
+		            WHERE DATE(pos_checkout_date) = ?
+		            ORDER BY pos_checkout_date ASC";
+		}
+		else if ($report_type == 'monthly') {
+		    $sql = "SELECT 
+		                pos_checkout_id,
+		                pos_item_name,
+		                pos_item_image,
+		                pos_item_count,
+		                pos_item_price,
+		                DATE_FORMAT(pos_checkout_date, '%Y-%m') AS created_at,
+		                pos_item_subtotal AS pos_total_price
+		            FROM pos_checkouts
+		            WHERE DATE_FORMAT(pos_checkout_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
+		            ORDER BY pos_checkout_date ASC";
+		}
+		else if ($report_type == 'annual') {
+		    $sql = "SELECT 
+		                pos_checkout_id,
+		                pos_item_name,
+		                pos_item_image,
+		                pos_item_count,
+		                pos_item_price,
+		                DATE_FORMAT(pos_checkout_date, '%Y') AS created_at,
+		                pos_item_subtotal AS pos_total_price
+		            FROM pos_checkouts
+		            WHERE YEAR(pos_checkout_date) = YEAR(?)
+		            ORDER BY pos_checkout_date ASC";
+		}
+
+		$query = $this->db->query($sql, $report_date);
+
+		foreach ($query->result() as $row) {
+		    $output_data[] = $row;
+		}
+
+		if (isset($output_data)) {
+		    echo json_encode($output_data);
+		} else {
+		    echo json_encode('');
+		}
+	}
+
+	public function void_pos_checkout(){
+	    $pos_checkout_id = $_POST['pos_checkout_id'];
+	
+	    $sql = "SELECT pos_item_id, pos_item_count FROM pos_checkouts WHERE pos_checkout_id = ?";
+	    $select_query = $this->db->query($sql, [$pos_checkout_id]);
+		foreach ($select_query->result() as $row) {
+ 			$pos_item_id = $row->pos_item_id;
+ 			$pos_item_count = $row->pos_item_count;
+		}
+        
+        $sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
+	    $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+
+	    if ($update_query) {
+			$sql = "DELETE FROM pos_checkouts WHERE pos_checkout_id = ?";
+		    $delete_query = $this->db->query($sql, [$pos_checkout_id]);	 
+
+		    if ($delete_query) {
+	    		echo "success";
+	       	}
+	       	else {
+	    		echo "error";
+	       	}
+	    }
+	    else {
+    		echo "error";
+	    }
+	}
+
+	public function shadow() {
+		global $top_shadow;
+		global $bottom_shadow;
+
+		$top_shadow = array	('0' => "a",	'1' => "b",	'2' => "c",	'3' => "d",	'4' => "e",	'5' => "f",	'6' => "g",	'7' => "h",	'8' => "i",	'9' => "j", '10' => "k", '11' => "l", '12' => "m", '13' => "n", '14' => "o", '15' => "p", '16' => "q", '17' => "r", '18' => "s", '19' => "t", '20' => "u", '21' => "v", '22' => "w", '23' => "x", '24' => "y", '25' => "z", '26' => "1",'27' => "2", '28' => "3", '29' => "4", '30' => "5", '31' => "6", '32' => "7", '33' => "8", '34' => "9",'35' => "0", '36' => "!", '37' => '"', '38' => "£", '39' => "$", '40' => "%", '41' => "^", '42' => "&", '43' => "*", '44' => "(", '45' => ")",'46' => "_", '47' => "-", '48' => "+", '49' => "=", '50' => ":", '51' => ";",'52' => "@", '53' => "'", '54' => "<", '55' => ",",'56' => ">", '57' => "/", '58' => "?", '59' => ".", '60' => "{", '61' => "[", '62' => "}", '63' => "]", '64' => "~", '65' => "#", '66' => "\\",'67' => "¬",'68' => "`",'69' => "A",'70' => "B",'71' => "C", '72' => "D", '73' => "E", '74' => "F", '75' => "G", '76' => "H", '77' => "I", '78' => "J", '79' => "K", '80' => "L", '81' => "M", '82' => "N", '83' => "O", '84' => "P", '85' => "Q", '86' => "R", '87' => "S", '88' => "T", '89' => "U", '90' => "V", '91' => "W", '92' => "X", '93' => "Y", '94' => "Z", '95' => " "
+		);
+		$bottom_shadow = array('0' => "1x", '1' => "a9", '2' => "q5", '3' => "K5", '4' => "87", '5' => "jk", '6' => "p1", '7' => "0x", '8' => "xl", '9' => "p8",'10' => "la",'11' => "mj",'12' => "t1",'13' => "9g",'14' => "kp",'15' => "41",'16' => "9b",'17' => "7k",'18' => "bc",'19' => "mX",'20' => "z9",'21' => "gh",'22' => "f7",'23' => "h8",'24' => "a6",'25' => "j1",'26' => "uj",'27' => "hl",'28' => "0j",'29' => "6y",'30' => "k1",'31' => "ap",'32' => "fg",'33' => "jN",'34' => "0k",'35' => "1j",'36' => "0u",'37' => "2j",'38' => "j7",'39' => "7s",'40' => "O2",'41' => "j9",'42' => "mN",'43' => "0o",'44' => "l2",'45' => "uV",'46' => "fH",'47' => "63",'48' => "y7",'49' => "bm",'50' => "aA",'51' => "hj",'52' => "77",'53' => "k3",'54' => "po",'55' => "78",'56' => "bh",'57' => "vk",'58' => "uA",'59' => "02",'60' => "5t",'61' => "8u",'62' => "90",'63' => "lq",'64' => "tu",'65' => "60",'66' => "ak",'67' => "09",'68' => "67",'69' => "hi",'70' => "yr",'71' => "Jf",'72' => "9j",'73' => "7h",'74' => "bu",'75' => "ln",'76' => "g2",'77' => "91",'78' => "b7",'79' => "iO",'80' => "Rh",'81' => "08",'82' => "7g",'83' => "jO",'84' => "uy",'85' => "0y",'86' => "9U",'87' => "lK",'88' => "p4",'89' => "jg",'90' => "ho",'91' => "jv",'92' => "bk",'93' => "0d",'94' => "Ih",'95' => "Xa"
+		);
+
+		function encrypt($str) {
+			global $top_shadow;
+			global $bottom_shadow;
+
+			$str_pass = $str;
+			$length = strlen($str);
+			$content_holder = '';
+			$content_accumulator = '';
+			for ($i=0; $i < $length; $i++) {
+				$component = $str_pass[$i];
+				$array_length = count($top_shadow);
+				for ($x=0; $x < $array_length; $x++) { 
+					if ($component == $top_shadow[$x]) {
+						$content_holder = $bottom_shadow[$x];
+					}
+				}
+				$content_accumulator = $content_accumulator.$content_holder;
+			}
+			return $content_accumulator;
+		}
+		function decrypt($str) {
+			global $top_shadow;
+			global $bottom_shadow;
+
+			$str_pass = $str;
+			$length = strlen($str);
+			$length = $length/2;
+			$content_holder = '';
+			$content_accumulator = '';
+			for ($i=0; $i < $length; $i++) {
+				if ($i == 0) {
+					$y = $i;
+				}
+				else {
+					$y = $y + 2;
+				}
+				$component = substr($str_pass, $y, 2);
+				$array_length = count($top_shadow);
+				for ($x=0; $x < $array_length; $x++) { 
+					if ($component == $bottom_shadow[$x]) {
+						$content_holder = $top_shadow[$x];
+					}
+				}
+				$content_accumulator = $content_accumulator.$content_holder;
+			}
+			return $content_accumulator;
+		}
+	}
+}
