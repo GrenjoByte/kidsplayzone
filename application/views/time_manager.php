@@ -66,6 +66,56 @@
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
+		
+
+		/* Dropdown item layout and truncation */
+		.ui.dropdown .menu > .item {
+			display: flex !important;
+			align-items: center !important;
+			gap: 8px !important;
+			overflow: hidden !important;
+		}
+
+		/* Image inside dropdown */
+		.ui.dropdown .menu > .item img.item_avatar {
+			width: 30px !important;
+			height: 30px !important;
+			object-fit: cover !important;
+			flex-shrink: 0 !important;
+			border-radius: 4px;
+		}
+
+		/* Text inside dropdown item */
+		.ui.dropdown .menu > .item .text,
+		.ui.dropdown .menu > .item span {
+			flex: 1 1 auto;
+			min-width: 0;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			display: block;
+		}
+
+		/* Fix ellipsis in the selected item display area */
+		.ui.selection.dropdown > .text {
+			display: flex !important;
+			align-items: center !important;
+			gap: 6px !important;
+			white-space: nowrap !important;
+			overflow: hidden !important;
+			text-overflow: ellipsis !important;
+			min-width: 0 !important;
+		}
+
+		/* Selected item image */
+		.ui.selection.dropdown > .text img {
+			width: 24px;
+			height: 24px;
+			object-fit: cover;
+			flex-shrink: 0;
+			border-radius: 3px;
+		}
+
 		/* 5:4 Avatar for item thumbnails */
 		.ui.item_avatar,
 			img.ui.item_avatar {
@@ -902,7 +952,7 @@
 		        </div>
 		    </div>
 
-		    <div class="ui small modal" id="pos_restocking_modal">
+		    <div class="ui tiny modal" id="pos_restocking_modal">
 		        <div class="ui header center aligned">
 		            <a class="break-text" id="pos_checkouts_header">Restocking</a>
 		        </div>
@@ -917,9 +967,8 @@
 					    <div class="fields">
 					        <div class="ten wide field">
 					            <label>Item</label>
-					            <div class="ui selection dropdown" id="pos_restocking_items_drop">
+					            <div class="ui selection search dropdown" id="pos_restocking_items_drop">
 					                <input type="hidden" name="pos_restocking_items" id="pos_restocking_items">
-					                <i class="dropdown icon"></i>
 					                <div class="default text">Select Item</div>
 					                <div class="menu" id="pos_restocking_menu">
 
@@ -931,8 +980,11 @@
 							    <input type="text" name="pos_restock_quantity" id="pos_restock_quantity" placeholder="Restock Quantity">
 						  	</div>
 					    </div>
-					    <div class="fields">
-					    	
+					    <div class="ui basic segment">
+					    	<button class="ui right floated aligned button green small button icon" form="update_pos_item_form" type="submit">
+								Add Stock					        
+		                		<i class="ui plus icon"></i>
+							</button>	
 					    </div>
 					</div>
 				</div>
@@ -1259,9 +1311,9 @@
 
                     let pos_restocking_item = `
                     	<div class="item" data-value="${pos_item_id}">
-					      	<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
-					      	${pos_item_name}
-					    </div>
+							<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
+							<span>${pos_item_name}</span>
+						</div>
                     `;
 
             		$(`#pos_items_container`).append(pos_item);
@@ -1270,7 +1322,6 @@
                 })
 				$('#pos_restocking_items_drop').dropdown({
 				    onChange: function () {
-				    	alert('selected')
 				        // load_pos_checkouts();
 				    }
 				});
