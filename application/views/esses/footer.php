@@ -38,29 +38,29 @@
 			<div class="ui text small gray-text">Copyright © 2025 <a class="white-text pointered dev_card">Grenjo</a>. All Rights Reserved</div>
 		</div>
 	</div>
-	<div class="ui circular icon dropdown button teal bottom right pointing actions_drop floater-button" id="time_manager_tab_actions">
+	<div class="ui circular icon dropdown button blue bottom right pointing actions_drop floater-button" id="time_manager_tab_actions">
 	<!-- <div class="ui dropdown labeled icon top pointing right "> -->
 	    <i class="cog large icon loading"></i>
 	    <!-- <i class="ellipsis horizontal large icon"></i> -->
 	    <div class="menu">
-	        <div class="ui center aligned tiny header">
+	        <div class="ui center aligned blue tiny header">
 	            <i class="large cogs icon"></i>
 	            Actions
 	        </div>
 	        <div class="item new_client_activator" id="new_client_activator">
-                <i class="olive edit outline icon"></i>
+                <i class="edit outline icon"></i>
                 <small>Create Time Profile</small>
             </div>
             <div class="item new_profile_activator" id="new_profile_activator">
-                <i class="teal user plus icon"></i>
+                <i class="user plus icon"></i>
                 <small>Create New Child Profile</small>
             </div>
             <div class="item tm_reports_activator" id="tm_reports_activator">
-                <i class="green chart bar icon"></i>
+                <i class="chart bar icon"></i>
                 <small>Reports</small>
             </div>
             <div class="item tm_reports_activator" id="tm_logs_activator">
-                <i class="orange history icon"></i>
+                <i class="history icon"></i>
                 <small>Logs</small>
             </div>
             <!-- <div class="item add_item_activator" id="add_item_activator">
@@ -69,29 +69,33 @@
             </div> -->
 	    </div>
 	</div>
-	<div class="ui circular icon dropdown button teal bottom right pointing actions_drop floater-button" id="pos_tab_actions">
+	<div class="ui circular icon dropdown button blue bottom right pointing actions_drop floater-button" id="pos_tab_actions">
 	<!-- <div class="ui dropdown labeled icon top pointing right "> -->
 	    <i class="cog large icon loading"></i>
 	    <!-- <i class="ellipsis horizontal large icon"></i> -->
 	    <div class="menu">
-	        <div class="ui center aligned tiny header">
+	        <div class="ui center aligned blue tiny header">
 	            <i class="large cogs icon"></i>
 	            Actions
 	        </div>
 	        <div class="item new_pos_item_activator" id="new_pos_item_activator">
-                <i class="teal plus icon"></i>
+                <i class="plus icon"></i>
                 <small>New Item</small>
             </div>
-            <div class="item tm_reports_activator" id="pos_checkouts_activator">
-                <i class="olive chart bar icon"></i>
+            <div class="item pos_restocking_activator" id="pos_restocking_activator">
+                <i class="dolly icon"></i>
+                <small>Restocking</small>
+            </div>
+            <div class="item pos_checkouts_activator" id="pos_checkouts_activator">
+                <i class="clipboard list icon"></i>
                 <small>Checkouts</small>
             </div>
             <div class="item tm_reports_activator" id="tm_reports_activator">
-                <i class="green chart bar icon"></i>
+                <i class="chart bar icon"></i>
                 <small>Reports</small>
             </div>
             <div class="item tm_reports_activator" id="tm_logs_activator">
-                <i class="orange history icon"></i>
+                <i class="history icon"></i>
                 <small>Logs</small>
             </div>
             <!-- <div class="item add_item_activator" id="add_item_activator">

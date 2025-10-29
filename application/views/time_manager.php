@@ -901,6 +901,51 @@
 		            </div>
 		        </div>
 		    </div>
+
+		    <div class="ui small modal" id="pos_restocking_modal">
+		        <div class="ui header center aligned">
+		            <a class="break-text" id="pos_checkouts_header">Restocking</a>
+		        </div>
+		        <div class="content">
+		        	<div class="ui form">
+		        		<div class="fields">
+		        			<div class="six wide field">
+							    <label>Restocking Date</label>
+							    <input type="date" name="pos_restocking_date" id="pos_restocking_date" placeholder="Restocking Date">
+						  	</div>
+		        		</div>
+					    <div class="fields">
+					        <div class="ten wide field">
+					            <label>Item</label>
+					            <div class="ui selection dropdown" id="pos_restocking_items_drop">
+					                <input type="hidden" name="pos_restocking_items" id="pos_restocking_items">
+					                <i class="dropdown icon"></i>
+					                <div class="default text">Select Item</div>
+					                <div class="menu" id="pos_restocking_menu">
+
+					                </div>
+					            </div>
+					        </div>
+					        <div class="six wide field">
+							    <label>Quantity</label>
+							    <input type="text" name="pos_restock_quantity" id="pos_restock_quantity" placeholder="Restock Quantity">
+						  	</div>
+					    </div>
+					    <div class="fields">
+					    	
+					    </div>
+					</div>
+				</div>
+				<div class="ui fitted divider"></div>
+		        <div class="scrolling content">
+		        	
+		        </div>
+		        <div class="actions modal-actions">
+		            <div class="ui orange right corner small label">
+		                <i class="ui times pointered big deny icon"></i>
+		            </div>
+		        </div>
+		    </div>
  
 		</main>
 		<footer>
@@ -991,6 +1036,22 @@
                 closable: false,
                 onShow: function() {
                 	load_pos_checkouts();
+                    // load_inactive_clients();
+		        }
+            })
+            .modal('show')
+        ;
+	});
+	$('#pos_restocking_activator').on('click', function() {
+		$('#pos_restocking_modal')
+            .modal({
+                useFlex: true,
+                allowMultiple: false,
+                autofocus: false,
+                blurring: true,
+                closable: false,
+                onShow: function() {
+                	// load_pos_checkouts();
                     // load_inactive_clients();
 		        }
             })
@@ -1196,9 +1257,24 @@
 						</div>
                     `;
 
+                    let pos_restocking_item = `
+                    	<div class="item" data-value="${pos_item_id}">
+					      	<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
+					      	${pos_item_name}
+					    </div>
+                    `;
+
             		$(`#pos_items_container`).append(pos_item);
+            		$(`#pos_restocking_menu`).append(pos_restocking_item);
 		      		search_content.push({id:pos_item_id,title:pos_item_name,description:"₱ "+formatted_item_price});
                 })
+				$('#pos_restocking_items_drop').dropdown({
+				    onChange: function () {
+				    	alert('selected')
+				        // load_pos_checkouts();
+				    }
+				});
+
                 $('#pos_inventory_search')
 					.search({
 						source: search_content,
