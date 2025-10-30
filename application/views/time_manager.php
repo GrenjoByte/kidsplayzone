@@ -12,13 +12,9 @@
 	        z-index: 1000 !important;
 	    }
 	    .invisible {
-		    display: none !important;
-		    visibility: hidden;
-		    opacity: 0;
-		    width: 0;
-		    height: 0;
-		    overflow: hidden;
+			display: none !important;
 		}
+
 		.image-container {
 		    aspect-ratio: 5 / 4;
 		    overflow: hidden;
@@ -980,22 +976,27 @@
 							    <input type="text" name="pos_restock_quantity" id="pos_restock_quantity" placeholder="Restock Quantity">
 						  	</div>
 					    </div>
-					    <div class="ui basic segment">
-					    	<button class="ui right floated aligned button green small button icon" form="update_pos_item_form" type="submit">
-								Add Stock					        
-		                		<i class="ui plus icon"></i>
-							</button>	
-					    </div>
+				    	<div class="ui right floated button green small button icon" id="pos_restocking_insert">
+							Add Stock					        
+	                		<i class="ui plus icon"></i>
+						</div>	
 					</div>
 				</div>
+				<br>
+				<br>
 				<div class="ui fitted divider"></div>
 		        <div class="scrolling content">
-		        	
+		        	<div class="ui list" id="pos_restocking_list">
+						
+					</div>
 		        </div>
 		        <div class="actions modal-actions">
 		            <div class="ui orange right corner small label">
 		                <i class="ui times pointered big deny icon"></i>
 		            </div>
+		            <button class="ui button green small button" id="pos_restocking_submit">
+			            Confirm
+			        </button>
 		        </div>
 		    </div>
  
@@ -1310,7 +1311,7 @@
                     `;
 
                     let pos_restocking_item = `
-                    	<div class="item" data-value="${pos_item_id}">
+                    	<div class="item pos_restocking_item" data-value="${pos_item_id}" data-pos_item_name="${pos_item_name}" data-pos_item_image="${pos_item_image}">
 							<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
 							<span>${pos_item_name}</span>
 						</div>
@@ -1320,10 +1321,100 @@
             		$(`#pos_restocking_menu`).append(pos_restocking_item);
 		      		search_content.push({id:pos_item_id,title:pos_item_name,description:"₱ "+formatted_item_price});
                 })
+				let pos_restocking_array = [];
+				let pos_restocking_list_item = '';
+				let pos_list_item_id = '';
+				let pos_list_item_name = '';
+				let pos_list_item_image = '';
+
 				$('#pos_restocking_items_drop').dropdown({
+					action: function (text, value, element){
+						$(this).dropdown('set selected', value);
+						$(this).dropdown('hide');
+						$(element).siblings('.pos_restocking_item').removeClass('invisible');
+						$(element).siblings('.pos_restocking_item').addClass('item');
+						$(element).addClass('invisible');
+						$(element).removeClass('active');
+						$(element).removeClass('item');
+
+						pos_list_item_id = value;
+						pos_list_item_name = $(element).data('pos_item_name');
+						pos_list_item_image = $(element).data('pos_item_image');
+						
+						// alert(`${text}:${value}`)
+					},
 				    onChange: function () {
 				        // load_pos_checkouts();
 				    }
+				});
+				$('#pos_restocking_insert').on('click', function(){
+					let pos_list_restock_date = $('#pos_restocking_date').val()
+					let pos_list_restock_quantity = $('#pos_restock_quantity').val()
+
+					if (pos_list_restock_quantity <= 0) {
+						alert("Please provide a valid quantity.")
+					}
+					else {
+						pos_restocking_list_item = `
+							<div class="item">
+								<div class="right floated content">
+				                	<i class="ui x red icon pointered pos_restocking_item_remover"></i>
+								</div>
+	                        	<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_list_item_image}">
+						    	<div class="content">
+							      	<a class="header">${pos_list_item_name}</a>
+							    	<div class="description">
+										x${pos_list_restock_quantity}
+							    	</div>
+							    </div>
+							</div>
+						`;
+						$('#pos_restocking_list').append(pos_restocking_list_item);	
+						pos_restocking_array.push({
+						    pos_item_id: pos_list_item_id,
+						    item_count: pos_list_restock_quantity
+						});
+					}
+				});
+
+				$('#pos_restocking_submit').on('dblclick', function(e) {
+				    e.preventDefault();
+
+				    if (!pos_restocking_array || pos_restocking_array.length === 0) {
+				        alert('Cart is empty.');
+				        return;
+				    }
+
+				    let formData = new FormData();
+				    formData.append('pos_restocking_items', JSON.stringify(pos_restocking_array)); // send cart as JSON string
+					formData.append('pos_restocking_date', pos_list_restock_date);
+				    
+				    $.ajax({
+				        url: '<?php echo base_url(); ?>i.php/sys_control/pos_restock',
+				        method: 'POST',
+				        data: formData,
+				        processData: false,  // important for FormData
+				        contentType: false,  // important for FormData
+				        success: function (response) {
+				            if (response === 'success') {
+				                pos_restocking_array = []; // clear current cart
+						    	$('#pos_checkout_cart_empty_message').addClass('hidden');
+						    	$('#pos_checkout_cart_empty_message').removeClass('visible');
+						    	$('#pos_checkout_cart_content').html('');
+				                alert('Checkout successful!');
+				            } 
+				            else if (response === 'empty_cart') {
+				                alert('Cart is empty. Nothing to checkout.');
+				            }
+				            else {
+				                alert('Checkout failed. Try again.');
+				            }
+				        },
+				        error: function (xhr, status, error) {
+				            console.error(xhr.responseText);
+				            alert('AJAX error during checkout.');
+				        }
+				    });
 				});
 
                 $('#pos_inventory_search')
@@ -1344,6 +1435,7 @@
 						}
 					})
 				;
+
                 function open_pos_item_update_modal(data) {
 			        $('#update_pos_item_id').val(data.pos_item_id);
 			        $('#update_pos_item_name').val(data.pos_item_name);

@@ -1345,12 +1345,6 @@
 	.centered-actions {
 		text-align: center !important;
 	}
-	.invisible {
-		display: none;
-		visibility: hidden;
-		height: 0px;
-		width: 0px;
-	}
 	.hidden_input {
 		width: 0.1px !important;
 		height: 0.1px !important;
