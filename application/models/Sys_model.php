@@ -841,43 +841,53 @@ class Sys_model extends CI_Model {
 	        echo "empty_cart";
 	    }
 
-	    foreach ($cart_items as $item) {
-	        $pos_item_id        = $item['pos_item_id'];
-	        $pos_item_name      = $item['pos_item_name'];
-	        $pos_item_price     = $item['pos_item_price'];
-	        $pos_item_count     = $item['item_count'];
-	        $pos_item_unit      = $item['pos_item_unit'];
-	        $pos_item_image     = $item['pos_item_image'];
-	        $pos_item_subtotal  = $item['total_item_price']; // price * qty from frontend
+	    $checked_out_items = []; // initialize array to store item names
 
-	        $sql = "INSERT INTO pos_checkouts 
-	                (pos_checkout_code, pos_item_id, pos_item_name, pos_item_price, pos_item_count, pos_item_unit, pos_item_image, pos_item_subtotal, pos_checkout_date)
-	                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		foreach ($cart_items as $item) {
+		    $pos_item_id        = $item['pos_item_id'];
+		    $pos_item_name      = $item['pos_item_name'];
+		    $pos_item_price     = $item['pos_item_price'];
+		    $pos_item_count     = $item['item_count'];
+		    $pos_item_unit      = $item['pos_item_unit'];
+		    $pos_item_image     = $item['pos_item_image'];
+		    $pos_item_subtotal  = $item['total_item_price']; // price * qty from frontend
 
-	        $insert_query = $this->db->query($sql, array(
-	            $pos_checkout_code,
-	            $pos_item_id,
-	            $pos_item_name,
-	            $pos_item_price,
-	            $pos_item_count,
-	            $pos_item_unit,
-	            $pos_item_image,
-	            $pos_item_subtotal,
-	            $current_date
-	        ));
+		    $sql = "INSERT INTO pos_checkouts 
+		            (pos_checkout_code, pos_item_id, pos_item_name, pos_item_price, pos_item_count, pos_item_unit, pos_item_image, pos_item_subtotal, pos_checkout_date)
+		            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-	        if ($insert_query) {
-	        	$sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock - ? WHERE pos_item_id = ?";
-	    		$update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
-	        }
+		    $insert_query = $this->db->query($sql, array(
+		        $pos_checkout_code,
+		        $pos_item_id,
+		        $pos_item_name,
+		        $pos_item_price,
+		        $pos_item_count,
+		        $pos_item_unit,
+		        $pos_item_image,
+		        $pos_item_subtotal,
+		        $current_date
+		    ));
 
-	        if ($this->db->affected_rows() <= 0) {
-	            echo "error";
-	        }
-	        else {
-	    		echo "success";
-	        }
+		    if ($insert_query) {
+		        $sql = "UPDATE pos_inventory 
+		                SET pos_item_stock = pos_item_stock - ? 
+		                WHERE pos_item_id = ?";
+		        $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+		    }
+
+		    $checked_out_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
+		}
+		if ($update_query) {
+	        echo "error";
+	    } else {
+	        echo "success";
 	    }
+
+		if (!empty($checked_out_items)) {
+		    $activity = "<strong>$pos_checkout_code items:</strong><br>" . implode(', ', $checked_out_items);
+		    $sql = "INSERT INTO pos_logs (pos_checkout_code, pos_activity) VALUES (?, ?)";
+		    $this->db->query($sql, array($pos_item_id, $activity));
+		}
 	}
 
 	public function load_pos_checkouts(){
@@ -964,6 +974,164 @@ class Sys_model extends CI_Model {
 	    else {
     		echo "error";
 	    }
+	}
+	public function pos_restock(){
+        $pos_restocking_date = $_POST['pos_restocking_date'];
+
+	    $random_code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+	    $pos_restocking_code = 'STK-' . $pos_restocking_date . '-' . $random_code;
+
+	    $pos_restocking_items = $this->input->post('pos_restocking_items');
+	    if (is_string($pos_restocking_items)) {
+		    $pos_restocking_items = json_decode($pos_restocking_items, true);
+		}
+	    
+	    if (empty($pos_restocking_items) || !is_array($pos_restocking_items)) {
+	        echo "empty_cart";
+	    }
+
+	    $restocked_items = [];
+
+	    foreach ($pos_restocking_items as $item) {
+	        $pos_item_id = $item['pos_item_id'];
+	        $pos_item_count  = $item['pos_item_count'];
+
+	        $sql = "INSERT INTO pos_restocking
+	                (pos_restocking_code, pos_item_id, pos_item_count, pos_restocking_date)
+	                VALUES (?, ?, ?, ?)";
+
+	        $insert_query = $this->db->query($sql, array(
+	            $pos_restocking_code,
+	            $pos_item_id,
+	            $pos_item_count,
+	            $pos_restocking_date
+	        ));
+
+	        if ($insert_query) {
+	        	$sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
+	    		$update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+	        }
+
+			$restocked_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
+
+	        if ($update_query) {
+		        echo "error";
+		    } else {
+		        echo "success";
+		    }
+
+			if (!empty($restocked_items)) {
+			    $activity = "<strong>$pos_checkout_code items:</strong><br>" . implode(', ', $restocked_items);
+			    $sql = "INSERT INTO pos_logs (pos_checkout_code, pos_activity) VALUES (?, ?)";
+			    $this->db->query($sql, array($pos_item_id, $activity));
+			}
+	    }
+	}
+	public function load_pos_logs()
+	{
+	    $log_type = $_POST['pos_log_type'];
+	    $log_date = $_POST['pos_log_date'];
+
+	    if ($log_type == 'daily') {
+	    	$sql = "
+	    		SELECT 
+				    'Checkout' AS activity_type,
+				    c.pos_checkout_code AS reference_code,
+				    c.pos_item_name AS item_name,
+				    c.pos_item_count AS quantity,
+				    c.pos_item_subtotal AS amount,
+				    c.pos_item_image AS item_image,
+				    c.pos_checkout_date AS log_date
+				FROM pos_checkouts c
+				WHERE DATE(c.pos_checkout_date) = ?
+
+				UNION ALL
+
+				SELECT 
+				    'Restock' AS activity_type,
+				    r.pos_restocking_code AS reference_code,
+				    i.pos_item_name AS item_name,
+				    r.pos_item_count AS quantity,
+				    NULL AS amount,
+				    i.pos_item_image AS item_image,
+				    r.pos_restocking_timestamp AS log_date
+				FROM pos_restocking r
+				JOIN pos_inventory i ON r.pos_item_id = i.pos_item_id
+				WHERE DATE(r.pos_restocking_timestamp) = ?
+
+				ORDER BY log_date DESC;
+	    	";
+	    }
+	    else if ($log_type == 'monthly') {
+	    	$sql = "
+	    		SELECT 
+				    'Checkout' AS activity_type,
+				    c.pos_checkout_code AS reference_code,
+				    c.pos_item_name AS item_name,
+				    c.pos_item_count AS quantity,
+				    c.pos_item_subtotal AS amount,
+				    c.pos_item_image AS item_image,
+				    c.pos_checkout_date AS log_date
+				FROM pos_checkouts c
+				WHERE MONTH(c.pos_checkout_date) = MONTH(?)
+
+				UNION ALL
+
+				SELECT 
+				    'Restock' AS activity_type,
+				    r.pos_restocking_code AS reference_code,
+				    i.pos_item_name AS item_name,
+				    r.pos_item_count AS quantity,
+				    NULL AS amount,
+				    i.pos_item_image AS item_image,
+				    r.pos_restocking_timestamp AS log_date
+				FROM pos_restocking r
+				JOIN pos_inventory i ON r.pos_item_id = i.pos_item_id
+				WHERE MONTH(r.pos_restocking_timestamp) = MONTH(?)
+
+				ORDER BY log_date DESC;
+	    	";
+	    }
+	    else if ($log_type == 'annual') {
+	    	$sql = "
+	    		SELECT 
+				    'Checkout' AS activity_type,
+				    c.pos_checkout_code AS reference_code,
+				    c.pos_item_name AS item_name,
+				    c.pos_item_count AS quantity,
+				    c.pos_item_subtotal AS amount,
+				    c.pos_item_image AS item_image,
+				    c.pos_checkout_date AS log_date
+				FROM pos_checkouts c
+				WHERE YEAR(c.pos_checkout_date) = YEAR(?)
+
+				UNION ALL
+
+				SELECT 
+				    'Restock' AS activity_type,
+				    r.pos_restocking_code AS reference_code,
+				    i.pos_item_name AS item_name,
+				    r.pos_item_count AS quantity,
+				    NULL AS amount,
+				    i.pos_item_image AS item_image,
+				    r.pos_restocking_timestamp AS log_date
+				FROM pos_restocking r
+				JOIN pos_inventory i ON r.pos_item_id = i.pos_item_id
+				WHERE YEAR(r.pos_restocking_timestamp) = YEAR(?)
+
+				ORDER BY log_date DESC;
+	    	";
+	    }
+		$query = $this->db->query($sql, [$log_date, $log_date]);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
 	}
 
 	public function shadow() {

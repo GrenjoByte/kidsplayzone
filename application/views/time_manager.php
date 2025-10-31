@@ -999,6 +999,91 @@
 			        </button>
 		        </div>
 		    </div>
+
+		    <div class="ui modal" id="pos_logs_modal">
+		        <div class="ui header center aligned">
+		            <a class="break-text" id="pos_logs_header">Logs</a>
+		        </div>
+		        <div class="content">
+		        	<div class="ui form">
+					    <div class="fields">
+					        <!-- Report Type Dropdown -->
+					        <div class="field">
+					            <label>Log Type</label>
+					            <div class="ui selection dropdown" id="pos_log_type_dropdown">
+					                <input type="hidden" name="pos_log_type" id="pos_log_type">
+					                <i class="dropdown icon"></i>
+					                <div class="default text">Select Log Type</div>
+					                <div class="menu">
+					                    <div class="item" data-value="daily">Daily</div>
+					                    <div class="item" data-value="monthly">Monthly</div>
+					                    <div class="item" data-value="annual">Annually</div>
+					                </div>
+					            </div>
+					        </div>
+
+					        <!-- log Date Button -->
+					        <div class="field">
+							    <label>Log Date</label>
+							    <input type="date" name="pos_log_date" id="pos_log_date" placeholder="Log Date">
+						  	</div>
+					    </div>
+					</div>
+				</div>
+				<div class="ui fitted divider"></div>
+		        <div class="scrolling content">
+		        	<table class="ui selectable teal fixed table transition hidden pos_log_table" id="pos_daily_log_table">
+						<thead>
+							<tr>
+								<th class="two wide">Activity Type</th>
+								<th class="four wide">Reference Code</th>
+								<th class="five wide">Item Name</th>
+								<th class="one wide">Quantity</th>
+								<th class="two wide">Amount</th>
+								<th class="three wide">Log Date</th>
+							</tr>
+						</thead>
+						<tbody id="pos_daily_log">
+							
+						</tbody>
+					</table>
+					<table class="ui selectable teal fixed table transition hidden pos_log_table" id="pos_monthly_log_table">
+						<thead>
+							<tr>
+								<th class=" wide">Activity Type</th>
+								<th class=" wide">Reference Code</th>
+								<th class=" wide">Item Name</th>
+								<th class=" wide">Quantity</th>
+								<th class=" wide">Amount</th>
+								<th class=" wide">Log Date</th>
+							</tr>
+						</thead>
+						<tbody id="pos_monthly_log">
+							
+						</tbody>
+					</table>
+					<table class="ui selectable teal fixed table transition hidden pos_log_table" id="pos_annual_log_table">
+						<thead>
+							<tr>
+								<th class=" wide">Activity Type</th>
+								<th class=" wide">Reference Code</th>
+								<th class=" wide">Item Name</th>
+								<th class=" wide">Quantity</th>
+								<th class=" wide">Amount</th>
+								<th class=" wide">Log Date</th>
+							</tr>
+						</thead>
+						<tbody id="pos_annual_log">
+							
+						</tbody>
+					</table>
+		        </div>
+		        <div class="actions modal-actions">
+		            <div class="ui orange right corner small label">
+		                <i class="ui times pointered big deny icon"></i>
+		            </div>
+		        </div>
+		    </div>
  
 		</main>
 		<footer>
@@ -1323,6 +1408,7 @@
                 })
 				let pos_restocking_array = [];
 				let pos_restocking_list_item = '';
+				let pos_list_restock_date = '';
 				let pos_list_item_id = '';
 				let pos_list_item_name = '';
 				let pos_list_item_image = '';
@@ -1372,7 +1458,7 @@
 						$('#pos_restocking_list').append(pos_restocking_list_item);	
 						pos_restocking_array.push({
 						    pos_item_id: pos_list_item_id,
-						    item_count: pos_list_restock_quantity
+						    pos_item_count: pos_list_restock_quantity
 						});
 					}
 				});
@@ -1402,12 +1488,13 @@
 						    	$('#pos_checkout_cart_empty_message').removeClass('visible');
 						    	$('#pos_checkout_cart_content').html('');
 				                alert('Checkout successful!');
+				                load_pos_inventory();
 				            } 
 				            else if (response === 'empty_cart') {
-				                alert('Cart is empty. Nothing to checkout.');
+				                alert('Restocking is empty. Nothing to insert.');
 				            }
 				            else {
-				                alert('Checkout failed. Try again.');
+				                alert('Restocking failed. Try again.');
 				            }
 				        },
 				        error: function (xhr, status, error) {
@@ -1659,6 +1746,91 @@
             }
         })
     }
+
+    function load_pos_logs() {
+		let pos_log_type = $('#pos_log_type').val();
+		let pos_log_date = $('#pos_log_date').val();
+        var ajax = $.ajax({
+            method: 'POST',
+            url   : '<?php echo base_url();?>i.php/sys_control/load_pos_logs',
+            data  : { 
+            	pos_log_type:pos_log_type, 
+            	pos_log_date:pos_log_date
+            }
+        });
+        var jqxhr = ajax
+        .always(function() {
+            var response_data = JSON.parse(jqxhr.responseText);
+    		$(`.pos_log_table`).addClass('hidden');
+    		$(`#pos_${pos_log_type}_log_table`).removeClass('hidden');
+            if (response_data != '') {
+        		$(`#pos_${pos_log_type}_log`).html('');
+        		let final_rate = 0;
+                $.each(response_data, function(key, value) {
+                    var activity_type = value.activity_type;
+                    var reference_code = value.reference_code;
+                    var item_name = value.item_name;
+                    var quantity = value.quantity;
+                    var amount = value.amount;
+                    var item_image = value.item_image;
+                    var log_date = value.log_date;
+
+                    let pos_log = `
+						<tr>
+							<td class="break-text">${activity_type}</td>
+							<td class="break-text">${reference_code}</td>
+							<td class="no-break">
+                                <img src="<?php echo base_url();?>photos/pos_images/${item_image}" class="ui avatar image">
+                				<span>${item_name}</span>
+							</td>
+							<td class="break-text">${quantity}</td>
+							<td class="no-break">${amount}</td>
+							<td class="no-break">${log_date}</td>
+						</tr>
+                    `;
+
+            		$(`#pos_${pos_log_type}_log`).append(pos_log);
+                    $('.special.cards .image').dimmer({
+					  	on: 'hover'
+					});
+                })
+            }
+            else {
+        		$(`#${log_type}_log`).html('');
+            }
+        })
+    }
+    $('#pos_logs_activator').on('click', function() {
+		$('#pos_logs_modal')
+            .modal({
+                useFlex: true,
+                allowMultiple: false,
+                autofocus: false,
+                blurring: true,
+                closable: false,
+                onShow: function() {
+                	load_pos_logs();
+                    // load_inactive_clients();
+		        }
+            })
+            .modal('show')
+        ;
+	});
+
+	$('#pos_log_type_dropdown').dropdown('set selected', 'daily');
+	document.addEventListener('DOMContentLoaded', function () {
+	    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+	    const date_input = document.getElementById('pos_log_date');
+
+	    date_input.value = today;
+	});
+
+
+	$('#pos_log_type_dropdown,#pos_log_date').on('change', function() {
+    	load_pos_logs();
+	});
+
+
 
     $('#pos_checkout_submit').on('dblclick', function(e) {
 	    e.preventDefault();

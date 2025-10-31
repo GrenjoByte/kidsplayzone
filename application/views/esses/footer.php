@@ -90,11 +90,11 @@
                 <i class="clipboard list icon"></i>
                 <small>Checkouts</small>
             </div>
-            <div class="item tm_reports_activator" id="tm_reports_activator">
+            <div class="item tm_reports_activator" id="pos_reports_activator">
                 <i class="chart bar icon"></i>
                 <small>Reports</small>
             </div>
-            <div class="item tm_reports_activator" id="tm_logs_activator">
+            <div class="item tm_reports_activator" id="pos_logs_activator">
                 <i class="history icon"></i>
                 <small>Logs</small>
             </div>
