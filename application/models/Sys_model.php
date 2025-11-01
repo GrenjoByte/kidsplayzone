@@ -745,7 +745,7 @@ class Sys_model extends CI_Model {
 	            <br>Low: $new_pos_item_stock $unit_label
 	        ";
 
-	        $sql = "INSERT INTO time_logs (client_id, activity) VALUES (?, ?)";
+	        $sql = "INSERT INTO pos_logs (pos_code, pos_activity) VALUES (?, ?)";
 	        $this->db->query($sql, [$item_id, $activity]);
 	    } else {
 	        echo "error";
@@ -895,43 +895,50 @@ class Sys_model extends CI_Model {
 		$report_date = $_POST['report_date'];
 
 		if ($report_type == 'daily') {
-		    $sql = "SELECT 
-		                pos_checkout_id,
-		                pos_item_name,
-		                pos_item_image,
-		                pos_item_count,
-		                pos_item_price,
-		                pos_checkout_date AS created_at,
-		                pos_item_subtotal AS pos_total_price
-		            FROM pos_checkouts
-		            WHERE DATE(pos_checkout_date) = ?
-		            ORDER BY pos_checkout_date ASC";
+		    $sql = "
+		    	SELECT 
+				    'Checkout' AS activity_type,
+				    c.pos_checkout_code AS reference_code,
+				    c.pos_item_name AS item_name,
+				    c.pos_item_count AS quantity,
+				    c.pos_item_price AS amount,
+				    c.pos_item_image AS item_image,
+				    c.pos_checkout_date AS timestamp,
+				    c.pos_item_subtotal AS total_cost
+				FROM pos_checkouts c
+				WHERE DATE(c.pos_checkout_date) = DATE(?)
+				ORDER BY c.pos_checkout_date DESC;
+		    ";
 		}
 		else if ($report_type == 'monthly') {
-		    $sql = "SELECT 
-		                pos_checkout_id,
-		                pos_item_name,
-		                pos_item_image,
-		                pos_item_count,
-		                pos_item_price,
-		                DATE_FORMAT(pos_checkout_date, '%Y-%m') AS created_at,
-		                pos_item_subtotal AS pos_total_price
-		            FROM pos_checkouts
-		            WHERE DATE_FORMAT(pos_checkout_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
-		            ORDER BY pos_checkout_date ASC";
+		    $sql = "
+		    	SELECT 
+				    c.pos_checkout_code AS reference_code,
+				    c.pos_item_name AS item_name,
+				    c.pos_item_count AS quantity,
+				    c.pos_item_price AS amount,
+				    c.pos_item_image AS item_image,
+				    c.pos_checkout_date AS timestamp,
+				    c.pos_item_subtotal AS total_cost
+				FROM pos_checkouts c
+				WHERE DATE_FORMAT(c.pos_checkout_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
+				ORDER BY c.pos_checkout_date DESC;
+		    ";
 		}
 		else if ($report_type == 'annual') {
-		    $sql = "SELECT 
-		                pos_checkout_id,
-		                pos_item_name,
-		                pos_item_image,
-		                pos_item_count,
-		                pos_item_price,
-		                DATE_FORMAT(pos_checkout_date, '%Y') AS created_at,
-		                pos_item_subtotal AS pos_total_price
-		            FROM pos_checkouts
-		            WHERE YEAR(pos_checkout_date) = YEAR(?)
-		            ORDER BY pos_checkout_date ASC";
+		    $sql = "
+			    SELECT 
+				    c.pos_checkout_code AS reference_code,
+				    c.pos_item_name AS item_name,
+				    c.pos_item_count AS quantity,
+				    c.pos_item_price AS amount,
+				    c.pos_item_image AS item_image,
+				    c.pos_checkout_date AS timestamp,
+				    c.pos_item_subtotal AS total_cost
+				FROM pos_checkouts c
+				WHERE DATE_FORMAT(c.pos_checkout_date, '%Y') = DATE_FORMAT(?, '%Y')
+				ORDER BY c.pos_checkout_date DESC;
+			";
 		}
 
 		$query = $this->db->query($sql, $report_date);

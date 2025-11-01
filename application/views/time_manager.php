@@ -538,7 +538,7 @@
 				</div>
 				<div class="ui fitted divider"></div>
 		        <div class="scrolling content">
-		        	<table class="ui selectable teal table transition hidden tm_report_table" id="daily_report_table">
+		        	<table class="ui selectable sortable teal table transition hidden tm_report_table" id="daily_report_table">
 						<thead>
 							<tr>
 								<th>Child's Name</th>
@@ -557,7 +557,7 @@
 							</tr>
 						</tfoot>
 					</table>
-					<table class="ui selectable teal table transition hidden tm_report_table" id="monthly_report_table">
+		        	<table class="ui selectable sortable teal table transition hidden tm_report_table" id="monthly_report_table">
 						<thead>
 							<tr>
 								<th>Child's Name</th>
@@ -576,7 +576,7 @@
 							</tr>
 						</tfoot>
 					</table>
-					<table class="ui selectable teal table transition hidden tm_report_table" id="annual_report_table">
+		        	<table class="ui selectable sortable teal table transition hidden tm_report_table" id="annual_report_table">
 						<thead>
 							<tr>
 								<th>Child's Name</th>
@@ -635,36 +635,36 @@
 				</div>
 				<div class="ui fitted divider"></div>
 		        <div class="scrolling content">
-		        	<table class="ui selectable teal table transition hidden tm_log_table" id="daily_log_table">
+					<table class="ui selectable sortable teal table transition hidden tm_log_table" id="daily_log_table">
 						<thead>
 							<tr>
 								<th>Child's Name</th>
 								<th>Activity</th>
-								<th>Timestamp</th>
+								<th class="sorted descending">Timestamp</th>
 							</tr>
 						</thead>
 						<tbody id="daily_log">
 							
 						</tbody>
 					</table>
-					<table class="ui selectable teal table transition hidden tm_log_table" id="monthly_log_table">
+					<table class="ui selectable sortable teal table transition hidden tm_log_table" id="monthly_log_table">
 						<thead>
 							<tr>
 								<th>Child's Name</th>
 								<th>Activity</th>
-								<th>Timestamp</th>
+								<th class="sorted descending">Timestamp</th>
 							</tr>
 						</thead>
 						<tbody id="monthly_log">
 							
 						</tbody>
 					</table>
-					<table class="ui selectable teal table transition hidden tm_log_table" id="annual_log_table">
+					<table class="ui selectable sortable teal table transition hidden tm_log_table" id="annual_log_table">
 						<thead>
 							<tr>
 								<th>Child's Name</th>
 								<th>Activity</th>
-								<th>Timestamp</th>
+								<th class="sorted descending">Timestamp</th>
 							</tr>
 						</thead>
 						<tbody id="annual_log">
@@ -839,114 +839,110 @@
 		        </div>
 		    </div>
 
-		    <div class="ui small modal" id="pos_checkouts_modal">
-		        <div class="ui header center aligned">
-		            <a class="break-text" id="pos_checkouts_header">Sales Records</a>
-		        </div>
-		        <div class="content">
-		        	<div class="ui form">
-					    <div class="fields">
-					        <!-- Report Type Dropdown -->
-					        <div class="field">
-					            <label>Report Type</label>
-					            <div class="ui selection dropdown" id="pos_checkouts_type_dropdown">
-					                <input type="hidden" name="pos_checkouts_type" id="pos_checkouts_type">
-					                <i class="dropdown icon"></i>
-					                <div class="default text">Select Report Type</div>
-					                <div class="menu">
-					                    <div class="item" data-value="daily">Daily</div>
-					                    <div class="item" data-value="monthly">Monthly</div>
-					                    <div class="item" data-value="annual">Annually</div>
-					                </div>
-					            </div>
-					        </div>
+		    <div class="ui modal" id="pos_checkouts_modal">
+			    <div class="ui header center aligned">
+			        <a class="break-text" id="pos_checkouts_header">Sales Records</a>
+			    </div>
 
-					        <!-- Report Date Button -->
-					        <div class="field">
-							    <label>Sales Date</label>
-							    <input type="date" name="pos_checkouts_date" id="pos_checkouts_date" placeholder="Sales Date">
-						  	</div>
-					    </div>
-					</div>
-				</div>
-				<div class="ui fitted divider"></div>
-		        <div class="scrolling content">
-		        	<table class="ui selectable teal table transition hidden pos_checkouts_table" id="daily_pos_checkouts_table">
-						<thead>
-							<tr>
-								<th>Item Name</th>
-								<th>Quantity</th>
-								<th>Price</th>
-								<th>Timestamp</th>
-								<th>Total Cost</th>
-							</tr>
-						</thead>
-						<tbody id="daily_pos_checkouts">
-							
-						</tbody>
-						<tfoot>
-							<tr>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td id="daily_pos_checkouts_total"></td>
-							</tr>
-						</tfoot>
-					</table>
-					<table class="ui selectable teal table transition hidden pos_checkouts_table" id="monthly_pos_checkouts_table">
-						<thead>
-							<tr>
-								<th>Item Name</th>
-								<th>Quantity</th>
-								<th>Price</th>
-								<th>Timestamp</th>
-								<th>Total Cost</th>
-							</tr>
-						</thead>
-						<tbody id="monthly_pos_checkouts">
-							
-						</tbody>
-						<tfoot>
-							<tr>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td id="monthly_pos_checkouts_total"></td>
-							</tr>
-						</tfoot>
-					</table>
-					<table class="ui selectable teal table transition hidden pos_checkouts_table" id="annual_pos_checkouts_table">
-						<thead>
-							<tr>
-								<th>Item Name</th>
-								<th>Quantity</th>
-								<th>Price</th>
-								<th>Timestamp</th>
-								<th>Total Cost</th>
-							</tr>
-						</thead>
-						<tbody id="annual_pos_checkouts">
-							
-						</tbody>
-						<tfoot>
-							<tr>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td id="annual_pos_checkouts_total"></td>
-							</tr>
-						</tfoot>
-					</table>
-		        </div>
-		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
-		            </div>
-		        </div>
-		    </div>
+			    <div class="content">
+			        <div class="ui form">
+			            <div class="fields">
+			                <div class="field">
+			                    <label>Report Type</label>
+			                    <div class="ui selection dropdown" id="pos_checkouts_type_dropdown">
+			                        <input type="hidden" name="pos_checkouts_type" id="pos_checkouts_type">
+			                        <i class="dropdown icon"></i>
+			                        <div class="default text">Select Report Type</div>
+			                        <div class="menu">
+			                            <div class="item" data-value="daily">Daily</div>
+			                            <div class="item" data-value="monthly">Monthly</div>
+			                            <div class="item" data-value="annual">Annually</div>
+			                        </div>
+			                    </div>
+			                </div>
+
+			                <div class="field">
+			                    <label>Sales Date</label>
+			                    <input type="date" name="pos_checkouts_date" id="pos_checkouts_date" placeholder="Sales Date">
+			                </div>
+			            </div>
+			        </div>
+			    </div>
+
+			    <div class="ui fitted divider"></div>
+
+			    <div class="scrolling content">
+			        <!-- Daily Table -->
+			        <table class="ui selectable sortable teal table transition hidden pos_checkouts_table" id="daily_pos_checkouts_table">
+			            <thead>
+			                <tr>
+			                    <th>Reference Code</th>
+			                    <th>Item Name</th>
+			                    <th>Quantity</th>
+			                    <th>Amount</th>
+			                    <th class="sorted descending">Timestamp</th>
+			                    <th>Total Cost</th>
+			                </tr>
+			            </thead>
+			            <tbody id="daily_pos_checkouts"></tbody>
+			            <tfoot>
+			                <tr>
+			                    <td colspan="5" class="right aligned"><strong>Total:</strong></td>
+			                    <td id="daily_pos_checkouts_total"></td>
+			                </tr>
+			            </tfoot>
+			        </table>
+
+			        <!-- Monthly Table -->
+			        <table class="ui selectable sortable teal table transition hidden pos_checkouts_table" id="monthly_pos_checkouts_table">
+			            <thead>
+			                <tr>
+			                    <th>Reference Code</th>
+			                    <th>Item Name</th>
+			                    <th>Quantity</th>
+			                    <th>Amount</th>
+			                    <th class="sorted descending">Timestamp</th>
+			                    <th>Total Cost</th>
+			                </tr>
+			            </thead>
+			            <tbody id="monthly_pos_checkouts"></tbody>
+			            <tfoot>
+			                <tr>
+			                    <td colspan="5" class="right aligned"><strong>Total:</strong></td>
+			                    <td id="monthly_pos_checkouts_total"></td>
+			                </tr>
+			            </tfoot>
+			        </table>
+
+			        <!-- Annual Table -->
+			        <table class="ui selectable sortable teal table transition hidden pos_checkouts_table" id="annual_pos_checkouts_table">
+			            <thead>
+			                <tr>
+			                    <th>Reference Code</th>
+			                    <th>Item Name</th>
+			                    <th>Quantity</th>
+			                    <th>Amount</th>
+			                    <th class="sorted descending">Timestamp</th>
+			                    <th>Total Cost</th>
+			                </tr>
+			            </thead>
+			            <tbody id="annual_pos_checkouts"></tbody>
+			            <tfoot>
+			                <tr>
+			                    <td colspan="5" class="right aligned"><strong>Total:</strong></td>
+			                    <td id="annual_pos_checkouts_total"></td>
+			                </tr>
+			            </tfoot>
+			        </table>
+			    </div>
+
+			    <div class="actions modal-actions">
+			        <div class="ui orange right corner small label">
+			            <i class="ui times pointered big deny icon"></i>
+			        </div>
+			    </div>
+			</div>
+
 
 		    <div class="ui tiny modal" id="pos_restocking_modal">
 		        <div class="ui header center aligned">
@@ -1032,7 +1028,22 @@
 				</div>
 				<div class="ui fitted divider"></div>
 		        <div class="scrolling content">
-		        	<table class="ui selectable teal fixed table transition hidden pos_log_table" id="pos_daily_log_table">
+		        	<table class="ui selectable teal sortable fixed table transition hidden pos_log_table" id="pos_daily_log_table">
+						<thead>
+							<tr>
+								<th class="two wide">Activity Type</th>
+								<th class="four wide">Reference Code</th>
+								<th class="four wide">Item Name</th>
+								<th class="two wide">Quantity</th>
+								<th class="two wide">Amount</th>
+								<th class="sorted ascending three wide">Log Date</th>
+							</tr>
+						</thead>
+						<tbody id="pos_daily_log">
+							
+						</tbody>
+					</table>
+					<table class="ui selectable teal sortable fixed table transition hidden pos_log_table" id="pos_monthly_log_table">
 						<thead>
 							<tr>
 								<th class="two wide">Activity Type</th>
@@ -1040,37 +1051,22 @@
 								<th class="five wide">Item Name</th>
 								<th class="one wide">Quantity</th>
 								<th class="two wide">Amount</th>
-								<th class="three wide">Log Date</th>
-							</tr>
-						</thead>
-						<tbody id="pos_daily_log">
-							
-						</tbody>
-					</table>
-					<table class="ui selectable teal fixed table transition hidden pos_log_table" id="pos_monthly_log_table">
-						<thead>
-							<tr>
-								<th class=" wide">Activity Type</th>
-								<th class=" wide">Reference Code</th>
-								<th class=" wide">Item Name</th>
-								<th class=" wide">Quantity</th>
-								<th class=" wide">Amount</th>
-								<th class=" wide">Log Date</th>
+								<th class="sorted ascending three wide">Log Date</th>
 							</tr>
 						</thead>
 						<tbody id="pos_monthly_log">
 							
 						</tbody>
 					</table>
-					<table class="ui selectable teal fixed table transition hidden pos_log_table" id="pos_annual_log_table">
+					<table class="ui selectable teal sortable fixed table transition hidden pos_log_table" id="pos_annual_log_table">
 						<thead>
 							<tr>
-								<th class=" wide">Activity Type</th>
-								<th class=" wide">Reference Code</th>
-								<th class=" wide">Item Name</th>
-								<th class=" wide">Quantity</th>
-								<th class=" wide">Amount</th>
-								<th class=" wide">Log Date</th>
+								<th class="two wide">Activity Type</th>
+								<th class="four wide">Reference Code</th>
+								<th class="five wide">Item Name</th>
+								<th class="one wide">Quantity</th>
+								<th class="two wide">Amount</th>
+								<th class="sorted ascending three wide">Log Date</th>
 							</tr>
 						</thead>
 						<tbody id="pos_annual_log">
@@ -1216,7 +1212,7 @@
 	        // Hide all tables first
 	        $('.pos_checkouts_table').addClass('hidden');
 
-	        // Show selected table
+	        // Show the selected table only
 	        $(`#${report_type}_pos_checkouts_table`).removeClass('hidden');
 
 	        // Target tbody & total based on report type
@@ -1235,48 +1231,23 @@
 	            $.each(response_data, function (key, value) {
 	                let row = `
 	                    <tr>
-	                    	<td class="no-break">
-								<i class="left floated red x icon pointered pos_checkout_deleter" data-pos_checkout_id="${value.pos_checkout_id}"></i>
-                                <img src="<?php echo base_url();?>photos/pos_images/${value.pos_item_image}" class="ui avatar image">
-                				<span>${value.pos_item_name}</span>
-							</td>
-	                        <td>${value.pos_item_count}</td>
-	                        <td>₱${Number(value.pos_item_price).toFixed(2)}</td>
-	                        <td>${value.created_at}</td>
-	                        <td>₱${Number(value.pos_total_price).toFixed(2)}</td>
+	                        <td>${value.reference_code}</td>
+	                        <td class="no-break">
+	                            <img src="<?php echo base_url();?>photos/pos_images/${value.item_image}" class="ui avatar image">
+	                            <span>${value.item_name}</span>
+	                        </td>
+	                        <td>${value.quantity}</td>
+	                        <td>₱${Number(value.amount).toFixed(2)}</td>
+	                        <td>${value.timestamp}</td>
+	                        <td>₱${Number(value.total_cost).toFixed(2)}</td>
 	                    </tr>
 	                `;
-	                total_sum += Number(value.pos_total_price);
+	                total_sum += Number(value.total_cost);
 	                $(table_body).append(row);
 	            });
-	            $('.pos_checkout_deleter').on('click', function () {
-	            	confirmed = confirm("Are you sure you want to void this transaction? You won’t be able to undo this, but the transaction will still appear in your logs for reference.")
-	            	if (confirmed) {
-				    	var pos_checkout_id = $(this).data('pos_checkout_id');
-
-				    	var ajax = $.ajax({
-			                method: 'POST',
-			                url   : '<?php echo base_url();?>i.php/sys_control/void_pos_checkout',
-			                data  : { pos_checkout_id:pos_checkout_id }
-			            });
-			            var jqxhr = ajax
-			                .always(function() {
-			                    var response = jqxhr.responseText;
-			                    if (response == 'success') {
-			                        alert('Transaction successfully voided. Reloading contents...')
-			                        load_pos_inventory();
-			                        load_pos_checkouts();
-			                    }
-			                    else {
-			                        alert('An error occurred. Please try again.')
-			                    }
-			                })
-			            ;
-	            	}
-				});
 	        } 
 	        else {
-	            $(table_body).html(`<tr><td colspan="5" class="center aligned">No records found</td></tr>`);
+	            $(table_body).html(`<tr><td colspan="6" class="center aligned">No records found</td></tr>`);
 	        }
 
 	        $(total_field).html(`₱${total_sum.toFixed(2)}`);
@@ -1747,6 +1718,17 @@
         })
     }
 
+    $('#pos_log_type_dropdown').dropdown('set selected', 'daily');
+	document.addEventListener('DOMContentLoaded', function () {
+	    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+	    const date_input = document.getElementById('pos_log_date');
+	    date_input.value = today;
+	});
+
+	$('#pos_log_type_dropdown,#pos_log_date').on('change', function() {
+    	load_pos_logs();
+	});
+
     function load_pos_logs() {
 		let pos_log_type = $('#pos_log_type').val();
 		let pos_log_date = $('#pos_log_date').val();
@@ -1816,21 +1798,6 @@
             .modal('show')
         ;
 	});
-
-	$('#pos_log_type_dropdown').dropdown('set selected', 'daily');
-	document.addEventListener('DOMContentLoaded', function () {
-	    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-	    const date_input = document.getElementById('pos_log_date');
-
-	    date_input.value = today;
-	});
-
-
-	$('#pos_log_type_dropdown,#pos_log_date').on('change', function() {
-    	load_pos_logs();
-	});
-
-
 
     $('#pos_checkout_submit').on('dblclick', function(e) {
 	    e.preventDefault();
@@ -2275,6 +2242,13 @@
 		}
 	})
 
+	$('#report_type_dropdown,#report_date').on('change', function() {
+    	load_tm_reports();
+	});
+	$('#log_type_dropdown,#log_date').on('change', function() {
+    	load_tm_logs();
+	});
+
 	$('#report_type_dropdown').dropdown('set selected', 'daily');
 	document.addEventListener('DOMContentLoaded', function () {
 	    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
@@ -2433,13 +2407,6 @@
             }
         })
     }
-
-    $('#report_type_dropdown,#report_date').on('change', function() {
-    	load_tm_reports();
-	});
-	$('#log_type_dropdown,#log_date').on('change', function() {
-    	load_tm_logs();
-	});
 
 	$('#tm_reports_activator').on('click', function() {
 		$('#time_reports_modal')
@@ -3959,6 +3926,31 @@
             }
         })
     ;
+    $('.ui.sortable.table th').on('click', function() {
+		const table = $(this).parents('table');
+		const rows = table.find('tbody > tr').toArray();
+		const index = $(this).index();
+		const ascending = !$(this).hasClass('sorted ascending');
+
+		// Clear previous sort indicators
+		table.find('th').removeClass('sorted ascending descending');
+
+		// Sort rows
+		rows.sort((a, b) => {
+		const A = $(a).children('td').eq(index).text().toUpperCase();
+		const B = $(b).children('td').eq(index).text().toUpperCase();
+		if (A < B) return ascending ? -1 : 1;
+		if (A > B) return ascending ? 1 : -1;
+		return 0;
+		});
+
+		// Re-append sorted rows
+		$.each(rows, (_, row) => table.children('tbody').append(row));
+
+		// Add class for icon direction
+		$(this).addClass(`sorted ${ascending ? 'ascending' : 'descending'}`);
+	});
+
     $('#report_type_dropdown')
         .dropdown({
             onChange: function() {
