@@ -226,7 +226,7 @@
 									<div class="results"></div>
 								</div>	
 			                </div> -->
-						    <div class="ui five stackable special cards" id="times_container">
+						    <div class="ui five doubling special cards" id="times_container">
 						    </div>
 						    <div class="ui centered grid" id="empty_message">
 					            <div class="sixteen wide column">
@@ -257,7 +257,7 @@
 							</div>
 						</div>
 						<br>
-						<div class="ui five stackable special cards" id="pos_items_container">
+						<div class="ui five doubling special cards" id="pos_items_container">
 						</div>
 						<div class="ui centered grid" id="pos_empty_message">
 				            <div class="sixteen wide column">
@@ -270,7 +270,7 @@
 					</div>	
 					<div class="ui bottom attached tab" data-tab="inventory_tab">
 						<br>
-						<div class="ui five stackable special cards" id="inventory_items_container">
+						<div class="ui five doubling special cards" id="inventory_items_container">
 							
 					    </div>
 						<div class="ui centered grid" id="inventory_empty_message">
@@ -943,58 +943,160 @@
 			    </div>
 			</div>
 
+			<div class="ui modal" id="pos_restocking_modal">
+			    <div class="ui header center aligned">
+			        <a class="break-text">Restocking</a>
+			    </div>
 
-		    <div class="ui tiny modal" id="pos_restocking_modal">
-		        <div class="ui header center aligned">
-		            <a class="break-text" id="pos_checkouts_header">Restocking</a>
-		        </div>
-		        <div class="content">
-		        	<div class="ui form">
-		        		<div class="fields">
-		        			<div class="six wide field">
-							    <label>Restocking Date</label>
-							    <input type="date" name="pos_restocking_date" id="pos_restocking_date" placeholder="Restocking Date">
-						  	</div>
-		        		</div>
-					    <div class="fields">
-					        <div class="ten wide field">
-					            <label>Item</label>
-					            <div class="ui selection search dropdown" id="pos_restocking_items_drop">
-					                <input type="hidden" name="pos_restocking_items" id="pos_restocking_items">
-					                <div class="default text">Select Item</div>
-					                <div class="menu" id="pos_restocking_menu">
+			    <div class="content">
+			        <!-- Tab Menu -->
+					<div class="ui secondary labeled icon pointing tabular menu fluid item two">
+			            <a class="item active" data-tab="form_tab">Restock Items</a>
+			            <a class="item" data-tab="records_tab">Restocking Records</a>
+			        </div>
 
-					                </div>
-					            </div>
-					        </div>
-					        <div class="six wide field">
-							    <label>Quantity</label>
-							    <input type="text" name="pos_restock_quantity" id="pos_restock_quantity" placeholder="Restock Quantity">
-						  	</div>
-					    </div>
-				    	<div class="ui right floated button green small button icon" id="pos_restocking_insert">
-							Add Stock					        
-	                		<i class="ui plus icon"></i>
-						</div>	
-					</div>
-				</div>
-				<br>
-				<br>
-				<div class="ui fitted divider"></div>
-		        <div class="scrolling content">
-		        	<div class="ui list" id="pos_restocking_list">
-						
-					</div>
-		        </div>
-		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
-		            </div>
-		            <button class="ui button green small button" id="pos_restocking_submit">
-			            Confirm
-			        </button>
-		        </div>
-		    </div>
+			        <!-- === RESTOCKING FORM TAB === -->
+			        <div class="ui active tab" data-tab="form_tab">
+			            <div class="ui tiny form">
+			                <div class="fields">
+			                    <div class="six wide field">
+			                        <label>Restocking Date</label>
+			                        <input type="date" name="pos_restocking_date" id="pos_restocking_date" placeholder="Restocking Date">
+			                    </div>
+			                </div>
+
+			                <div class="fields">
+			                    <div class="ten wide field">
+			                        <label>Item</label>
+			                        <div class="ui selection search dropdown" id="pos_restocking_items_drop">
+			                            <input type="hidden" name="pos_restocking_items" id="pos_restocking_items">
+			                            <div class="default text">Select Item</div>
+			                            <div class="menu" id="pos_restocking_menu"></div>
+			                        </div>
+			                    </div>
+
+			                    <div class="six wide field">
+			                        <label>Quantity</label>
+			                        <input type="text" name="pos_restock_quantity" id="pos_restock_quantity" placeholder="Restock Quantity">
+			                    </div>
+			                </div>
+		                	<div class="ui right aligned teal small button" id="pos_restocking_insert">
+			                    <i class="ui plus icon"></i>
+			                    Add Stock
+			                </div>	
+			                <h4>Restocking List</h4>
+			                <div class="scrolling content">
+			                    <div class="ui celled list" id="pos_restocking_list"></div>
+			                </div>
+
+			            </div>
+			        </div>
+
+			        <!-- === RESTOCKING RECORDS TAB === -->
+			        <div class="ui tab" data-tab="records_tab">
+			            <div class="ui form">
+			                <div class="fields">
+			                    <div class="field">
+			                        <label>Report Type</label>
+			                        <div class="ui selection dropdown" id="pos_restocking_type_dropdown">
+			                            <input type="hidden" name="pos_restocking_type" id="pos_restocking_type">
+			                            <i class="dropdown icon"></i>
+			                            <div class="default text">Select Report Type</div>
+			                            <div class="menu">
+			                                <div class="item" data-value="daily">Daily</div>
+			                                <div class="item" data-value="monthly">Monthly</div>
+			                                <div class="item" data-value="annual">Annually</div>
+			                            </div>
+			                        </div>
+			                    </div>
+
+			                    <div class="field">
+			                        <label>Restock Date</label>
+			                        <input type="date" name="pos_restocking_date_report" id="pos_restocking_date_report" placeholder="Restock Date">
+			                    </div>
+			                </div>
+			            </div>
+
+			            <div class="ui fitted divider"></div>
+
+			            <div class="scrolling content">
+			                <!-- Daily Table -->
+			                <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="daily_pos_restocking_table">
+			                    <thead>
+			                        <tr>
+			                            <th>Reference Code</th>
+			                            <th>Item Name</th>
+			                            <th>Quantity</th>
+			                            <th>Unit Cost</th>
+			                            <th class="sorted descending">Timestamp</th>
+			                            <th>Total Cost</th>
+			                        </tr>
+			                    </thead>
+			                    <tbody id="daily_pos_restocking"></tbody>
+			                    <tfoot>
+			                        <tr>
+			                            <td colspan="5" class="right aligned"><strong>Total:</strong></td>
+			                            <td id="daily_pos_restocking_total"></td>
+			                        </tr>
+			                    </tfoot>
+			                </table>
+
+			                <!-- Monthly Table -->
+			                <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="monthly_pos_restocking_table">
+			                    <thead>
+			                        <tr>
+			                            <th>Reference Code</th>
+			                            <th>Item Name</th>
+			                            <th>Quantity</th>
+			                            <th>Unit Cost</th>
+			                            <th class="sorted descending">Timestamp</th>
+			                            <th>Total Cost</th>
+			                        </tr>
+			                    </thead>
+			                    <tbody id="monthly_pos_restocking"></tbody>
+			                    <tfoot>
+			                        <tr>
+			                            <td colspan="5" class="right aligned"><strong>Total:</strong></td>
+			                            <td id="monthly_pos_restocking_total"></td>
+			                        </tr>
+			                    </tfoot>
+			                </table>
+
+			                <!-- Annual Table -->
+			                <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="annual_pos_restocking_table">
+			                    <thead>
+			                        <tr>
+			                            <th>Reference Code</th>
+			                            <th>Item Name</th>
+			                            <th>Quantity</th>
+			                            <th>Unit Cost</th>
+			                            <th class="sorted descending">Timestamp</th>
+			                            <th>Total Cost</th>
+			                        </tr>
+			                    </thead>
+			                    <tbody id="annual_pos_restocking"></tbody>
+			                    <tfoot>
+			                        <tr>
+			                            <td colspan="5" class="right aligned"><strong>Total:</strong></td>
+			                            <td id="annual_pos_restocking_total"></td>
+			                        </tr>
+			                    </tfoot>
+			                </table>
+			            </div>
+			        </div>
+			    </div>
+
+			    <!-- Close Icon -->
+			    <div class="actions modal-actions">
+			        <div class="ui orange right corner small label">
+			            <i class="ui times pointered big deny icon"></i>
+			        </div>
+			        <button class="ui right aligned green invisible small button" id="pos_restocking_submit">
+	                    <i class="ui check icon"></i>
+                		Confirm
+                	</button>
+			    </div>
+			</div>
 
 		    <div class="ui modal" id="pos_logs_modal">
 		        <div class="ui header center aligned">
@@ -1088,6 +1190,8 @@
 	</body>
 </div>
 <script type="text/javascript">
+    $('.menu .item').tab();
+
 	function check_active_tab() {
 	    const tabs = $('#time_manager_tab, #pos_tab, #inventory_tab');
 	    const tab_functions = {
@@ -1385,24 +1489,24 @@
 				let pos_list_item_image = '';
 
 				$('#pos_restocking_items_drop').dropdown({
-					action: function (text, value, element){
+				    action: function (text, value, element) {
+				    	$('#pos_restocking_menu .pos_restocking_item').removeClass('invisible');
+						$('#pos_restocking_menu .pos_restocking_item').addClass('item');
+
+				        pos_restocking_array.forEach(function(item) {
+			                let element = $(`#pos_restocking_items_drop [data-value='${item.pos_item_id}']`);
+
+			                element.addClass('invisible');
+			                element.removeClass('active');
+							element.removeClass('item');
+						});
 						$(this).dropdown('set selected', value);
 						$(this).dropdown('hide');
-						$(element).siblings('.pos_restocking_item').removeClass('invisible');
-						$(element).siblings('.pos_restocking_item').addClass('item');
-						$(element).addClass('invisible');
-						$(element).removeClass('active');
-						$(element).removeClass('item');
-
 						pos_list_item_id = value;
 						pos_list_item_name = $(element).data('pos_item_name');
 						pos_list_item_image = $(element).data('pos_item_image');
-						
-						// alert(`${text}:${value}`)
-					},
-				    onChange: function () {
-				        // load_pos_checkouts();
-				    }
+				    },
+				    forceSelection: false
 				});
 				$('#pos_restocking_insert').on('click', function(){
 					let pos_list_restock_date = $('#pos_restocking_date').val()
@@ -1413,7 +1517,7 @@
 					}
 					else {
 						pos_restocking_list_item = `
-							<div class="item">
+							<div class="item" data-pos_item_id="${pos_list_item_id}">
 								<div class="right floated content">
 				                	<i class="ui x red icon pointered pos_restocking_item_remover"></i>
 								</div>
@@ -1427,10 +1531,68 @@
 							</div>
 						`;
 						$('#pos_restocking_list').append(pos_restocking_list_item);	
+
+						$('.pos_restocking_item_remover').on('dblclick', function() {
+							confirmed = confirm('Remove this restocking item?');
+							if (confirmed) {
+							    const item = $(this).closest('.item');
+							    const pos_item_id = item.data('pos_item_id');
+							    $(`#pos_restocking_list .item[data-pos_item_id='${pos_item_id}']`).remove();
+
+							    for (let i = 0; i < pos_restocking_array.length; i++) {
+						            if (pos_restocking_array[i].pos_item_id == pos_item_id) { // use == to allow type coercion
+						                pos_restocking_array.splice(i, 1);
+						                break;
+						            }
+						        }
+
+								$('#pos_restocking_menu .pos_restocking_item').removeClass('invisible');
+								$('#pos_restocking_menu .pos_restocking_item').addClass('item');
+							    pos_restocking_array.forEach(function(item) {
+					                let element = $(`#pos_restocking_items_drop [data-value='${item.pos_item_id}']`);
+
+					                element.addClass('invisible');
+					                element.removeClass('active');
+									element.removeClass('item');
+								});
+
+								if ($('#pos_restocking_menu .item').length === $('#pos_restocking_menu .item.invisible').length) {
+								    $('#pos_restocking_items_drop').addClass('disabled');
+								} 
+								else {
+								    $('#pos_restocking_items_drop').removeClass('disabled');
+								}
+							}
+						});
+
 						pos_restocking_array.push({
 						    pos_item_id: pos_list_item_id,
 						    pos_item_count: pos_list_restock_quantity
 						});
+						$('#pos_restocking_menu .pos_restocking_item').removeClass('invisible');
+						$('#pos_restocking_menu .pos_restocking_item').addClass('item');
+						pos_restocking_array.forEach(function(item) {
+							// alert(item.pos_item_id)
+			                let element = $(`#pos_restocking_items_drop [data-value='${item.pos_item_id}']`);
+
+			                element.addClass('invisible');
+			                element.removeClass('active');
+							element.removeClass('item');
+						});
+
+						if ($('#pos_restocking_menu .item').length === $('#pos_restocking_menu .item.invisible').length) {
+						    $('#pos_restocking_items_drop').addClass('disabled');
+						} 
+						else {
+						    $('#pos_restocking_items_drop').removeClass('disabled');
+						}
+
+						$('#pos_restocking_items_drop').dropdown('clear');
+						$('#pos_restock_quantity').val('');
+						$('.pos_restocking_divider').removeClass('invisible');
+					}
+					if (pos_restocking_array.length > 0) {
+						$('#pos_restocking_submit').removeClass('invisible');
 					}
 				});
 
@@ -1458,8 +1620,9 @@
 						    	$('#pos_checkout_cart_empty_message').addClass('hidden');
 						    	$('#pos_checkout_cart_empty_message').removeClass('visible');
 						    	$('#pos_checkout_cart_content').html('');
-				                alert('Checkout successful!');
+				                alert('Restocking successful! Inventory content will reload shortly...');
 				                load_pos_inventory();
+				                $('#pos_restocking_modal').modal('hide')
 				            } 
 				            else if (response === 'empty_cart') {
 				                alert('Restocking is empty. Nothing to insert.');

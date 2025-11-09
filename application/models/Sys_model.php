@@ -1003,6 +1003,13 @@ class Sys_model extends CI_Model {
 	        $pos_item_id = $item['pos_item_id'];
 	        $pos_item_count  = $item['pos_item_count'];
 
+	        $sql = "SELECT pos_item_name, pos_item_unit FROM pos_inventory WHERE pos_item_id = ?";
+		    $select_query = $this->db->query($sql, [$pos_item_id]);
+			foreach ($select_query->result() as $row) {
+	 			$pos_item_name = $row->pos_item_name;
+	 			$pos_item_unit = $row->pos_item_unit;
+			}
+
 	        $sql = "INSERT INTO pos_restocking
 	                (pos_restocking_code, pos_item_id, pos_item_count, pos_restocking_date)
 	                VALUES (?, ?, ?, ?)";
@@ -1022,15 +1029,15 @@ class Sys_model extends CI_Model {
 			$restocked_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
 
 	        if ($update_query) {
-		        echo "error";
-		    } else {
 		        echo "success";
+		    } else {
+		        echo "error";
 		    }
 
 			if (!empty($restocked_items)) {
-			    $activity = "<strong>$pos_checkout_code items:</strong><br>" . implode(', ', $restocked_items);
-			    $sql = "INSERT INTO pos_logs (pos_checkout_code, pos_activity) VALUES (?, ?)";
-			    $this->db->query($sql, array($pos_item_id, $activity));
+			    $activity = "<strong>$pos_restocking_code items:</strong><br>" . implode(', ', $restocked_items);
+			    $sql = "INSERT INTO pos_logs (pos_code, pos_activity) VALUES (?, ?)";
+			    $this->db->query($sql, array($pos_restocking_code, $activity));
 			}
 	    }
 	}
