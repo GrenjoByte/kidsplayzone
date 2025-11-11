@@ -957,16 +957,16 @@
 
 			        <!-- === RESTOCKING FORM TAB === -->
 			        <div class="ui active tab" data-tab="form_tab">
-			            <div class="ui tiny form">
+			            <form class="ui tiny form" id="pos_restocking_form">
 			                <div class="fields">
-			                    <div class="six wide field">
+			                    <div class="six wide required pos_restocking_date_field field">
 			                        <label>Restocking Date</label>
-			                        <input type="date" name="pos_restocking_date" id="pos_restocking_date" placeholder="Restocking Date">
+			                        <input type="date" name="pos_restocking_date" id="pos_restocking_date" required placeholder="Restocking Date">
 			                    </div>
 			                </div>
 
 			                <div class="fields">
-			                    <div class="ten wide field">
+			                    <div class="ten wide required pos_restocking_item_field field">
 			                        <label>Item</label>
 			                        <div class="ui selection search dropdown" id="pos_restocking_items_drop">
 			                            <input type="hidden" name="pos_restocking_items" id="pos_restocking_items">
@@ -975,21 +975,21 @@
 			                        </div>
 			                    </div>
 
-			                    <div class="six wide field">
+			                    <div class="six wide required pos_restocking_quantity_field field">
 			                        <label>Quantity</label>
 			                        <input type="text" name="pos_restock_quantity" id="pos_restock_quantity" placeholder="Restock Quantity">
 			                    </div>
 			                </div>
-		                	<div class="ui right aligned teal small button" id="pos_restocking_insert">
+		                	<button class="ui right aligned teal small button" id="pos_restocking_insert" type="submit" form="pos_restocking_form">
 			                    <i class="ui plus icon"></i>
 			                    Add Stock
-			                </div>	
+			                </button>	
 			                <h4>Restocking List</h4>
 			                <div class="scrolling content">
 			                    <div class="ui celled list" id="pos_restocking_list"></div>
 			                </div>
 
-			            </div>
+			            </form>
 			        </div>
 
 			        <!-- === RESTOCKING RECORDS TAB === -->
@@ -1511,6 +1511,40 @@
 				$('#pos_restocking_insert').on('click', function(){
 					let pos_list_restock_date = $('#pos_restocking_date').val()
 					let pos_list_restock_quantity = $('#pos_restock_quantity').val()
+					let errors = [];
+
+					if (!pos_list_restock_date) {
+						errors.push("Restocking Date");
+						$('.pos_restocking_date_field').addClass('error');
+					}
+					else {
+						$('.pos_restocking_date_field').removeClass('error');
+					}
+					if (!pos_list_item_id) {
+						errors.push("Item");
+						$('.pos_restocking_item_field').addClass('error');
+					}
+					else {
+						$('.pos_restocking_item_field').removeClass('error');
+					}
+					if (!pos_list_restock_quantity) {
+						errors.push("Quantity");
+						$('.pos_restocking_quantity_field').addClass('error');
+					}
+					else {
+						$('.pos_restocking_quantity_field').removeClass('error');
+					}
+
+					if (errors.length > 0) {
+						if (errors.length === 1) {
+							alert(`Please provide a valid ${errors[0]}.`);
+						} else if (errors.length === 2) {
+							alert(`Please provide valid ${errors[0]} and ${errors[1]}.`);
+						} else {
+							alert(`Please provide valid ${errors.join(", ")}.`);
+						}
+						return; // Stop execution if there are errors
+					}
 
 					if (pos_list_restock_quantity <= 0) {
 						alert("Please provide a valid quantity.")
@@ -1880,6 +1914,70 @@
             }
         })
     }
+
+    $('#pos_restocking_form')
+	    .form({
+	        on: 'change',
+	        inline: false,
+	        transition: 'fade',
+	        onSuccess: function(event) {
+	            event.preventDefault();
+
+	            // var ajax = $.ajax({
+	            //     method: 'POST',
+	            //     url   : '<?php echo base_url();?>i.php/sys_control/save_child_profile',
+	            //     data  : new FormData(this),
+	            //     contentType: false,
+	            //     cache: false,
+	            //     processData: false
+	            // });
+	            // var jqxhr = ajax
+	            //     .always(function() {
+	            //         var response = jqxhr.responseText;
+	            //         if (response == 'success') {
+	            //             alert('Client Registration Successful.')
+	            //             reset_signup_form();
+	            //             load_inactive_clients();
+	            //             load_registered_clients();
+	            //             $('#profile_modal').modal('hide');
+	            //         }
+	            //         else {
+	            //             alert('Client Registration Failed. Please try again.')
+	            //         }
+	            //     })
+	            // ;
+	        },
+	        fields: {
+	            pos_restocking_date: {
+	                identifier: 'pos_restocking_date',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: ''
+	                    }
+	                ]
+	            },
+	            pos_restocking_items: {
+	                identifier: 'pos_restocking_items',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: ''
+	                    }
+	                ]
+	            },
+	            pos_restock_quantity: {
+	                identifier: 'pos_restock_quantity',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: ''
+	                    }
+	                ]
+	            }
+	        }
+	    })
+	;
 
     $('#pos_log_type_dropdown').dropdown('set selected', 'daily');
 	document.addEventListener('DOMContentLoaded', function () {
