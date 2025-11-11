@@ -1182,6 +1182,36 @@
 		            </div>
 		        </div>
 		    </div>
+
+		    <div class="ui tiny modal" id="pos_transaction_view_modal">
+		        <div class="ui header center aligned">
+		            <a class="break-text">Transaction View</a>
+		        </div>
+		        <div class="scrolling content">
+		        	<table class="ui selectable sortable teal table transition hidden">
+			            <thead>
+			                <tr>
+			                    <th>Activity Type</th>
+			                    <th>Reference Code</th>
+			                    <th class="sorted descending">Activity Date</th>
+			                    <th>Timestamp</th>
+			                </tr>
+			            </thead>
+			            <tbody id="pos_transaction_view_container"></tbody>
+			            <tfoot>
+			                <tr>
+			                    <td colspan="5" class="right aligned"><strong>Total:</strong></td>
+			                    <td id="pos_transaction_view_total"></td>
+			                </tr>
+			            </tfoot>
+			        </table>
+				</div>
+		        <div class="actions modal-actions">
+		            <div class="ui orange right corner small label">
+		                <i class="ui times pointered big deny icon"></i>
+		            </div>
+		        </div>
+		    </div>
  
 		</main>
 		<footer>
@@ -1508,81 +1538,104 @@
 				    },
 				    forceSelection: false
 				});
-				$('#pos_restocking_insert').on('click', function(){
-					let pos_list_restock_date = $('#pos_restocking_date').val()
-					let pos_list_restock_quantity = $('#pos_restock_quantity').val()
-					let errors = [];
+				// $('#pos_restocking_insert').on('click', function(){
+					
+				// });
 
-					if (!pos_list_restock_date) {
-						errors.push("Restocking Date");
-						$('.pos_restocking_date_field').addClass('error');
-					}
-					else {
-						$('.pos_restocking_date_field').removeClass('error');
-					}
-					if (!pos_list_item_id) {
-						errors.push("Item");
-						$('.pos_restocking_item_field').addClass('error');
-					}
-					else {
-						$('.pos_restocking_item_field').removeClass('error');
-					}
-					if (!pos_list_restock_quantity) {
-						errors.push("Quantity");
-						$('.pos_restocking_quantity_field').addClass('error');
-					}
-					else {
-						$('.pos_restocking_quantity_field').removeClass('error');
-					}
+				$('#pos_restocking_form')
+				    .form({
+				        on: 'change',
+				        inline: false,
+				        transition: 'fade',
+				        onSuccess: function(event) {
+				            event.preventDefault();
 
-					if (errors.length > 0) {
-						if (errors.length === 1) {
-							alert(`Please provide a valid ${errors[0]}.`);
-						} else if (errors.length === 2) {
-							alert(`Please provide valid ${errors[0]} and ${errors[1]}.`);
-						} else {
-							alert(`Please provide valid ${errors.join(", ")}.`);
-						}
-						return; // Stop execution if there are errors
-					}
+				            let pos_list_restock_date = $('#pos_restocking_date').val();
+							let pos_list_restock_quantity = $('#pos_restock_quantity').val();
+							let errors = [];
 
-					if (pos_list_restock_quantity <= 0) {
-						alert("Please provide a valid quantity.")
-					}
-					else {
-						pos_restocking_list_item = `
-							<div class="item" data-pos_item_id="${pos_list_item_id}">
-								<div class="right floated content">
-				                	<i class="ui x red icon pointered pos_restocking_item_remover"></i>
-								</div>
-	                        	<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_list_item_image}">
-						    	<div class="content">
-							      	<a class="header">${pos_list_item_name}</a>
-							    	<div class="description">
-										x${pos_list_restock_quantity}
-							    	</div>
-							    </div>
-							</div>
-						`;
-						$('#pos_restocking_list').append(pos_restocking_list_item);	
+							if (!pos_list_restock_date) {
+								errors.push("Restocking Date");
+							}
+							if (!pos_list_item_id) {
+								errors.push("Item");
+							}
+							if (!pos_list_restock_quantity) {
+								errors.push("Quantity");
+							}
 
-						$('.pos_restocking_item_remover').on('dblclick', function() {
-							confirmed = confirm('Remove this restocking item?');
-							if (confirmed) {
-							    const item = $(this).closest('.item');
-							    const pos_item_id = item.data('pos_item_id');
-							    $(`#pos_restocking_list .item[data-pos_item_id='${pos_item_id}']`).remove();
+							if (errors.length > 0) {
+								if (errors.length === 1) {
+									alert(`Please provide a valid ${errors[0]}.`);
+								} else if (errors.length === 2) {
+									alert(`Please provide valid ${errors[0]} and ${errors[1]}.`);
+								} else {
+									alert(`Please provide valid ${errors.join(", ")}.`);
+								}
+								return; // Stop execution if there are errors
+							}
 
-							    for (let i = 0; i < pos_restocking_array.length; i++) {
-						            if (pos_restocking_array[i].pos_item_id == pos_item_id) { // use == to allow type coercion
-						                pos_restocking_array.splice(i, 1);
-						                break;
-						            }
-						        }
+							if (pos_list_restock_quantity <= 0) {
+								alert("Please provide a valid quantity.")
+							}
+							else {
+								pos_restocking_list_item = `
+									<div class="item" data-pos_item_id="${pos_list_item_id}">
+										<div class="right floated content">
+						                	<i class="ui x red icon pointered pos_restocking_item_remover"></i>
+										</div>
+			                        	<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_list_item_image}">
+								    	<div class="content">
+									      	<a class="header">${pos_list_item_name}</a>
+									    	<div class="description">
+												x${pos_list_restock_quantity}
+									    	</div>
+									    </div>
+									</div>
+								`;
+								$('#pos_restocking_list').append(pos_restocking_list_item);	
 
+								$('.pos_restocking_item_remover').on('dblclick', function() {
+									confirmed = confirm('Remove this restocking item?');
+									if (confirmed) {
+									    const item = $(this).closest('.item');
+									    const pos_item_id = item.data('pos_item_id');
+									    $(`#pos_restocking_list .item[data-pos_item_id='${pos_item_id}']`).remove();
+
+									    for (let i = 0; i < pos_restocking_array.length; i++) {
+								            if (pos_restocking_array[i].pos_item_id == pos_item_id) { // use == to allow type coercion
+								                pos_restocking_array.splice(i, 1);
+								                break;
+								            }
+								        }
+
+										$('#pos_restocking_menu .pos_restocking_item').removeClass('invisible');
+										$('#pos_restocking_menu .pos_restocking_item').addClass('item');
+									    pos_restocking_array.forEach(function(item) {
+							                let element = $(`#pos_restocking_items_drop [data-value='${item.pos_item_id}']`);
+
+							                element.addClass('invisible');
+							                element.removeClass('active');
+											element.removeClass('item');
+										});
+
+										if ($('#pos_restocking_menu .item').length === $('#pos_restocking_menu .item.invisible').length) {
+										    $('#pos_restocking_items_drop').addClass('disabled');
+										} 
+										else {
+										    $('#pos_restocking_items_drop').removeClass('disabled');
+										}
+									}
+								});
+
+								pos_restocking_array.push({
+								    pos_item_id: pos_list_item_id,
+								    pos_item_count: pos_list_restock_quantity
+								});
 								$('#pos_restocking_menu .pos_restocking_item').removeClass('invisible');
 								$('#pos_restocking_menu .pos_restocking_item').addClass('item');
-							    pos_restocking_array.forEach(function(item) {
+								pos_restocking_array.forEach(function(item) {
+									// alert(item.pos_item_id)
 					                let element = $(`#pos_restocking_items_drop [data-value='${item.pos_item_id}']`);
 
 					                element.addClass('invisible');
@@ -1596,39 +1649,48 @@
 								else {
 								    $('#pos_restocking_items_drop').removeClass('disabled');
 								}
+
+								// $('#pos_restocking_form').form('reset');
+								$('#pos_restocking_items_drop').dropdown('clear');
+								$('#pos_restock_quantity').val('');
+
+								$('.pos_restocking_divider').removeClass('invisible');
 							}
-						});
-
-						pos_restocking_array.push({
-						    pos_item_id: pos_list_item_id,
-						    pos_item_count: pos_list_restock_quantity
-						});
-						$('#pos_restocking_menu .pos_restocking_item').removeClass('invisible');
-						$('#pos_restocking_menu .pos_restocking_item').addClass('item');
-						pos_restocking_array.forEach(function(item) {
-							// alert(item.pos_item_id)
-			                let element = $(`#pos_restocking_items_drop [data-value='${item.pos_item_id}']`);
-
-			                element.addClass('invisible');
-			                element.removeClass('active');
-							element.removeClass('item');
-						});
-
-						if ($('#pos_restocking_menu .item').length === $('#pos_restocking_menu .item.invisible').length) {
-						    $('#pos_restocking_items_drop').addClass('disabled');
-						} 
-						else {
-						    $('#pos_restocking_items_drop').removeClass('disabled');
-						}
-
-						$('#pos_restocking_items_drop').dropdown('clear');
-						$('#pos_restock_quantity').val('');
-						$('.pos_restocking_divider').removeClass('invisible');
-					}
-					if (pos_restocking_array.length > 0) {
-						$('#pos_restocking_submit').removeClass('invisible');
-					}
-				});
+							if (pos_restocking_array.length > 0) {
+								$('#pos_restocking_submit').removeClass('invisible');
+							}
+				        },
+				        fields: {
+				            pos_restocking_date: {
+				                identifier: 'pos_restocking_date',
+				                rules: [
+				                    {
+				                        type: 'empty',
+				                        prompt: ''
+				                    }
+				                ]
+				            },
+				            pos_restocking_items_drop: {
+				                identifier: 'pos_restocking_items_drop',
+				                rules: [
+				                    {
+				                        type: 'empty',
+				                        prompt: ''
+				                    }
+				                ]
+				            },
+				            pos_restock_quantity: {
+				                identifier: 'pos_restock_quantity',
+				                rules: [
+				                    {
+				                        type: 'empty',
+				                        prompt: ''
+				                    }
+				                ]
+				            }
+				        }
+				    })
+				;
 
 				$('#pos_restocking_submit').on('dblclick', function(e) {
 				    e.preventDefault();
@@ -1915,70 +1977,6 @@
         })
     }
 
-    $('#pos_restocking_form')
-	    .form({
-	        on: 'change',
-	        inline: false,
-	        transition: 'fade',
-	        onSuccess: function(event) {
-	            event.preventDefault();
-
-	            // var ajax = $.ajax({
-	            //     method: 'POST',
-	            //     url   : '<?php echo base_url();?>i.php/sys_control/save_child_profile',
-	            //     data  : new FormData(this),
-	            //     contentType: false,
-	            //     cache: false,
-	            //     processData: false
-	            // });
-	            // var jqxhr = ajax
-	            //     .always(function() {
-	            //         var response = jqxhr.responseText;
-	            //         if (response == 'success') {
-	            //             alert('Client Registration Successful.')
-	            //             reset_signup_form();
-	            //             load_inactive_clients();
-	            //             load_registered_clients();
-	            //             $('#profile_modal').modal('hide');
-	            //         }
-	            //         else {
-	            //             alert('Client Registration Failed. Please try again.')
-	            //         }
-	            //     })
-	            // ;
-	        },
-	        fields: {
-	            pos_restocking_date: {
-	                identifier: 'pos_restocking_date',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: ''
-	                    }
-	                ]
-	            },
-	            pos_restocking_items: {
-	                identifier: 'pos_restocking_items',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: ''
-	                    }
-	                ]
-	            },
-	            pos_restock_quantity: {
-	                identifier: 'pos_restock_quantity',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: ''
-	                    }
-	                ]
-	            }
-	        }
-	    })
-	;
-
     $('#pos_log_type_dropdown').dropdown('set selected', 'daily');
 	document.addEventListener('DOMContentLoaded', function () {
 	    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
@@ -1996,6 +1994,76 @@
         var ajax = $.ajax({
             method: 'POST',
             url   : '<?php echo base_url();?>i.php/sys_control/load_pos_logs',
+            data  : { 
+            	pos_log_type:pos_log_type, 
+            	pos_log_date:pos_log_date
+            }
+        });
+        var jqxhr = ajax
+        .always(function() {
+            var response_data = JSON.parse(jqxhr.responseText);
+    		$(`.pos_log_table`).addClass('hidden');
+    		$(`#pos_${pos_log_type}_log_table`).removeClass('hidden');
+            if (response_data != '') {
+        		$(`#pos_${pos_log_type}_log`).html('');
+        		let final_rate = 0;
+                $.each(response_data, function(key, value) {
+                    var activity_type = value.activity_type;
+                    var reference_code = value.reference_code;
+                    var item_name = value.item_name;
+                    var quantity = value.quantity;
+                    var amount = value.amount;
+                    var item_image = value.item_image;
+                    var log_date = value.log_date;
+
+                    let pos_log = `
+						<tr>
+							<td class="break-text">${activity_type}</td>
+							<td class="break-text">${reference_code}</td>
+							<td class="no-break">
+                                <img src="<?php echo base_url();?>photos/pos_images/${item_image}" class="ui avatar image">
+                				<span>${item_name}</span>
+							</td>
+							<td class="break-text">${quantity}</td>
+							<td class="no-break">${amount}</td>
+							<td class="no-break">${log_date}</td>
+						</tr>
+                    `;
+
+            		$(`#pos_${pos_log_type}_log`).append(pos_log);
+                    $('.special.cards .image').dimmer({
+					  	on: 'hover'
+					});
+                })
+            }
+            else {
+        		$(`#${log_type}_log`).html('');
+            }
+        })
+    }
+    $('#pos_logs_activator').on('click', function() {
+		$('#pos_logs_modal')
+            .modal({
+                useFlex: true,
+                allowMultiple: false,
+                autofocus: false,
+                blurring: true,
+                closable: false,
+                onShow: function() {
+                	load_pos_logs();
+                    // load_inactive_clients();
+		        }
+            })
+            .modal('show')
+        ;
+	});
+
+	function load_pos_restocking_codes() {
+		let pos_log_type = $('#pos_log_type').val();
+		let pos_log_date = $('#pos_log_date').val();
+        var ajax = $.ajax({
+            method: 'POST',
+            url   : '<?php echo base_url();?>i.php/sys_control/load_pos_restocking_codes',
             data  : { 
             	pos_log_type:pos_log_type, 
             	pos_log_date:pos_log_date

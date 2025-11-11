@@ -166,5 +166,15 @@ class Sys_control extends CI_Controller
 		$this->load->model('sys_model');	
 		$this->sys_model->load_pos_logs();
 	}
+	public function load_pos_restocking_codes()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_pos_restocking_codes();
+	}
+	public function load_pos_restocking()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_pos_restocking();
+	}
 }
 ?>

@@ -868,11 +868,17 @@ class Sys_model extends CI_Model {
 		        $current_date
 		    ));
 
+		    $failed = false;
+			$update_query = false;
+
 		    if ($insert_query) {
 		        $sql = "UPDATE pos_inventory 
 		                SET pos_item_stock = pos_item_stock - ? 
 		                WHERE pos_item_id = ?";
 		        $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+		    }
+		    if (!$update_query) {
+		    	$failed = true;
 		    }
 
 		    $checked_out_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
@@ -1021,6 +1027,9 @@ class Sys_model extends CI_Model {
 	            $pos_restocking_date
 	        ));
 
+	        $failed = false;
+			$update_query = false;
+
 	        if ($insert_query) {
 	        	$sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
 	    		$update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
@@ -1028,17 +1037,21 @@ class Sys_model extends CI_Model {
 
 			$restocked_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
 
-	        if ($update_query) {
-		        echo "success";
-		    } else {
-		        echo "error";
-		    }
+	        if (!$update_query) {
+	        	$failed = true;
+		    } 
 
 			if (!empty($restocked_items)) {
 			    $activity = "<strong>$pos_restocking_code items:</strong><br>" . implode(', ', $restocked_items);
 			    $sql = "INSERT INTO pos_logs (pos_code, pos_activity) VALUES (?, ?)";
 			    $this->db->query($sql, array($pos_restocking_code, $activity));
 			}
+	    }
+	    if (isset($failed)) {
+	    	echo "error";
+	    }
+	    else {
+	    	echo "success";
 	    }
 	}
 	public function load_pos_logs()
@@ -1137,6 +1150,112 @@ class Sys_model extends CI_Model {
 	    	";
 	    }
 		$query = $this->db->query($sql, [$log_date, $log_date]);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function load_pos_restocking_codes()
+	{
+	    $log_type = $_POST['pos_log_type'];
+	    $log_date = $_POST['pos_log_date'];
+
+	    if ($log_type == 'daily') {
+	    	$sql = "
+	    		SELECT 
+				    r.pos_restocking_code,
+				    SUM(r.pos_item_count) AS total_item_count,
+				    MAX(r.pos_restocking_date) AS pos_restocking_date,
+				    MAX(r.pos_restocking_timestamp) AS pos_restocking_timestamp
+				FROM pos_restocking r
+				WHERE DATE(r.pos_restocking_date) = ?
+				GROUP BY r.pos_restocking_code
+				ORDER BY r.pos_restocking_timestamp DESC;
+	    	";
+	    }
+	    else if ($log_type == 'monthly') {
+	    	$sql = "
+	    		SELECT DISTINCT
+				    c.pos_checkout_code AS reference_code,
+				FROM pos_checkouts c
+				WHERE MONTH(c.pos_checkout_date) = MONTH(?)
+				ORDER BY log_date DESC;
+	    	";
+	    }
+	    else if ($log_type == 'annual') {
+	    	$sql = "
+	    		SELECT DISTINCT
+				    c.pos_checkout_code AS reference_code,
+				FROM pos_checkouts c
+				WHERE YEAR(c.pos_checkout_date) = YEAR(?)
+				ORDER BY log_date DESC;
+	    	";
+	    }
+		$query = $this->db->query($sql, [$log_date]);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+
+	public function load_pos_restocking()
+	{
+	    $log_type = $_POST['pos_log_type'];
+	    $log_date = $_POST['pos_log_date'];
+
+	    if ($log_type == 'daily') {
+	    	$sql = "
+	    		SELECT 
+				    c.pos_restocking_id
+				    c.pos_checkout_code
+				    c.pos_item_id
+				    c.pos_item_count
+				    c.pos_restocking_date
+				    c.pos_restocking_timestamp
+				FROM pos_restocking c
+				WHERE DATE(c.pos_restocking_date) = ?
+				ORDER BY pos_restocking_date DESC;
+	    	";
+	    }
+	    else if ($log_type == 'monthly') {
+	    	$sql = "
+	    		SELECT 
+				    c.pos_restocking_id
+				    c.pos_checkout_code
+				    c.pos_item_id
+				    c.pos_item_count
+				    c.pos_restocking_date
+				    c.pos_restocking_timestamp
+				FROM pos_restocking c
+				WHERE MONTH(r.pos_restocking_timestamp) = MONTH(?)
+				ORDER BY pos_restocking_date DESC;
+	    	";
+	    }
+	    else if ($log_type == 'annual') {
+    		$sql = "
+	    		SELECT 
+				    c.pos_restocking_id
+				    c.pos_checkout_code
+				    c.pos_item_id
+				    c.pos_item_count
+				    c.pos_restocking_date
+				    c.pos_restocking_timestamp
+				FROM pos_restocking c
+				WHERE YEAR(r.pos_restocking_timestamp) = YEAR(?)
+				ORDER BY pos_restocking_date DESC;
+	    	";
+	    }
+		$query = $this->db->query($sql, [$log_date]);
 		foreach ($query->result() as $row) {
  			$output_data[] = $row;
 		}
