@@ -1162,10 +1162,10 @@ class Sys_model extends CI_Model {
 	}
 	public function load_pos_restocking_codes()
 	{
-	    $log_type = $_POST['pos_log_type'];
-	    $log_date = $_POST['pos_log_date'];
+	    $report_type = $_POST['pos_restocking_report_type'];
+	    $report_date = $_POST['pos_restocking_report_date'];
 
-	    if ($log_type == 'daily') {
+	    if ($report_type == 'daily') {
 	    	$sql = "
 	    		SELECT 
 				    r.pos_restocking_code,
@@ -1178,25 +1178,33 @@ class Sys_model extends CI_Model {
 				ORDER BY r.pos_restocking_timestamp DESC;
 	    	";
 	    }
-	    else if ($log_type == 'monthly') {
+	    else if ($report_type == 'monthly') {
 	    	$sql = "
-	    		SELECT DISTINCT
-				    c.pos_checkout_code AS reference_code,
-				FROM pos_checkouts c
-				WHERE MONTH(c.pos_checkout_date) = MONTH(?)
-				ORDER BY log_date DESC;
+	    		SELECT 
+				    r.pos_restocking_code,
+				    SUM(r.pos_item_count) AS total_item_count,
+				    MAX(r.pos_restocking_date) AS pos_restocking_date,
+				    MAX(r.pos_restocking_timestamp) AS pos_restocking_timestamp
+				FROM pos_restocking r
+				WHERE MONTH(r.pos_restocking_date) = MONTH(?)
+				GROUP BY r.pos_restocking_code
+				ORDER BY r.pos_restocking_timestamp DESC;
 	    	";
 	    }
-	    else if ($log_type == 'annual') {
+	    else if ($report_type == 'annual') {
 	    	$sql = "
-	    		SELECT DISTINCT
-				    c.pos_checkout_code AS reference_code,
-				FROM pos_checkouts c
-				WHERE YEAR(c.pos_checkout_date) = YEAR(?)
-				ORDER BY log_date DESC;
+	    		SELECT 
+				    r.pos_restocking_code,
+				    SUM(r.pos_item_count) AS total_item_count,
+				    MAX(r.pos_restocking_date) AS pos_restocking_date,
+				    MAX(r.pos_restocking_timestamp) AS pos_restocking_timestamp
+				FROM pos_restocking r
+				WHERE YEAR(r.pos_restocking_date) = YEAR(?)
+				GROUP BY r.pos_restocking_code
+				ORDER BY r.pos_restocking_timestamp DESC;
 	    	";
 	    }
-		$query = $this->db->query($sql, [$log_date]);
+		$query = $this->db->query($sql, [$report_date]);
 		foreach ($query->result() as $row) {
  			$output_data[] = $row;
 		}

@@ -531,7 +531,7 @@
 					        <!-- Report Date Button -->
 					        <div class="field">
 							    <label>Report Date</label>
-							    <input type="date" name="report_date" id="report_date" placeholder="Report Date">
+							    <input type="date" name="report_date" id="report_date" placeholder="Report Date" value="<?= date('Y-m-d'); ?>">
 						  	</div>
 					    </div>
 					</div>
@@ -628,7 +628,7 @@
 					        <!-- log Date Button -->
 					        <div class="field">
 							    <label>Log Date</label>
-							    <input type="date" name="log_date" id="log_date" placeholder="log Date">
+							    <input type="date" name="log_date" id="log_date" placeholder="log Date" value="<?= date('Y-m-d'); ?>">
 						  	</div>
 					    </div>
 					</div>
@@ -863,7 +863,7 @@
 
 			                <div class="field">
 			                    <label>Sales Date</label>
-			                    <input type="date" name="pos_checkouts_date" id="pos_checkouts_date" placeholder="Sales Date">
+			                    <input type="date" name="pos_checkouts_date" id="pos_checkouts_date" placeholder="Sales Date" value="<?= date('Y-m-d'); ?>">
 			                </div>
 			            </div>
 			        </div>
@@ -951,8 +951,8 @@
 			    <div class="content">
 			        <!-- Tab Menu -->
 					<div class="ui secondary labeled icon pointing tabular menu fluid item two">
-			            <a class="item active" data-tab="form_tab">Restock Items</a>
-			            <a class="item" data-tab="records_tab">Restocking Records</a>
+			            <a class="item active" data-tab="form_tab" id="restock_items">Restock Items</a>
+			            <a class="item" data-tab="records_tab" id="records_tab">Restocking Records</a>
 			        </div>
 
 			        <!-- === RESTOCKING FORM TAB === -->
@@ -961,7 +961,7 @@
 			                <div class="fields">
 			                    <div class="six wide required pos_restocking_date_field field">
 			                        <label>Restocking Date</label>
-			                        <input type="date" name="pos_restocking_date" id="pos_restocking_date" required placeholder="Restocking Date">
+			                        <input type="date" name="pos_restocking_date" id="pos_restocking_date" required placeholder="Restocking Date" value="<?= date('Y-m-d'); ?>">
 			                    </div>
 			                </div>
 
@@ -999,7 +999,7 @@
 			                    <div class="field">
 			                        <label>Report Type</label>
 			                        <div class="ui selection dropdown" id="pos_restocking_type_dropdown">
-			                            <input type="hidden" name="pos_restocking_type" id="pos_restocking_type">
+			                            <input type="hidden" name="pos_restocking_report_type" id="pos_restocking_report_type">
 			                            <i class="dropdown icon"></i>
 			                            <div class="default text">Select Report Type</div>
 			                            <div class="menu">
@@ -1012,77 +1012,53 @@
 
 			                    <div class="field">
 			                        <label>Restock Date</label>
-			                        <input type="date" name="pos_restocking_date_report" id="pos_restocking_date_report" placeholder="Restock Date">
+			                        <input type="date" name="pos_restocking_report_date" id="pos_restocking_report_date" placeholder="Restock Date" value="<?= date('Y-m-d'); ?>">
 			                    </div>
 			                </div>
 			            </div>
 
 			            <div class="ui fitted divider"></div>
 
-			            <div class="scrolling content">
-			                <!-- Daily Table -->
-			                <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="daily_pos_restocking_table">
-			                    <thead>
-			                        <tr>
-			                            <th>Reference Code</th>
-			                            <th>Item Name</th>
-			                            <th>Quantity</th>
-			                            <th>Unit Cost</th>
-			                            <th class="sorted descending">Timestamp</th>
-			                            <th>Total Cost</th>
-			                        </tr>
-			                    </thead>
-			                    <tbody id="daily_pos_restocking"></tbody>
-			                    <tfoot>
-			                        <tr>
-			                            <td colspan="5" class="right aligned"><strong>Total:</strong></td>
-			                            <td id="daily_pos_restocking_total"></td>
-			                        </tr>
-			                    </tfoot>
-			                </table>
+					    <div class="scrolling content">
+					        <!-- Daily Table -->
+					        <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="daily_pos_restocking_table">
+					            <thead>
+					                <tr>
+					                    <th>Reference Code</th>
+					                    <th>Total Items</th>
+					                    <th class="sorted descending">Activity Date</th>
+					                    <th>Timestamp</th>
+					                </tr>
+					            </thead>
+					            <tbody id="daily_pos_restocking"></tbody>
+					        </table>
 
-			                <!-- Monthly Table -->
-			                <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="monthly_pos_restocking_table">
-			                    <thead>
-			                        <tr>
-			                            <th>Reference Code</th>
-			                            <th>Item Name</th>
-			                            <th>Quantity</th>
-			                            <th>Unit Cost</th>
-			                            <th class="sorted descending">Timestamp</th>
-			                            <th>Total Cost</th>
-			                        </tr>
-			                    </thead>
-			                    <tbody id="monthly_pos_restocking"></tbody>
-			                    <tfoot>
-			                        <tr>
-			                            <td colspan="5" class="right aligned"><strong>Total:</strong></td>
-			                            <td id="monthly_pos_restocking_total"></td>
-			                        </tr>
-			                    </tfoot>
-			                </table>
+					        <!-- Monthly Table -->
+					        <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="monthly_pos_restocking_table">
+					            <thead>
+					                <tr>
+					                    <th>Reference Code</th>
+					                    <th>Total Items</th>
+					                    <th class="sorted descending">Activity Date</th>
+					                    <th>Timestamp</th>
+					                </tr>
+					            </thead>
+					            <tbody id="monthly_pos_restocking"></tbody>
+					        </table>
 
-			                <!-- Annual Table -->
-			                <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="annual_pos_restocking_table">
-			                    <thead>
-			                        <tr>
-			                            <th>Reference Code</th>
-			                            <th>Item Name</th>
-			                            <th>Quantity</th>
-			                            <th>Unit Cost</th>
-			                            <th class="sorted descending">Timestamp</th>
-			                            <th>Total Cost</th>
-			                        </tr>
-			                    </thead>
-			                    <tbody id="annual_pos_restocking"></tbody>
-			                    <tfoot>
-			                        <tr>
-			                            <td colspan="5" class="right aligned"><strong>Total:</strong></td>
-			                            <td id="annual_pos_restocking_total"></td>
-			                        </tr>
-			                    </tfoot>
-			                </table>
-			            </div>
+					        <!-- Annual Table -->
+					        <table class="ui selectable sortable teal table transition hidden pos_restocking_table" id="annual_pos_restocking_table">
+					            <thead>
+					                <tr>
+					                    <th>Reference Code</th>
+					                    <th>Total Items</th>
+					                    <th class="sorted descending">Activity Date</th>
+					                    <th>Timestamp</th>
+					                </tr>
+					            </thead>
+					            <tbody id="annual_pos_restocking"></tbody>
+					        </table>
+					    </div>
 			        </div>
 			    </div>
 
@@ -1123,7 +1099,7 @@
 					        <!-- log Date Button -->
 					        <div class="field">
 							    <label>Log Date</label>
-							    <input type="date" name="pos_log_date" id="pos_log_date" placeholder="Log Date">
+							    <input type="date" name="pos_log_date" id="pos_log_date" placeholder="Log Date" value="<?= date('Y-m-d'); ?>">
 						  	</div>
 					    </div>
 					</div>
@@ -1185,16 +1161,18 @@
 
 		    <div class="ui tiny modal" id="pos_transaction_view_modal">
 		        <div class="ui header center aligned">
-		            <a class="break-text">Transaction View</a>
+		            <a class="break-text" id="pos_transaction_view_activity">Checkout *reference_code*</a>
+		            <a class="break-text" id="pos_transaction_view_date">October 21, 2025</a>
 		        </div>
 		        <div class="scrolling content">
 		        	<table class="ui selectable sortable teal table transition hidden">
 			            <thead>
 			                <tr>
-			                    <th>Activity Type</th>
-			                    <th>Reference Code</th>
-			                    <th class="sorted descending">Activity Date</th>
-			                    <th>Timestamp</th>
+			                    <th>Item Name</th>
+			                    <th>Item Price</th>
+			                    <th>Quantity</th>
+			                    <th>Unit</th>
+			                    <th>Total Price</th>
 			                </tr>
 			            </thead>
 			            <tbody id="pos_transaction_view_container"></tbody>
@@ -1343,7 +1321,7 @@
 	    var jqxhr = ajax.always(function () {
 	        let response_data = JSON.parse(jqxhr.responseText);
 
-	        // Hide all tables first
+	         // Hide all tables first
 	        $('.pos_checkouts_table').addClass('hidden');
 
 	        // Show the selected table only
@@ -1535,6 +1513,7 @@
 						pos_list_item_id = value;
 						pos_list_item_name = $(element).data('pos_item_name');
 						pos_list_item_image = $(element).data('pos_item_image');
+						$('#pos_restock_quantity').trigger('focus');
 				    },
 				    forceSelection: false
 				});
@@ -1659,6 +1638,8 @@
 							if (pos_restocking_array.length > 0) {
 								$('#pos_restocking_submit').removeClass('invisible');
 							}
+
+	        				$('#pos_restocking_items_drop .search').focus();
 				        },
 				        fields: {
 				            pos_restocking_date: {
@@ -1702,7 +1683,7 @@
 
 				    let formData = new FormData();
 				    formData.append('pos_restocking_items', JSON.stringify(pos_restocking_array)); // send cart as JSON string
-					formData.append('pos_restocking_date', pos_list_restock_date);
+					formData.append('pos_restocking_date', $('#pos_restocking_date').val());
 				    
 				    $.ajax({
 				        url: '<?php echo base_url(); ?>i.php/sys_control/pos_restock',
@@ -2058,59 +2039,151 @@
         ;
 	});
 
+	$('#records_tab').on('click', function() {
+		load_pos_restocking_codes();
+	});
+
+	$('#pos_restocking_type_dropdown').dropdown('set selected', 'daily');
+
 	function load_pos_restocking_codes() {
-		let pos_log_type = $('#pos_log_type').val();
-		let pos_log_date = $('#pos_log_date').val();
+		let pos_restocking_report_type = $('#pos_restocking_report_type').val();
+		let pos_restocking_report_date = $('#pos_restocking_report_date').val();
         var ajax = $.ajax({
             method: 'POST',
             url   : '<?php echo base_url();?>i.php/sys_control/load_pos_restocking_codes',
             data  : { 
-            	pos_log_type:pos_log_type, 
-            	pos_log_date:pos_log_date
+            	pos_restocking_report_type:pos_restocking_report_type, 
+            	pos_restocking_report_date:pos_restocking_report_date
             }
         });
         var jqxhr = ajax
         .always(function() {
             var response_data = JSON.parse(jqxhr.responseText);
-    		$(`.pos_log_table`).addClass('hidden');
-    		$(`#pos_${pos_log_type}_log_table`).removeClass('hidden');
+    		$(`.pos_restocking_table`).addClass('hidden');
+    		$(`#${pos_restocking_report_type}_pos_restocking_table`).removeClass('hidden');
+            // alert(`#${pos_restocking_report_type}_pos_restocking_table`)
+
             if (response_data != '') {
-        		$(`#pos_${pos_log_type}_log`).html('');
+        		$(`#pos_${pos_restocking_report_type}_restocking_table`).html('');
         		let final_rate = 0;
                 $.each(response_data, function(key, value) {
-                    var activity_type = value.activity_type;
-                    var reference_code = value.reference_code;
-                    var item_name = value.item_name;
-                    var quantity = value.quantity;
-                    var amount = value.amount;
-                    var item_image = value.item_image;
-                    var log_date = value.log_date;
+                    var pos_restocking_code = value.pos_restocking_code;
+                    var total_item_count = value.total_item_count;
+                    var pos_restocking_date = value.pos_restocking_date;
+                    var pos_restocking_timestamp = value.pos_restocking_timestamp;
 
-                    let pos_log = `
-						<tr>
-							<td class="break-text">${activity_type}</td>
-							<td class="break-text">${reference_code}</td>
-							<td class="no-break">
-                                <img src="<?php echo base_url();?>photos/pos_images/${item_image}" class="ui avatar image">
-                				<span>${item_name}</span>
-							</td>
-							<td class="break-text">${quantity}</td>
-							<td class="no-break">${amount}</td>
-							<td class="no-break">${log_date}</td>
+                    let pos_report = `
+						<tr class="pointered pos_restocking_view">
+							<td class="no-break">${pos_restocking_code}</td>
+							<td class="no-break">${total_item_count}</td>
+							<td class="no-break">${pos_restocking_date}</td>
+							<td class="no-break">${pos_restocking_timestamp}</td>
 						</tr>
                     `;
 
-            		$(`#pos_${pos_log_type}_log`).append(pos_log);
-                    $('.special.cards .image').dimmer({
-					  	on: 'hover'
-					});
+                    // alert(`#${pos_restocking_report_type}_pos_restocking`)
+
+            		$(`#${pos_restocking_report_type}_pos_restocking`).append(pos_report);
                 })
+
+                $('.pos_restocking_view').on('click', function() {
+                	$('#pos_logs_modal')
+			            .modal({
+			                useFlex: true,
+			                allowMultiple: true,
+			                autofocus: false,
+			                blurring: true,
+			                closable: false,
+			                onShow: function() {
+			                	load_pos_logs();
+			                    // load_inactive_clients();
+					        }
+			            })
+			            .modal('show')
+			        ;
+                });
             }
             else {
-        		$(`#${log_type}_log`).html('');
+    			$(`#${pos_restocking_report_type}_pos_restocking_table`).removeClass('hidden');
+    			$(`#${pos_restocking_report_type}_pos_restocking`).html('`<tr><td colspan="6" class="center aligned">No records found</td></tr>`');
             }
         })
     }
+
+    function load_pos_restocking(pos_restocking_code) {
+        var ajax = $.ajax({
+            method: 'POST',
+            url   : '<?php echo base_url();?>i.php/sys_control/load_pos_restocking',
+            data  : { 
+            	pos_restocking_report_type:pos_restocking_report_type, 
+            	pos_restocking_report_date:pos_restocking_report_date
+            }
+        });
+        var jqxhr = ajax
+        .always(function() {
+            var response_data = JSON.parse(jqxhr.responseText);
+    		$(`.pos_restocking_table`).addClass('hidden');
+    		$(`#${pos_restocking_report_type}_pos_restocking_table`).removeClass('hidden');
+            // alert(`#${pos_restocking_report_type}_pos_restocking_table`)
+
+            if (response_data != '') {
+        		$(`#pos_${pos_restocking_report_type}_restocking_table`).html('');
+        		let final_rate = 0;
+                $.each(response_data, function(key, value) {
+                    var pos_restocking_code = value.pos_restocking_code;
+                    var total_item_count = value.total_item_count;
+                    var pos_restocking_date = value.pos_restocking_date;
+                    var pos_restocking_timestamp = value.pos_restocking_timestamp;
+
+                    let pos_report = `
+						<tr class="pointered pos_restocking_view">
+							<td class="no-break">${pos_restocking_code}</td>
+							<td class="no-break">${total_item_count}</td>
+							<td class="no-break">${pos_restocking_date}</td>
+							<td class="no-break">${pos_restocking_timestamp}</td>
+						</tr>
+                    `;
+
+                    // alert(`#${pos_restocking_report_type}_pos_restocking`)
+
+            		$(`#${pos_restocking_report_type}_pos_restocking`).append(pos_report);
+                })
+
+                $('.pos_restocking_view').on('click', function() {
+                	$('#pos_logs_modal')
+			            .modal({
+			                useFlex: true,
+			                allowMultiple: false,
+			                autofocus: false,
+			                blurring: true,
+			                closable: false,
+			                onShow: function() {
+			                	load_pos_logs();
+			                    // load_inactive_clients();
+					        }
+			            })
+			            .modal('show')
+			        ;
+                });
+            }
+            else {
+    			$(`#${pos_restocking_report_type}_pos_restocking_table`).removeClass('hidden');
+    			$(`#${pos_restocking_report_type}_pos_restocking`).html('`<tr><td colspan="6" class="center aligned">No records found</td></tr>`');
+            }
+        })
+    }
+
+    $('#pos_restocking_type_dropdown,#pos_restocking_report_date').on('change', function() {
+    	load_pos_restocking_codes();
+	});
+
+	$('#pos_restocking_items_drop, #pos_restock_quantity').on('keydown', function(e) {
+	    if (e.key === 'Enter') {
+	        $('#pos_restocking_form').submit();
+	    }
+	});
+
+
     $('#pos_logs_activator').on('click', function() {
 		$('#pos_logs_modal')
             .modal({
