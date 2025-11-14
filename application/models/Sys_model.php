@@ -1218,52 +1218,25 @@ class Sys_model extends CI_Model {
 
 	public function load_pos_restocking()
 	{
-	    $log_type = $_POST['pos_log_type'];
-	    $log_date = $_POST['pos_log_date'];
-
-	    if ($log_type == 'daily') {
-	    	$sql = "
-	    		SELECT 
-				    c.pos_restocking_id
-				    c.pos_checkout_code
-				    c.pos_item_id
-				    c.pos_item_count
-				    c.pos_restocking_date
-				    c.pos_restocking_timestamp
-				FROM pos_restocking c
-				WHERE DATE(c.pos_restocking_date) = ?
-				ORDER BY pos_restocking_date DESC;
-	    	";
-	    }
-	    else if ($log_type == 'monthly') {
-	    	$sql = "
-	    		SELECT 
-				    c.pos_restocking_id
-				    c.pos_checkout_code
-				    c.pos_item_id
-				    c.pos_item_count
-				    c.pos_restocking_date
-				    c.pos_restocking_timestamp
-				FROM pos_restocking c
-				WHERE MONTH(r.pos_restocking_timestamp) = MONTH(?)
-				ORDER BY pos_restocking_date DESC;
-	    	";
-	    }
-	    else if ($log_type == 'annual') {
-    		$sql = "
-	    		SELECT 
-				    c.pos_restocking_id
-				    c.pos_checkout_code
-				    c.pos_item_id
-				    c.pos_item_count
-				    c.pos_restocking_date
-				    c.pos_restocking_timestamp
-				FROM pos_restocking c
-				WHERE YEAR(r.pos_restocking_timestamp) = YEAR(?)
-				ORDER BY pos_restocking_date DESC;
-	    	";
-	    }
-		$query = $this->db->query($sql, [$log_date]);
+	    $pos_restocking_code = $_POST['pos_restocking_code'];
+    	$sql = "
+    		SELECT 
+			    r.pos_item_id,
+			    i.pos_item_image,
+			    i.pos_item_name,
+			    i.pos_item_price,
+			    r.pos_item_count,
+			    i.pos_item_unit
+			FROM 
+				pos_restocking r, 
+				pos_inventory i
+			WHERE 
+				r.pos_item_id = i.pos_item_id 
+				AND
+				pos_restocking_code = ?
+			ORDER BY pos_restocking_id DESC;
+    	";
+		$query = $this->db->query($sql, [$pos_restocking_code]);
 		foreach ($query->result() as $row) {
  			$output_data[] = $row;
 		}

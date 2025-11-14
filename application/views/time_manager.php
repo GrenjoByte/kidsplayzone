@@ -1030,7 +1030,7 @@
 					                    <th>Timestamp</th>
 					                </tr>
 					            </thead>
-					            <tbody id="daily_pos_restocking"></tbody>
+					            <tbody class="pos_restocking_tbody" id="daily_pos_restocking"></tbody>
 					        </table>
 
 					        <!-- Monthly Table -->
@@ -1043,7 +1043,7 @@
 					                    <th>Timestamp</th>
 					                </tr>
 					            </thead>
-					            <tbody id="monthly_pos_restocking"></tbody>
+					            <tbody class="pos_restocking_tbody" id="monthly_pos_restocking"></tbody>
 					        </table>
 
 					        <!-- Annual Table -->
@@ -1056,7 +1056,7 @@
 					                    <th>Timestamp</th>
 					                </tr>
 					            </thead>
-					            <tbody id="annual_pos_restocking"></tbody>
+					            <tbody class="pos_restocking_tbody" id="annual_pos_restocking"></tbody>
 					        </table>
 					    </div>
 			        </div>
@@ -1159,26 +1159,30 @@
 		        </div>
 		    </div>
 
-		    <div class="ui tiny modal" id="pos_transaction_view_modal">
+		    <div class="ui small modal" id="pos_transaction_view_modal">
 		        <div class="ui header center aligned">
-		            <a class="break-text" id="pos_transaction_view_activity">Checkout *reference_code*</a>
-		            <a class="break-text" id="pos_transaction_view_date">October 21, 2025</a>
+		            <a class="break-text">Transaction View</a>
+		        </div>
+		        <div class="content">
+		        	<h5 class="ui header">
+						<div id="pos_transaction_view_activity"></div>
+						<div class="sub header" id="pos_transaction_view_date"></div>
+					</h5>
 		        </div>
 		        <div class="scrolling content">
-		        	<table class="ui selectable sortable teal table transition hidden">
+		        	<table class="ui selectable sortable teal table">
 			            <thead>
 			                <tr>
 			                    <th>Item Name</th>
 			                    <th>Item Price</th>
 			                    <th>Quantity</th>
-			                    <th>Unit</th>
 			                    <th>Total Price</th>
 			                </tr>
 			            </thead>
 			            <tbody id="pos_transaction_view_container"></tbody>
 			            <tfoot>
 			                <tr>
-			                    <td colspan="5" class="right aligned"><strong>Total:</strong></td>
+			                    <td colspan="3" class="right aligned"><strong>Total:</strong></td>
 			                    <td id="pos_transaction_view_total"></td>
 			                </tr>
 			            </tfoot>
@@ -2061,10 +2065,9 @@
             var response_data = JSON.parse(jqxhr.responseText);
     		$(`.pos_restocking_table`).addClass('hidden');
     		$(`#${pos_restocking_report_type}_pos_restocking_table`).removeClass('hidden');
-            // alert(`#${pos_restocking_report_type}_pos_restocking_table`)
 
+    		$(`.pos_restocking_tbody`).html('');
             if (response_data != '') {
-        		$(`#pos_${pos_restocking_report_type}_restocking_table`).html('');
         		let final_rate = 0;
                 $.each(response_data, function(key, value) {
                     var pos_restocking_code = value.pos_restocking_code;
@@ -2073,7 +2076,7 @@
                     var pos_restocking_timestamp = value.pos_restocking_timestamp;
 
                     let pos_report = `
-						<tr class="pointered pos_restocking_view">
+						<tr class="pointered pos_restocking_view" data-pos_restocking_code="${pos_restocking_code}" data-pos_restocking_date="${pos_restocking_date}">
 							<td class="no-break">${pos_restocking_code}</td>
 							<td class="no-break">${total_item_count}</td>
 							<td class="no-break">${pos_restocking_date}</td>
@@ -2087,7 +2090,9 @@
                 })
 
                 $('.pos_restocking_view').on('click', function() {
-                	$('#pos_logs_modal')
+                	let pos_restocking_code = $(this).data('pos_restocking_code');
+                	let pos_restocking_date = $(this).data('pos_restocking_date');
+                	$('#pos_transaction_view_modal')
 			            .modal({
 			                useFlex: true,
 			                allowMultiple: true,
@@ -2095,7 +2100,7 @@
 			                blurring: true,
 			                closable: false,
 			                onShow: function() {
-			                	load_pos_logs();
+			                	load_pos_restocking(pos_restocking_code, pos_restocking_date);
 			                    // load_inactive_clients();
 					        }
 			            })
@@ -2110,65 +2115,76 @@
         })
     }
 
-    function load_pos_restocking(pos_restocking_code) {
+    function load_pos_restocking(pos_restocking_code, pos_restocking_date) {
+    	let view_activity = `Restocking: <u>${pos_restocking_code}</u>`;
+    	let transaction_date = `Date: <u>${pos_restocking_date}</u>`;
+
+    	$('#pos_transaction_view_activity').html(view_activity);
+    	$('#pos_transaction_view_date').html(pos_restocking_date);
+
         var ajax = $.ajax({
             method: 'POST',
             url   : '<?php echo base_url();?>i.php/sys_control/load_pos_restocking',
             data  : { 
-            	pos_restocking_report_type:pos_restocking_report_type, 
-            	pos_restocking_report_date:pos_restocking_report_date
+            	pos_restocking_code:pos_restocking_code
             }
         });
         var jqxhr = ajax
         .always(function() {
             var response_data = JSON.parse(jqxhr.responseText);
-    		$(`.pos_restocking_table`).addClass('hidden');
-    		$(`#${pos_restocking_report_type}_pos_restocking_table`).removeClass('hidden');
-            // alert(`#${pos_restocking_report_type}_pos_restocking_table`)
-
             if (response_data != '') {
-        		$(`#pos_${pos_restocking_report_type}_restocking_table`).html('');
-        		let final_rate = 0;
-                $.each(response_data, function(key, value) {
-                    var pos_restocking_code = value.pos_restocking_code;
-                    var total_item_count = value.total_item_count;
-                    var pos_restocking_date = value.pos_restocking_date;
-                    var pos_restocking_timestamp = value.pos_restocking_timestamp;
 
-                    let pos_report = `
-						<tr class="pointered pos_restocking_view">
-							<td class="no-break">${pos_restocking_code}</td>
-							<td class="no-break">${total_item_count}</td>
-							<td class="no-break">${pos_restocking_date}</td>
-							<td class="no-break">${pos_restocking_timestamp}</td>
+        		$(`#pos_transaction_view_container`).html('');
+        		let final_total = 0;
+                $.each(response_data, function(key, value) {
+                    var pos_item_name = value.pos_item_name;
+                    var pos_item_image = value.pos_item_image;
+                    var pos_item_price = value.pos_item_price;
+                    var pos_item_count = value.pos_item_count;
+                    var pos_item_unit = value.pos_item_unit;
+                    var total_price = pos_item_count*pos_item_price;
+                    var display_total_price = parseFloat(pos_item_count*pos_item_price).toFixed(2);
+
+                    let formatted_item_price = pos_item_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    let formatted_total_price = display_total_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                    final_total = final_total + total_price;
+
+                    if (pos_item_count > 1) {
+						unit_last = pos_item_unit[pos_item_unit.length-1].toLowerCase();
+				        if (
+					        unit_last == 's' ||
+					        unit_last == 'h' && pos_item_unit.endsWith('sh') ||
+					        unit_last == 'h' && pos_item_unit.endsWith('ch') ||
+					        unit_last == 'x' ||
+					        unit_last == 'z'
+					    ) {
+					        pos_item_unit = pos_item_unit + 'es';
+					    } else {
+					        pos_item_unit = pos_item_unit + 's';
+					    }
+					}
+
+
+                    let view_data = `
+						<tr>
+							<td class="break-text">
+                                <img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui avatar image">
+                				<span>${pos_item_name}</span>
+							</td>
+							<td class="no-break">₱${formatted_item_price}</td>
+							<td class="no-break">${pos_item_count} ${pos_item_unit}</td>
+							<td class="no-break">₱${formatted_total_price}</td>
 						</tr>
                     `;
 
-                    // alert(`#${pos_restocking_report_type}_pos_restocking`)
-
-            		$(`#${pos_restocking_report_type}_pos_restocking`).append(pos_report);
-                })
-
-                $('.pos_restocking_view').on('click', function() {
-                	$('#pos_logs_modal')
-			            .modal({
-			                useFlex: true,
-			                allowMultiple: false,
-			                autofocus: false,
-			                blurring: true,
-			                closable: false,
-			                onShow: function() {
-			                	load_pos_logs();
-			                    // load_inactive_clients();
-					        }
-			            })
-			            .modal('show')
-			        ;
+            		$(`#pos_transaction_view_container`).append(view_data);
                 });
+                let formatted_final_total = final_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                $('#pos_transaction_view_total').html(formatted_final_total);
             }
             else {
-    			$(`#${pos_restocking_report_type}_pos_restocking_table`).removeClass('hidden');
-    			$(`#${pos_restocking_report_type}_pos_restocking`).html('`<tr><td colspan="6" class="center aligned">No records found</td></tr>`');
+        		$(`#pos_transaction_view_container`).html('');
             }
         })
     }
