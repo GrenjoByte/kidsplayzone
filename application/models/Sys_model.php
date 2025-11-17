@@ -896,55 +896,45 @@ class Sys_model extends CI_Model {
 		}
 	}
 
-	public function load_pos_checkouts(){
-	    $report_type = $_POST['report_type'];
-		$report_date = $_POST['report_date'];
+	public function load_pos_checkout_codes(){
+	    $report_type = $_POST['pos_checkouts_type'];
+		$report_date = $_POST['pos_checkouts_date'];
 
 		if ($report_type == 'daily') {
 		    $sql = "
 		    	SELECT 
-				    'Checkout' AS activity_type,
-				    c.pos_checkout_code AS reference_code,
-				    c.pos_item_name AS item_name,
-				    c.pos_item_count AS quantity,
-				    c.pos_item_price AS amount,
-				    c.pos_item_image AS item_image,
-				    c.pos_checkout_date AS timestamp,
-				    c.pos_item_subtotal AS total_cost
+				    c.pos_checkout_code,
+				    SUM(c.pos_item_count) AS total_item_count,
+				    MAX(c.pos_checkout_date) AS pos_checkout_date
 				FROM pos_checkouts c
-				WHERE DATE(c.pos_checkout_date) = DATE(?)
+				WHERE DATE(c.pos_checkout_date) = ?
+				GROUP BY c.pos_checkout_code
 				ORDER BY c.pos_checkout_date DESC;
 		    ";
 		}
 		else if ($report_type == 'monthly') {
 		    $sql = "
 		    	SELECT 
-				    c.pos_checkout_code AS reference_code,
-				    c.pos_item_name AS item_name,
-				    c.pos_item_count AS quantity,
-				    c.pos_item_price AS amount,
-				    c.pos_item_image AS item_image,
-				    c.pos_checkout_date AS timestamp,
-				    c.pos_item_subtotal AS total_cost
+				    c.pos_checkout_code,
+				    SUM(c.pos_item_count) AS total_item_count,
+				    MAX(c.pos_checkout_date) AS pos_checkout_date
 				FROM pos_checkouts c
 				WHERE DATE_FORMAT(c.pos_checkout_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
+				GROUP BY c.pos_checkout_code
 				ORDER BY c.pos_checkout_date DESC;
 		    ";
 		}
 		else if ($report_type == 'annual') {
 		    $sql = "
-			    SELECT 
-				    c.pos_checkout_code AS reference_code,
-				    c.pos_item_name AS item_name,
-				    c.pos_item_count AS quantity,
-				    c.pos_item_price AS amount,
-				    c.pos_item_image AS item_image,
-				    c.pos_checkout_date AS timestamp,
-				    c.pos_item_subtotal AS total_cost
+		    	SELECT 
+				    c.pos_checkout_code,
+				    SUM(c.pos_item_count) AS total_item_count,
+				    MAX(c.pos_checkout_date) AS pos_checkout_date
 				FROM pos_checkouts c
 				WHERE DATE_FORMAT(c.pos_checkout_date, '%Y') = DATE_FORMAT(?, '%Y')
+				GROUP BY c.pos_checkout_code
 				ORDER BY c.pos_checkout_date DESC;
-			";
+		    ";
 		}
 
 		$query = $this->db->query($sql, $report_date);
@@ -959,6 +949,42 @@ class Sys_model extends CI_Model {
 		    echo json_encode('');
 		}
 	}
+
+	public function load_pos_checkout()
+	{
+	    $pos_checkout_code = $_POST['pos_checkout_code'];
+
+	    $sql = "
+	        SELECT 
+	            c.pos_item_id,
+	            i.pos_item_image,
+	            i.pos_item_name,
+	            i.pos_item_price,
+	            c.pos_item_count,
+	            i.pos_item_unit
+	        FROM 
+	            pos_checkouts c,
+	            pos_inventory i
+	        WHERE 
+	            c.pos_item_id = i.pos_item_id 
+	            AND
+	            pos_checkout_code = ?
+	        ORDER BY pos_checkout_id DESC;
+	    ";
+
+	    $query = $this->db->query($sql, [$pos_checkout_code]);
+
+	    foreach ($query->result() as $row) {
+	        $output_data[] = $row;
+	    }
+
+	    if (isset($output_data)) {
+	        echo json_encode($output_data);
+	    } else {
+	        echo json_encode('');
+	    }
+	}
+
 
 	public function void_pos_checkout(){
 	    $pos_checkout_id = $_POST['pos_checkout_id'];
@@ -1302,6 +1328,7 @@ class Sys_model extends CI_Model {
 				}
 				$content_accumulator = $content_accumulator.$content_holder;
 			}
+
 			return $content_accumulator;
 		}
 	}

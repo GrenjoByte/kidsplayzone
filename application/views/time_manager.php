@@ -839,7 +839,7 @@
 		        </div>
 		    </div>
 
-		    <div class="ui modal" id="pos_checkouts_modal">
+		    <div class="ui small modal" id="pos_checkouts_modal">
 			    <div class="ui header center aligned">
 			        <a class="break-text" id="pos_checkouts_header">Sales Records</a>
 			    </div>
@@ -877,20 +877,11 @@
 			            <thead>
 			                <tr>
 			                    <th>Reference Code</th>
-			                    <th>Item Name</th>
-			                    <th>Quantity</th>
-			                    <th>Amount</th>
-			                    <th class="sorted descending">Timestamp</th>
-			                    <th>Total Cost</th>
+			                    <th>Total Items</th>
+			                    <th class="sorted descending">Activity Date</th>
 			                </tr>
 			            </thead>
 			            <tbody id="daily_pos_checkouts"></tbody>
-			            <tfoot>
-			                <tr>
-			                    <td colspan="5" class="right aligned"><strong>Total:</strong></td>
-			                    <td id="daily_pos_checkouts_total"></td>
-			                </tr>
-			            </tfoot>
 			        </table>
 
 			        <!-- Monthly Table -->
@@ -898,20 +889,11 @@
 			            <thead>
 			                <tr>
 			                    <th>Reference Code</th>
-			                    <th>Item Name</th>
-			                    <th>Quantity</th>
-			                    <th>Amount</th>
-			                    <th class="sorted descending">Timestamp</th>
-			                    <th>Total Cost</th>
+			                    <th>Total Items</th>
+			                    <th class="sorted descending">Activity Date</th>
 			                </tr>
 			            </thead>
 			            <tbody id="monthly_pos_checkouts"></tbody>
-			            <tfoot>
-			                <tr>
-			                    <td colspan="5" class="right aligned"><strong>Total:</strong></td>
-			                    <td id="monthly_pos_checkouts_total"></td>
-			                </tr>
-			            </tfoot>
 			        </table>
 
 			        <!-- Annual Table -->
@@ -919,20 +901,11 @@
 			            <thead>
 			                <tr>
 			                    <th>Reference Code</th>
-			                    <th>Item Name</th>
-			                    <th>Quantity</th>
-			                    <th>Amount</th>
-			                    <th class="sorted descending">Timestamp</th>
-			                    <th>Total Cost</th>
+			                    <th>Total Items</th>
+			                    <th class="sorted descending">Activity Date</th>
 			                </tr>
 			            </thead>
 			            <tbody id="annual_pos_checkouts"></tbody>
-			            <tfoot>
-			                <tr>
-			                    <td colspan="5" class="right aligned"><strong>Total:</strong></td>
-			                    <td id="annual_pos_checkouts_total"></td>
-			                </tr>
-			            </tfoot>
 			        </table>
 			    </div>
 
@@ -943,7 +916,7 @@
 			    </div>
 			</div>
 
-			<div class="ui modal" id="pos_restocking_modal">
+			<div class="ui small modal" id="pos_restocking_modal">
 			    <div class="ui header center aligned">
 			        <a class="break-text">Restocking</a>
 			    </div>
@@ -1159,7 +1132,7 @@
 		        </div>
 		    </div>
 
-		    <div class="ui small modal" id="pos_transaction_view_modal">
+		    <div class="ui modal" id="pos_transaction_view_modal">
 		        <div class="ui header center aligned">
 		            <a class="break-text">Transaction View</a>
 		        </div>
@@ -1183,7 +1156,9 @@
 			            <tfoot>
 			                <tr>
 			                    <td colspan="3" class="right aligned"><strong>Total:</strong></td>
-			                    <td id="pos_transaction_view_total"></td>
+			                    <td>
+			                    	<u id="pos_transaction_view_total"></u>
+			                    </td>
 			                </tr>
 			            </tfoot>
 			        </table>
@@ -1285,7 +1260,7 @@
                 blurring: true,
                 closable: false,
                 onShow: function() {
-                	load_pos_checkouts();
+                	load_pos_checkout_codes();
                     // load_inactive_clients();
 		        }
             })
@@ -1309,83 +1284,172 @@
         ;
 	});
 
-	function load_pos_checkouts() {
-	    let report_type = $('#pos_checkouts_type').val();
-	    let report_date = $('#pos_checkouts_date').val();
+	function load_pos_checkout_codes() {
+	    let pos_checkouts_type = $('#pos_checkouts_type').val();
+	    let pos_checkouts_date = $('#pos_checkouts_date').val();
 
 	    var ajax = $.ajax({
 	        method: 'POST',
-	        url: '<?php echo base_url();?>i.php/sys_control/load_pos_checkouts',
-	        data: { 
-	            report_type: report_type,
-	            report_date: report_date
+	        url   : '<?php echo base_url();?>i.php/sys_control/load_pos_checkout_codes',
+	        data  : { 
+	            pos_checkouts_type: pos_checkouts_type, 
+	            pos_checkouts_date: pos_checkouts_date
 	        }
 	    });
 
-	    var jqxhr = ajax.always(function () {
-	        let response_data = JSON.parse(jqxhr.responseText);
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response_data = JSON.parse(jqxhr.responseText);
 
-	         // Hide all tables first
 	        $('.pos_checkouts_table').addClass('hidden');
+	        $(`#${pos_checkouts_type}_pos_checkouts_table`).removeClass('hidden');
 
-	        // Show the selected table only
-	        $(`#${report_type}_pos_checkouts_table`).removeClass('hidden');
+	        $('.pos_checkout_tbody').html('');
 
-	        // Target tbody & total based on report type
-	        let table_body = report_type === 'daily' ? '#daily_pos_checkouts' :
-	                         report_type === 'monthly' ? '#monthly_pos_checkouts' :
-	                         '#annual_pos_checkouts';
+	        if (response_data != '') {
 
-	        let total_field = report_type === 'daily' ? '#daily_pos_checkouts_total' :
-	                          report_type === 'monthly' ? '#monthly_pos_checkouts_total' :
-	                          '#annual_pos_checkouts_total';
+	            $.each(response_data, function(key, value) {
+	                var pos_checkout_code = value.pos_checkout_code;
+	                var total_item_count  = value.total_item_count;
+	                var pos_checkout_date = value.pos_checkout_date;
 
-	        $(table_body).html('');
-	        let total_sum = 0;
-
-	        if (response_data.length > 0) {
-	            $.each(response_data, function (key, value) {
-	                let row = `
-	                    <tr>
-	                        <td>${value.reference_code}</td>
-	                        <td class="no-break">
-	                            <img src="<?php echo base_url();?>photos/pos_images/${value.item_image}" class="ui avatar image">
-	                            <span>${value.item_name}</span>
-	                        </td>
-	                        <td>${value.quantity}</td>
-	                        <td>₱${Number(value.amount).toFixed(2)}</td>
-	                        <td>${value.timestamp}</td>
-	                        <td>₱${Number(value.total_cost).toFixed(2)}</td>
+	                let pos_report = `
+	                    <tr class="pointered pos_checkout_view" 
+	                        data-pos_checkout_code="${pos_checkout_code}" data-pos_checkout_date="${pos_checkout_date}">
+	                        
+	                        <td class="no-break">${pos_checkout_code}</td>
+	                        <td class="no-break">${total_item_count}</td>
+	                        <td class="no-break">${pos_checkout_date}</td>
 	                    </tr>
 	                `;
-	                total_sum += Number(value.total_cost);
-	                $(table_body).append(row);
-	            });
-	        } 
-	        else {
-	            $(table_body).html(`<tr><td colspan="6" class="center aligned">No records found</td></tr>`);
-	        }
 
-	        $(total_field).html(`₱${total_sum.toFixed(2)}`);
+	                $(`#${pos_checkouts_type}_pos_checkouts`).append(pos_report);
+	            });
+
+	            $('.pos_checkout_view').on('click', function() {
+	                let pos_checkout_code = $(this).data('pos_checkout_code');
+	                let pos_checkout_date = $(this).data('pos_checkout_date');
+
+	                $('#pos_transaction_view_modal')
+	                    .modal({
+	                        useFlex: true,
+	                        allowMultiple: true,
+	                        autofocus: false,
+	                        blurring: true,
+	                        closable: false,
+	                        onShow: function() {
+	                            load_pos_checkout(pos_checkout_code, pos_checkout_date);
+	                        }
+	                    })
+	                    .modal('show');
+	            });
+	        }
+	        else {
+	            $(`#${pos_checkouts_type}_pos_checkouts_table`).removeClass('hidden');
+	            $(`#${pos_checkouts_type}_pos_checkouts`).html(
+	                '<tr><td colspan="6" class="center aligned">No records found</td></tr>'
+	            );
+	        }
+	    });
+	}
+	function load_pos_checkout(pos_checkout_code, pos_checkout_date) {
+	    let view_activity = `Checkout: <u>${pos_checkout_code}</u>`;
+	    let transaction_date = `Date: <u>${pos_checkout_date}</u>`;
+
+	    $('#pos_transaction_view_activity').html(view_activity);
+	    $('#pos_transaction_view_date').html(pos_checkout_date);
+
+	    var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/load_pos_checkout',
+	        data  : { 
+	            pos_checkout_code: pos_checkout_code
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response_data = JSON.parse(jqxhr.responseText);
+
+	        if (response_data != '') {
+
+	            $('#pos_transaction_view_container').html('');
+	            let final_total = 0;
+
+	            $.each(response_data, function(key, value) {
+
+	                var pos_item_name  = value.pos_item_name;
+	                var pos_item_image = value.pos_item_image;
+	                var pos_item_price = value.pos_item_price;
+	                var pos_item_count = value.pos_item_count;
+	                var pos_item_unit  = value.pos_item_unit;
+
+	                var total_price = pos_item_count * pos_item_price;
+	                var display_total_price = parseFloat(total_price).toFixed(2);
+
+	                let formatted_item_price  = pos_item_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	                let formatted_total_price = display_total_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+	                final_total += total_price;
+
+	                // pluralize units
+	                if (pos_item_count > 1) {
+	                    unit_last = pos_item_unit[pos_item_unit.length - 1].toLowerCase();
+
+	                    if (
+	                        unit_last == 's' ||
+	                        unit_last == 'h' && pos_item_unit.endsWith('sh') ||
+	                        unit_last == 'h' && pos_item_unit.endsWith('ch') ||
+	                        unit_last == 'x' ||
+	                        unit_last == 'z'
+	                    ) {
+	                        pos_item_unit = pos_item_unit + 'es';
+	                    } else {
+	                        pos_item_unit = pos_item_unit + 's';
+	                    }
+	                }
+
+	                let view_data = `
+	                    <tr>
+	                        <td class="break-text">
+	                            <img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui avatar image">
+	                            <span>${pos_item_name}</span>
+	                        </td>
+	                        <td class="no-break">₱${formatted_item_price}</td>
+	                        <td class="no-break">${pos_item_count} ${pos_item_unit}</td>
+	                        <td class="no-break">₱${formatted_total_price}</td>
+	                    </tr>
+	                `;
+
+	                $('#pos_transaction_view_container').append(view_data);
+	            });
+	            let formatted_final_total = parseFloat(final_total).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                $('#pos_transaction_view_total').html('₱'+formatted_final_total);
+
+	        } else {
+
+	            $('#pos_transaction_view_container').html('');
+
+	        }
 	    });
 	}
 
 	// Auto load on page open
 	$('#pos_checkouts_modal').modal({
 	    onShow: function() {
-	        load_pos_checkouts();
+	        load_pos_checkout_codes();
 	    }
 	});
 
 	// Reload when filters change
 	$('#pos_checkouts_type_dropdown').dropdown({
 	    onChange: function () {
-	        load_pos_checkouts();
+	        load_pos_checkout_codes();
 	    }
 	});
 
 	$('#pos_checkouts_date').on('change', function () {
-	    load_pos_checkouts();
+	    load_pos_checkout_codes();
 	});
 
 
@@ -2180,8 +2244,8 @@
 
             		$(`#pos_transaction_view_container`).append(view_data);
                 });
-                let formatted_final_total = final_total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                $('#pos_transaction_view_total').html(formatted_final_total);
+                let formatted_final_total = parseFloat(final_total).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                $('#pos_transaction_view_total').html('₱'+formatted_final_total);
             }
             else {
         		$(`#pos_transaction_view_container`).html('');
