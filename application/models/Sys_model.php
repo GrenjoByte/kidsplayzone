@@ -891,8 +891,8 @@ class Sys_model extends CI_Model {
 
 		if (!empty($checked_out_items)) {
 		    $activity = "<strong>$pos_checkout_code items:</strong><br>" . implode(', ', $checked_out_items);
-		    $sql = "INSERT INTO pos_logs (pos_checkout_code, pos_activity) VALUES (?, ?)";
-		    $this->db->query($sql, array($pos_item_id, $activity));
+		    $sql = "INSERT INTO pos_logs (pos_code, pos_activity) VALUES (?, ?)";
+		    $this->db->query($sql, [$pos_checkout_code, $activity]);
 		}
 	}
 
@@ -956,7 +956,7 @@ class Sys_model extends CI_Model {
 
 	    $sql = "
 	        SELECT 
-	            c.pos_item_id,
+	            c.pos_checkout_id,
 	            i.pos_item_image,
 	            i.pos_item_name,
 	            i.pos_item_price,
@@ -984,16 +984,15 @@ class Sys_model extends CI_Model {
 	        echo json_encode('');
 	    }
 	}
-
-
-	public function void_pos_checkout(){
+	public function void_pos_checkout_item(){
 	    $pos_checkout_id = $_POST['pos_checkout_id'];
 	
-	    $sql = "SELECT pos_item_id, pos_item_count FROM pos_checkouts WHERE pos_checkout_id = ?";
+	    $sql = "SELECT pos_item_id, pos_item_count, pos_checkout_code FROM pos_checkouts WHERE pos_checkout_id = ?";
 	    $select_query = $this->db->query($sql, [$pos_checkout_id]);
 		foreach ($select_query->result() as $row) {
  			$pos_item_id = $row->pos_item_id;
  			$pos_item_count = $row->pos_item_count;
+ 			$pos_checkout_code = $row->pos_checkout_code;
 		}
         
         $sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
@@ -1002,6 +1001,44 @@ class Sys_model extends CI_Model {
 	    if ($update_query) {
 			$sql = "DELETE FROM pos_checkouts WHERE pos_checkout_id = ?";
 		    $delete_query = $this->db->query($sql, [$pos_checkout_id]);	 
+
+		    if ($delete_query) {
+		    	$sql = "SELECT COUNT(*) AS total FROM pos_checkouts WHERE pos_checkout_code = ?";
+				$query = $this->db->query($sql, [$pos_checkout_code]);
+				$result = $query->row();
+				$pos_checkout_count = $result->total;
+
+				if ($pos_checkout_count == 0) {
+		    		echo "success-null";
+				}
+				else {
+		    		echo "success";
+				}
+	       	}
+	       	else {
+	    		echo "error";
+	       	}
+	    }
+	    else {
+    		echo "error";
+	    }
+	}
+	public function void_pos_checkout(){
+	    $pos_checkout_code = $_POST['pos_checkout_code'];
+	
+	    $sql = "SELECT pos_item_id, pos_item_count FROM pos_checkouts WHERE pos_checkout_code = ?";
+	    $select_query = $this->db->query($sql, [$pos_checkout_code]);
+		foreach ($select_query->result() as $row) {
+ 			$pos_item_id = $row->pos_item_id;
+ 			$pos_item_count = $row->pos_item_count;
+		
+ 			$sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
+	    	$update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+		}
+
+	    if ($update_query) {
+			$sql = "DELETE FROM pos_checkouts WHERE pos_checkout_code = ?";
+		    $delete_query = $this->db->query($sql, [$pos_checkout_code]);	 
 
 		    if ($delete_query) {
 	    		echo "success";
@@ -1056,16 +1093,16 @@ class Sys_model extends CI_Model {
 	        $failed = false;
 			$update_query = false;
 
-	        if ($insert_query) {
-	        	$sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
-	    		$update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
-	        }
+			if ($insert_query) {
+			    $sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
+			    $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+			}
 
-			$restocked_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
-
-	        if (!$update_query) {
-	        	$failed = true;
-		    } 
+			if ($update_query) {
+			    $restocked_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
+			} else {
+			    $failed = true;
+			}
 
 			if (!empty($restocked_items)) {
 			    $activity = "<strong>$pos_restocking_code items:</strong><br>" . implode(', ', $restocked_items);
@@ -1073,7 +1110,7 @@ class Sys_model extends CI_Model {
 			    $this->db->query($sql, array($pos_restocking_code, $activity));
 			}
 	    }
-	    if (isset($failed)) {
+	    if (isset($failed) AND $failed == true) {
 	    	echo "error";
 	    }
 	    else {
@@ -1247,7 +1284,7 @@ class Sys_model extends CI_Model {
 	    $pos_restocking_code = $_POST['pos_restocking_code'];
     	$sql = "
     		SELECT 
-			    r.pos_item_id,
+			    r.pos_restocking_id,
 			    i.pos_item_image,
 			    i.pos_item_name,
 			    i.pos_item_price,
@@ -1272,6 +1309,73 @@ class Sys_model extends CI_Model {
 		else {
 			echo json_encode('');
 		}
+	}
+	public function void_pos_restocking_item(){
+	    $pos_restocking_id = $_POST['pos_restocking_id'];
+	
+	    $sql = "SELECT pos_item_id, pos_item_count, pos_restocking_code FROM pos_restocking WHERE pos_restocking_id = ?";
+	    $select_query = $this->db->query($sql, [$pos_restocking_id]);
+		foreach ($select_query->result() as $row) {
+ 			$pos_item_id = $row->pos_item_id;
+ 			$pos_item_count = $row->pos_item_count;
+ 			$pos_restocking_code = $row->pos_restocking_code;
+		}
+        
+        $sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock - ? WHERE pos_item_id = ?";
+	    $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+
+	    if ($update_query) {
+			$sql = "DELETE FROM pos_restocking WHERE pos_restocking_id = ?";
+		    $delete_query = $this->db->query($sql, [$pos_restocking_id]);	 
+
+		    if ($delete_query) {
+		    	$sql = "SELECT COUNT(*) AS total FROM pos_restocking WHERE pos_restocking_code = ?";
+				$query = $this->db->query($sql, [$pos_restocking_code]);
+				$result = $query->row();
+				$pos_restocking_count = $result->total;
+
+				if ($pos_restocking_count == 0) {
+		    		echo "success-null";
+				}
+				else {
+		    		echo "success";
+				}
+	       	}
+	       	else {
+	    		echo "error";
+	       	}
+	    }
+	    else {
+    		echo "error";
+	    }
+	}
+	public function void_pos_restocking(){
+	    $pos_restocking_code = $_POST['pos_restocking_code'];
+	
+	    $sql = "SELECT pos_item_id, pos_item_count FROM pos_restocking WHERE pos_restocking_code = ?";
+	    $select_query = $this->db->query($sql, [$pos_restocking_code]);
+		foreach ($select_query->result() as $row) {
+ 			$pos_item_id = $row->pos_item_id;
+ 			$pos_item_count = $row->pos_item_count;
+		
+ 			$sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock - ? WHERE pos_item_id = ?";
+	    	$update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
+		}
+
+	    if ($update_query) {
+			$sql = "DELETE FROM pos_restocking WHERE pos_restocking_code = ?";
+		    $delete_query = $this->db->query($sql, [$pos_restocking_code]);	 
+
+		    if ($delete_query) {
+	    		echo "success";
+	       	}
+	       	else {
+	    		echo "error";
+	       	}
+	    }
+	    else {
+    		echo "error";
+	    }
 	}
 
 	public function shadow() {

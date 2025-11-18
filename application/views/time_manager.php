@@ -340,8 +340,8 @@
 					</form>
 		        </div>
 		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
 		            </div>
 				    <button class="ui button green small button" form="signup_form" type="submit">
 				    	Confirm
@@ -420,8 +420,8 @@
 			        </form>
 			    </div>
 			    <div class="actions modal-actions">
-			        <div class="ui orange right corner small label">
-			            <i class="ui times pointered big deny icon"></i>
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
 			        </div>
 			        <button class="ui button green small button" form="update_form" type="submit">
 			            Save Changes
@@ -460,8 +460,8 @@
 					</form>
 		        </div>
 		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
 		            </div>
 				    <button class="ui button green small button" form="new_client_form" type="submit">
 				    	Confirm
@@ -498,8 +498,8 @@
 					</form>
 		        </div>
 		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
 		            </div>
 				    <button class="ui button green small button" form="extend_time_form" type="submit">
 				    	Confirm
@@ -597,8 +597,8 @@
 					</table>
 		        </div>
 		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
 		            </div>
 		        </div>
 		    </div>
@@ -673,8 +673,8 @@
 					</table>
 		        </div>
 		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
 		            </div>
 		        </div>
 		    </div>
@@ -683,7 +683,7 @@
 			    <div class="ui header center aligned">
 			        <a class="break-text" id="new_client_header">New Item</a>
 			    </div>
-			    <div class="content">
+			    <div class="scrolling content">
 			        <form class="ui padded basic segment form" id="new_pos_item_form">
 			            <div class="required field">
 			                <label>Item Name</label>
@@ -727,8 +727,8 @@
 			        </form>
 			    </div>
 			    <div class="actions modal-actions">
-			        <div class="ui orange right corner small label">
-			            <i class="ui times pointered big deny icon"></i>
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
 			        </div>
 			        <button class="ui button green small button" form="new_pos_item_form" type="submit">
 			            Confirm
@@ -739,7 +739,7 @@
 			    <div class="ui header center aligned">
 			        <a class="break-text" id="update_client_header">Edit Item</a>
 			    </div>
-			    <div class="content">
+			    <div class="scrolling content">
 			        <form class="ui padded basic segment form" id="update_pos_item_form">
 					    <!-- Hidden ID for updating -->
 					    <input type="hidden" name="update_pos_item_id" id="update_pos_item_id">
@@ -804,8 +804,8 @@
 
 			    </div>
 			    <div class="actions modal-actions">
-			        <div class="ui orange right corner small label">
-			            <i class="ui times pointered big deny icon"></i>
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
 			        </div>
 			        <button class="ui button green small button" form="update_pos_item_form" type="submit">
 			            Confirm
@@ -830,8 +830,8 @@
 					</div>
 				</div>
 		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
 		            </div>
 		            <button class="ui button green small button" id="pos_checkout_submit">
 			            Checkout
@@ -881,7 +881,7 @@
 			                    <th class="sorted descending">Activity Date</th>
 			                </tr>
 			            </thead>
-			            <tbody id="daily_pos_checkouts"></tbody>
+			            <tbody class="pos_checkouts_tbody" id="daily_pos_checkouts"></tbody>
 			        </table>
 
 			        <!-- Monthly Table -->
@@ -893,7 +893,7 @@
 			                    <th class="sorted descending">Activity Date</th>
 			                </tr>
 			            </thead>
-			            <tbody id="monthly_pos_checkouts"></tbody>
+			            <tbody class="pos_checkouts_tbody" id="monthly_pos_checkouts"></tbody>
 			        </table>
 
 			        <!-- Annual Table -->
@@ -905,13 +905,13 @@
 			                    <th class="sorted descending">Activity Date</th>
 			                </tr>
 			            </thead>
-			            <tbody id="annual_pos_checkouts"></tbody>
+			            <tbody class="pos_checkouts_tbody" id="annual_pos_checkouts"></tbody>
 			        </table>
 			    </div>
 
 			    <div class="actions modal-actions">
-			        <div class="ui orange right corner small label">
-			            <i class="ui times pointered big deny icon"></i>
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
 			        </div>
 			    </div>
 			</div>
@@ -976,9 +976,9 @@
 			                            <i class="dropdown icon"></i>
 			                            <div class="default text">Select Report Type</div>
 			                            <div class="menu">
-			                                <div class="item" data-value="daily">Daily</div>
-			                                <div class="item" data-value="monthly">Monthly</div>
-			                                <div class="item" data-value="annual">Annually</div>
+		                                <div class="item" data-value="daily">Daily</div>
+		                                <div class="item" data-value="monthly">Monthly</div>
+		                                <div class="item" data-value="annual">Annually</div>
 			                            </div>
 			                        </div>
 			                    </div>
@@ -1037,8 +1037,8 @@
 
 			    <!-- Close Icon -->
 			    <div class="actions modal-actions">
-			        <div class="ui orange right corner small label">
-			            <i class="ui times pointered big deny icon"></i>
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
 			        </div>
 			        <button class="ui right aligned green invisible small button" id="pos_restocking_submit">
 	                    <i class="ui check icon"></i>
@@ -1126,8 +1126,8 @@
 					</table>
 		        </div>
 		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
 		            </div>
 		        </div>
 		    </div>
@@ -1146,6 +1146,7 @@
 		        	<table class="ui selectable sortable teal table">
 			            <thead>
 			                <tr>
+			                    <th class="sorted descending">No.</th>
 			                    <th>Item Name</th>
 			                    <th>Item Price</th>
 			                    <th>Quantity</th>
@@ -1155,7 +1156,7 @@
 			            <tbody id="pos_transaction_view_container"></tbody>
 			            <tfoot>
 			                <tr>
-			                    <td colspan="3" class="right aligned"><strong>Total:</strong></td>
+			                    <td colspan="4" class="right aligned"><strong>Total:</strong></td>
 			                    <td>
 			                    	<u id="pos_transaction_view_total"></u>
 			                    </td>
@@ -1164,8 +1165,12 @@
 			        </table>
 				</div>
 		        <div class="actions modal-actions">
-		            <div class="ui orange right corner small label">
-		                <i class="ui times pointered big deny icon"></i>
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
+		            </div>
+		            <div class="ui purple pointered small button" id="pos_transaction_void_button" data-pos_transaction_code="" data-pos_transaction_type="">
+		                <i class="ui times pointered icon"></i>
+		                Void
 		            </div>
 		        </div>
 		    </div>
@@ -1304,7 +1309,7 @@
 	        $('.pos_checkouts_table').addClass('hidden');
 	        $(`#${pos_checkouts_type}_pos_checkouts_table`).removeClass('hidden');
 
-	        $('.pos_checkout_tbody').html('');
+	        $('.pos_checkouts_tbody').html('');
 
 	        if (response_data != '') {
 
@@ -1355,9 +1360,11 @@
 	function load_pos_checkout(pos_checkout_code, pos_checkout_date) {
 	    let view_activity = `Checkout: <u>${pos_checkout_code}</u>`;
 	    let transaction_date = `Date: <u>${pos_checkout_date}</u>`;
+	    $('#pos_transaction_void_button').data('pos_transaction_code', pos_checkout_code);
+	    $('#pos_transaction_void_button').data('pos_transaction_type', 'checkout');
 
 	    $('#pos_transaction_view_activity').html(view_activity);
-	    $('#pos_transaction_view_date').html(pos_checkout_date);
+	    $('#pos_transaction_view_date').html(transaction_date);
 
 	    var ajax = $.ajax({
 	        method: 'POST',
@@ -1377,7 +1384,7 @@
 	            let final_total = 0;
 
 	            $.each(response_data, function(key, value) {
-
+	                var pos_checkout_id  = value.pos_checkout_id;
 	                var pos_item_name  = value.pos_item_name;
 	                var pos_item_image = value.pos_item_image;
 	                var pos_item_price = value.pos_item_price;
@@ -1410,8 +1417,10 @@
 	                }
 
 	                let view_data = `
-	                    <tr>
+						<tr id="pos_checkout_item${pos_checkout_id}" data-pos_checkout_code="${pos_checkout_code}" data-pos_checkout_date="${pos_checkout_date}">
+	                        <td>${key+1}</td>
 	                        <td class="break-text">
+	                			<i class="red pointered x icon  void_pos_checkout_item" data-pos_checkout_id="${pos_checkout_id}" data-pos_item_name="${pos_item_name}"></i>
 	                            <img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui avatar image">
 	                            <span>${pos_item_name}</span>
 	                        </td>
@@ -1423,6 +1432,15 @@
 
 	                $('#pos_transaction_view_container').append(view_data);
 	            });
+
+	            $('.void_pos_checkout_item').on('dblclick', function() {
+	            	let pos_checkout_id = $(this).data('pos_checkout_id');
+	            	let pos_item_name = $(this).data('pos_item_name');
+	            	let confirmed = confirm('Are you sure you want to void this checkout item?');
+	            	if (confirmed) {
+	            		void_pos_checkout_item(pos_checkout_id, pos_item_name);
+	            	}
+	            });
 	            let formatted_final_total = parseFloat(final_total).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                 $('#pos_transaction_view_total').html('₱'+formatted_final_total);
 
@@ -1433,6 +1451,63 @@
 	        }
 	    });
 	}
+
+	function void_pos_checkout_item(pos_checkout_id, pos_item_name) {
+	    var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/void_pos_checkout_item',
+	        data  : { 
+	            pos_checkout_id: pos_checkout_id
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response = jqxhr.responseText;
+        	if (response == 'success') {
+	        	alert(`${pos_item_name} was successfully voided from this checkout.`);
+	        	let pos_checkout_code = $(`#pos_checkout_item${pos_checkout_id}`).data('pos_checkout_code');
+	        	let pos_checkout_date = $(`#pos_checkout_item${pos_checkout_id}`).data('pos_checkout_date');
+
+	        	load_pos_checkout(pos_checkout_code, pos_checkout_date);
+            	load_pos_inventory();
+	        }
+	        else if (response == 'success-null') {
+	        	$('#pos_transaction_view_modal').modal('hide');
+	        	alert(`${pos_item_name} was successfully voided. All items from this checkout has been voided.`);
+	        	load_pos_checkout_codes();
+            	load_pos_inventory();
+	        }
+	        else {
+	        	alert(`Voiding failed. Please try again.`);
+	        }
+	    });
+	}
+
+	function void_pos_checkout(pos_checkout_code) {
+		var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/void_pos_checkout',
+	        data  : { 
+	            pos_checkout_code: pos_checkout_code
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response = jqxhr.responseText;
+	        if (response == 'success') {
+	        	$('#pos_transaction_view_modal').modal('hide');
+	        	alert(`Checkout with code "${pos_checkout_code}" was successfully voided.`);
+	        	load_pos_checkout_codes();
+            	load_pos_inventory();
+	        }
+	        else {
+	        	alert(`Voiding failed. Please try again.`);
+	        }
+	    });
+	}
+
 
 	// Auto load on page open
 	$('#pos_checkouts_modal').modal({
@@ -1502,10 +1577,6 @@
 						    <div class="blurring dimmable image image-container">
 								<div class="ui dimmer">
 									<div class="content">
-										<div class="ui teal mini inverted button restock_pos_item">
-											Restock
-										</div>
-                    					<br><br>
                     					<div class="ui blue mini inverted button edit_pos_item">
 											Edit
 										</div>
@@ -1513,7 +1584,6 @@
                     					<div class="ui orange mini inverted button archive_pos_item">
 											Archive
 										</div>
-
 									</div>
 								</div>
                             	<img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
@@ -1819,10 +1889,10 @@
 			                blurring: true,
 			                closable: false,
 			                onHide: function() {
-					            stop_update_pos_camera();
+					            // stop_update_pos_camera();
 					        },
 					        onShow: function(){
-					        	start_update_pos_camera();
+					        	// start_update_pos_camera();
 					        }
 			            })
 			            .modal('show')
@@ -2182,9 +2252,11 @@
     function load_pos_restocking(pos_restocking_code, pos_restocking_date) {
     	let view_activity = `Restocking: <u>${pos_restocking_code}</u>`;
     	let transaction_date = `Date: <u>${pos_restocking_date}</u>`;
+	    $('#pos_transaction_void_button').data('pos_transaction_code', pos_restocking_code);
+	    $('#pos_transaction_void_button').data('pos_transaction_type', 'restocking');
 
     	$('#pos_transaction_view_activity').html(view_activity);
-    	$('#pos_transaction_view_date').html(pos_restocking_date);
+    	$('#pos_transaction_view_date').html(transaction_date);
 
         var ajax = $.ajax({
             method: 'POST',
@@ -2201,6 +2273,7 @@
         		$(`#pos_transaction_view_container`).html('');
         		let final_total = 0;
                 $.each(response_data, function(key, value) {
+                    var pos_restocking_id = value.pos_restocking_id;
                     var pos_item_name = value.pos_item_name;
                     var pos_item_image = value.pos_item_image;
                     var pos_item_price = value.pos_item_price;
@@ -2231,8 +2304,10 @@
 
 
                     let view_data = `
-						<tr>
+						<tr id="pos_restocking_item${pos_restocking_id}" data-pos_restocking_code="${pos_restocking_code}" data-pos_restocking_date="${pos_restocking_date}">
+							<td>${key+1}</td>
 							<td class="break-text">
+	                			<i class="red pointered x icon  void_pos_restocking_item" data-pos_restocking_id="${pos_restocking_id}" data-pos_item_name="${pos_item_name}"></i>
                                 <img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui avatar image">
                 				<span>${pos_item_name}</span>
 							</td>
@@ -2244,6 +2319,16 @@
 
             		$(`#pos_transaction_view_container`).append(view_data);
                 });
+
+                $('.void_pos_restocking_item').on('dblclick', function() {
+	            	let pos_restocking_id = $(this).data('pos_restocking_id');
+	            	let pos_item_name = $(this).data('pos_item_name');
+	            	let confirmed = confirm('Are you sure you want to void this restocking item?');
+	            	if (confirmed) {
+	            		void_pos_restocking_item(pos_restocking_id, pos_item_name);
+	            	}
+	            });
+
                 let formatted_final_total = parseFloat(final_total).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                 $('#pos_transaction_view_total').html('₱'+formatted_final_total);
             }
@@ -2252,6 +2337,76 @@
             }
         })
     }
+
+    function void_pos_restocking_item(pos_restocking_id, pos_item_name) {
+	    var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/void_pos_restocking_item',
+	        data  : { 
+	            pos_restocking_id: pos_restocking_id
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response = jqxhr.responseText;
+	        if (response == 'success') {
+	        	alert(`${pos_item_name} was successfully voided from this restocking.`);
+	        	let pos_restocking_code = $(`#pos_restocking_item${pos_restocking_id}`).data('pos_restocking_code');
+	        	let pos_restocking_date = $(`#pos_restocking_item${pos_restocking_id}`).data('pos_restocking_date');
+
+	        	load_pos_restocking(pos_restocking_code, pos_restocking_date);
+            	load_pos_inventory();
+	        }
+	        else if (response == 'success-null') {
+	        	$('#pos_transaction_view_modal').modal('hide');
+	        	alert(`${pos_item_name} was successfully voided. All items from this restock has been voided.`);
+	        	load_pos_restocking_codes();
+            	load_pos_inventory();
+	        }
+	        else {
+	        	alert(`Voiding failed. Please try again.`);
+	        }
+	    });
+	}
+
+	$('#pos_transaction_void_button').on('dblclick', function() {
+		let pos_transaction_code = $(this).data('pos_transaction_code');
+		let pos_transaction_type = $(this).data('pos_transaction_type');
+    	let confirmed = confirm('Are you sure you want to void this transaction and all related items? Once voided, it cannot be restored.');
+    	if (confirmed) {
+    		if (pos_transaction_type == 'checkout') {
+	    		void_pos_checkout(pos_transaction_code);
+    		}
+    		else if (pos_transaction_type == 'restocking') {
+	    		void_pos_restocking(pos_transaction_code);
+    		}
+    	}
+	});
+
+	function void_pos_restocking(pos_restocking_code) {
+		var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/void_pos_restocking',
+	        data  : { 
+	            pos_restocking_code: pos_restocking_code
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response = jqxhr.responseText;
+	        if (response == 'success') {
+	        	$('#pos_transaction_view_modal').modal('hide');
+	        	alert(`Restocking with code "${pos_restocking_code}" was successfully voided.`);
+	        	load_pos_restocking_codes();
+	            load_pos_inventory();
+	        }
+	        else {
+	        	alert(`Voiding failed. Please try again.`);
+	        }
+	    });
+	}
 
     $('#pos_restocking_type_dropdown,#pos_restocking_report_date').on('change', function() {
     	load_pos_restocking_codes();
@@ -2694,12 +2849,13 @@
 	    $('#update_pos_item_image_button').on('click', function() {
 	    	$('#current_pos_image_field').addClass('invisible');
 	    	$('#update_pos_webcam_field').removeClass('invisible');
-        	start_update_camera();
+            start_update_pos_camera();
+
 	    });
 	    $('#cancel_pos_image_update').on('click', function() {
 	    	$('#current_pos_image_field').removeClass('invisible');
 	    	$('#update_pos_webcam_field').addClass('invisible');
-	    	stop_update_camera();
+            stop_update_pos_camera();
 	    });
 	}
 

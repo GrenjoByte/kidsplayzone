@@ -155,6 +155,11 @@ class Sys_control extends CI_Controller
 		$this->load->model('sys_model');	
 		$this->sys_model->load_pos_checkout();
 	}
+	public function void_pos_checkout_item()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->void_pos_checkout_item();
+	}
 	public function void_pos_checkout()
 	{
 		$this->load->model('sys_model');	
@@ -179,6 +184,16 @@ class Sys_control extends CI_Controller
 	{
 		$this->load->model('sys_model');	
 		$this->sys_model->load_pos_restocking();
+	}
+	public function void_pos_restocking_item()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->void_pos_restocking_item();
+	}
+	public function void_pos_restocking()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->void_pos_restocking();
 	}
 }
 ?>
