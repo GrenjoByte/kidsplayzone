@@ -1049,7 +1049,7 @@
 
 		    <div class="ui modal" id="pos_logs_modal">
 		        <div class="ui header center aligned">
-		            <a class="break-text" id="pos_logs_header">Logs</a>
+		            <a class="break-text" id="pos_logs_header">POS Logs</a>
 		        </div>
 		        <div class="content">
 		        	<div class="ui form">
@@ -1082,12 +1082,10 @@
 		        	<table class="ui selectable teal sortable fixed table transition hidden pos_log_table" id="pos_daily_log_table">
 						<thead>
 							<tr>
-								<th class="two wide">Activity Type</th>
+								<th class="three wide">Activity Type</th>
 								<th class="four wide">Reference Code</th>
-								<th class="four wide">Item Name</th>
-								<th class="two wide">Quantity</th>
-								<th class="two wide">Amount</th>
-								<th class="sorted ascending three wide">Log Date</th>
+								<th class="six wide">Activity/Items</th>
+								<th class="sorted ascending three wide">Timestamp</th>
 							</tr>
 						</thead>
 						<tbody id="pos_daily_log">
@@ -1097,12 +1095,10 @@
 					<table class="ui selectable teal sortable fixed table transition hidden pos_log_table" id="pos_monthly_log_table">
 						<thead>
 							<tr>
-								<th class="two wide">Activity Type</th>
+								<th class="three wide">Activity Type</th>
 								<th class="four wide">Reference Code</th>
-								<th class="five wide">Item Name</th>
-								<th class="one wide">Quantity</th>
-								<th class="two wide">Amount</th>
-								<th class="sorted ascending three wide">Log Date</th>
+								<th class="six wide">Activity/Items</th>
+								<th class="sorted ascending three wide">Timestamp</th>
 							</tr>
 						</thead>
 						<tbody id="pos_monthly_log">
@@ -1112,12 +1108,10 @@
 					<table class="ui selectable teal sortable fixed table transition hidden pos_log_table" id="pos_annual_log_table">
 						<thead>
 							<tr>
-								<th class="two wide">Activity Type</th>
+								<th class="three wide">Activity Type</th>
 								<th class="four wide">Reference Code</th>
-								<th class="five wide">Item Name</th>
-								<th class="one wide">Quantity</th>
-								<th class="two wide">Amount</th>
-								<th class="sorted ascending three wide">Log Date</th>
+								<th class="six wide">Activity/Items</th>
+								<th class="sorted ascending three wide">Timestamp</th>
 							</tr>
 						</thead>
 						<tbody id="pos_annual_log">
@@ -2127,25 +2121,18 @@
         		$(`#pos_${pos_log_type}_log`).html('');
         		let final_rate = 0;
                 $.each(response_data, function(key, value) {
-                    var activity_type = value.activity_type;
-                    var reference_code = value.reference_code;
-                    var item_name = value.item_name;
-                    var quantity = value.quantity;
-                    var amount = value.amount;
-                    var item_image = value.item_image;
-                    var log_date = value.log_date;
+                    var pos_log_id = value.pos_log_id;
+                    var pos_activity_type = value.pos_activity_type;
+                    var pos_code = value.pos_code;
+                    var pos_activity = value.pos_activity;
+                    var timestamp = value.timestamp;
 
                     let pos_log = `
 						<tr>
-							<td class="break-text">${activity_type}</td>
-							<td class="break-text">${reference_code}</td>
-							<td class="no-break">
-                                <img src="<?php echo base_url();?>photos/pos_images/${item_image}" class="ui avatar image">
-                				<span>${item_name}</span>
-							</td>
-							<td class="break-text">${quantity}</td>
-							<td class="no-break">${amount}</td>
-							<td class="no-break">${log_date}</td>
+							<td class="break-text">${pos_activity_type}</td>
+							<td class="no-break">${pos_code}</td>
+							<td class="break-text">${pos_activity}</td>
+							<td class="no-break">${timestamp}</td>
 						</tr>
                     `;
 
@@ -3161,7 +3148,7 @@
 										</div>
                     					<br>
 										<br>
-										<div class="ui red tiny inverted button remove_time" data-client_id="${client_id}" data-full_name="${full_name}" id="${client_id}remove_time">
+										<div class="ui red tiny inverted button remove_time" data-client_id="${client_id}" data-full_name="${full_name}" data-hour="${hour}" data-minute="${minute}" data-price="${price}" id="${client_id}remove_time">
 											Remove
 										</div>
 									</div>
@@ -3267,11 +3254,19 @@
 			    $('.remove_time').on('dblclick', function() {
 			    	var client_id = $(this).data('client_id');
 			    	var full_name = $(this).data('full_name');
+			    	var hour = $(this).data('hour');
+			    	var minute = $(this).data('minute');
+			    	var price = $(this).data('price');
 
 			    	var ajax = $.ajax({
 		                method: 'POST',
 		                url   : '<?php echo base_url();?>i.php/sys_control/remove_client_time',
-		                data  : { client_id:client_id }
+		                data  : { 
+		                	client_id:client_id,
+		                	hour:hour,
+		                	minute:minute,
+		                	price:price
+		                }
 		            });
 		            var jqxhr = ajax
 		                .always(function() {

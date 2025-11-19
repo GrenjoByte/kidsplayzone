@@ -531,16 +531,30 @@ class Sys_model extends CI_Model {
 	public function remove_client_time()
 	{
 	    $client_id = $_POST['client_id'];
+	    $hour = $_POST['hour'];
+	    $minute = $_POST['minute'];
+	    $price = $_POST['price'];
 
 		$sql = "DELETE FROM time_manager WHERE client_id = ?";
 		$query = $this->db->query($sql, [$client_id]);
 
 		if ($query) {
-		    echo 'success';
-		    $activity = "<strong>Time Cancelled</strong>";
+		    $time = '';
+			if ($hour > 0 && $minute > 0) {
+			    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+			} elseif ($hour > 0) {
+			    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+			} elseif ($minute > 0) {
+			    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+			} else {
+			    $time = 'Unlimited';
+			}
+
+        	$activity = "<strong>Time Cancelled:</strong><br>Time: ".$time.", "."Rate: ₱".$price;
 	        $sql = "INSERT INTO time_logs (client_id, activity)
 	            VALUES (?, ?)";
 	    	$this->db->query($sql, array($client_id, $activity));
+		    echo 'success';
 		} else {
 		    echo 'error';
 		}
@@ -737,16 +751,16 @@ class Sys_model extends CI_Model {
 
 	        $item_id = $this->db->insert_id();
 	        $unit_label = pluralize_unit($new_pos_item_unit, $new_pos_item_stock);
-
+	        $activity_type = "Item Creation";
+        	$pos_code = "Item ID: ". $pos_item_id;
 	        $activity = "
 	            <strong>Item '$new_pos_item_name' created.</strong>
 	            <br>Price: ₱$new_pos_item_price
 	            <br>Stock: $new_pos_item_stock $unit_label
 	            <br>Low: $new_pos_item_stock $unit_label
 	        ";
-
-	        $sql = "INSERT INTO pos_logs (pos_code, pos_activity) VALUES (?, ?)";
-	        $this->db->query($sql, [$item_id, $activity]);
+	        $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
+	        $this->db->query($sql, [$activity_type, $pos_code, $activity]);
 	    } else {
 	        echo "error";
 	    }
@@ -813,9 +827,11 @@ class Sys_model extends CI_Model {
 	    if ($update_query) {
 	        echo "success";
 	        if (!empty($changed)) {
+	        	$pos_activity_type = "Item Updating";
+	        	$pos_code = "Item ID: ". $pos_item_id;
 	            $activity = "<strong>Updated:</strong><br>" . implode(', ', $changed);
-	            $sql = "INSERT INTO pos_logs (pos_item_id, pos_activity) VALUES (?, ?)";
-	            $this->db->query($sql, array($pos_item_id, $activity));
+	            $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
+	        	$this->db->query($sql, [$activity_type, $pos_code, $activity]);
 	        }
 	    } else {
 	        echo "error";
@@ -890,9 +906,10 @@ class Sys_model extends CI_Model {
 	    }
 
 		if (!empty($checked_out_items)) {
-		    $activity = "<strong>$pos_checkout_code items:</strong><br>" . implode(', ', $checked_out_items);
-		    $sql = "INSERT INTO pos_logs (pos_code, pos_activity) VALUES (?, ?)";
-		    $this->db->query($sql, [$pos_checkout_code, $activity]);
+			$activity_type = 'Checkout';
+		    $activity = implode('<br>', $checked_out_items);
+		    $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, 	pos_activity) VALUES (?, ?, ?)";
+        	$this->db->query($sql, [$activity_type, $pos_checkout_code, $activity]);
 		}
 	}
 
@@ -1051,73 +1068,83 @@ class Sys_model extends CI_Model {
     		echo "error";
 	    }
 	}
-	public function pos_restock(){
-        $pos_restocking_date = $_POST['pos_restocking_date'];
+	public function pos_restock()
+	{
+	    $pos_restocking_date = $_POST['pos_restocking_date'];
 
 	    $random_code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
 	    $pos_restocking_code = 'STK-' . $pos_restocking_date . '-' . $random_code;
 
 	    $pos_restocking_items = $this->input->post('pos_restocking_items');
 	    if (is_string($pos_restocking_items)) {
-		    $pos_restocking_items = json_decode($pos_restocking_items, true);
-		}
-	    
-	    if (empty($pos_restocking_items) || !is_array($pos_restocking_items)) {
-	        echo "empty_cart";
+	        $pos_restocking_items = json_decode($pos_restocking_items, true);
 	    }
 
+	    if (empty($pos_restocking_items) || !is_array($pos_restocking_items)) {
+	        echo "empty_cart";
+	        return;
+	    }
+
+	    $failed = false;
 	    $restocked_items = [];
 
 	    foreach ($pos_restocking_items as $item) {
+
 	        $pos_item_id = $item['pos_item_id'];
-	        $pos_item_count  = $item['pos_item_count'];
+	        $pos_item_count = $item['pos_item_count'];
 
+	        // get item details
 	        $sql = "SELECT pos_item_name, pos_item_unit FROM pos_inventory WHERE pos_item_id = ?";
-		    $select_query = $this->db->query($sql, [$pos_item_id]);
-			foreach ($select_query->result() as $row) {
-	 			$pos_item_name = $row->pos_item_name;
-	 			$pos_item_unit = $row->pos_item_unit;
-			}
+	        $select_query = $this->db->query($sql, [$pos_item_id]);
 
+	        if ($select_query->num_rows() == 0) {
+	            $failed = true;
+	            continue;
+	        }
+
+	        $row = $select_query->row();
+	        $pos_item_name = $row->pos_item_name;
+	        $pos_item_unit = $row->pos_item_unit;
+
+	        // insert restocking record
 	        $sql = "INSERT INTO pos_restocking
 	                (pos_restocking_code, pos_item_id, pos_item_count, pos_restocking_date)
 	                VALUES (?, ?, ?, ?)";
 
-	        $insert_query = $this->db->query($sql, array(
+	        $insert_query = $this->db->query($sql, [
 	            $pos_restocking_code,
 	            $pos_item_id,
 	            $pos_item_count,
 	            $pos_restocking_date
-	        ));
+	        ]);
 
-	        $failed = false;
-			$update_query = false;
+	        if (!$insert_query) {
+	            $failed = true;
+	            continue;
+	        }
 
-			if ($insert_query) {
-			    $sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
-			    $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
-			}
+	        // update stock
+	        $sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
+	        $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
 
-			if ($update_query) {
-			    $restocked_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
-			} else {
-			    $failed = true;
-			}
-
-			if (!empty($restocked_items)) {
-			    $activity = "<strong>$pos_restocking_code items:</strong><br>" . implode(', ', $restocked_items);
-			    $sql = "INSERT INTO pos_logs (pos_code, pos_activity) VALUES (?, ?)";
-			    $this->db->query($sql, array($pos_restocking_code, $activity));
-			}
+	        if ($update_query) {
+	            $restocked_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
+	        } else {
+	            $failed = true;
+	        }
 	    }
-	    if (isset($failed) AND $failed == true) {
-	    	echo "error";
+
+	    // insert one log AFTER all items
+	    if (!empty($restocked_items)) {
+			$activity_type = 'Restocking';
+	        $activity = implode('<br>', $restocked_items);
+	        $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
+	        $this->db->query($sql, [$activity_type, $pos_restocking_code, $activity]);
 	    }
-	    else {
-	    	echo "success";
-	    }
+
+	    echo $failed ? "error" : "success";
 	}
-	public function load_pos_logs()
+	public function load_pos_reports()
 	{
 	    $log_type = $_POST['pos_log_type'];
 	    $log_date = $_POST['pos_log_date'];
@@ -1222,6 +1249,48 @@ class Sys_model extends CI_Model {
 		else {
 			echo json_encode('');
 		}
+	}
+	public function load_pos_logs()
+	{
+	    $log_type = $_POST['pos_log_type'];
+	    $log_date = $_POST['pos_log_date'];
+
+	    if ($log_type == 'daily') {
+	        $sql = "
+	            SELECT *
+	            FROM pos_logs
+	            WHERE DATE(timestamp) = ?
+	            ORDER BY pos_log_id ASC
+	        ";
+	    }
+	    else if ($log_type == 'monthly') {
+	        $sql = "
+	            SELECT *
+	            FROM pos_logs
+	            WHERE DATE_FORMAT(timestamp, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
+	            ORDER BY pos_log_id ASC
+	        ";
+	    }
+	    else if ($log_type == 'annual') {
+	        $sql = "
+	            SELECT *
+	            FROM pos_logs
+	            WHERE YEAR(timestamp) = YEAR(?)
+	            ORDER BY pos_log_id ASC
+	        ";
+	    }
+
+	    $query = $this->db->query($sql, [$log_date]);
+
+	    foreach ($query->result() as $row) {
+	        $output_data[] = $row;
+	    }
+
+	    if (isset($output_data)) {
+	        echo json_encode($output_data);
+	    } else {
+	        echo json_encode('');
+	    }
 	}
 	public function load_pos_restocking_codes()
 	{
