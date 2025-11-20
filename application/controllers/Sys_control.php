@@ -200,5 +200,80 @@ class Sys_control extends CI_Controller
 		$this->load->model('sys_model');	
 		$this->sys_model->void_pos_restocking();
 	}
+	public function load_supply_inventory()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_supply_inventory();
+	}
+	public function new_supply_item()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->new_supply_item();
+	}
+	public function update_supply_item()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->update_supply_item();
+	}
+	public function supply_checkout()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->supply_checkout();
+	}
+	public function load_supply_checkout_codes()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_supply_checkout_codes();
+	}
+	public function load_supply_checkout()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_supply_checkout();
+	}
+	public function void_supply_checkout_item()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->void_supply_checkout_item();
+	}
+	public function void_supply_checkout()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->void_supply_checkout();
+	}
+	public function supply_restock()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->supply_restock();
+	}
+	public function load_supply_reports()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_supply_reports();
+	}
+	public function load_supply_logs()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_supply_logs();
+	}
+	public function load_supply_restocking_codes()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_supply_restocking_codes();
+	}
+	public function load_supply_restocking()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->load_supply_restocking();
+	}
+	public function void_supply_restocking_item()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->void_supply_restocking_item();
+	}
+	public function void_supply_restocking()
+	{
+		$this->load->model('sys_model');	
+		$this->sys_model->void_supply_restocking();
+	}
 }
 ?>

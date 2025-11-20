@@ -104,6 +104,41 @@
             </div> -->
 	    </div>
 	</div>
+	<div class="ui circular icon dropdown button blue bottom right pointing actions_drop floater-button" id="supply_tab_actions">
+	<!-- <div class="ui dropdown labeled icon top pointing right "> -->
+	    <i class="cog large icon loading"></i>
+	    <!-- <i class="ellipsis horizontal large icon"></i> -->
+	    <div class="menu">
+	        <div class="ui center aligned blue tiny header">
+	            <i class="large cogs icon"></i>
+	            Actions
+	        </div>
+	        <div class="item new_supply_item_activator" id="new_supply_item_activator">
+                <i class="plus icon"></i>
+                <small>New Item</small>
+            </div>
+            <div class="item supply_restocking_activator" id="supply_restocking_activator">
+                <i class="dolly icon"></i>
+                <small>Restocking</small>
+            </div>
+            <div class="item supply_checkouts_activator" id="supply_checkouts_activator">
+                <i class="clipboard list icon"></i>
+                <small>Checkouts</small>
+            </div>
+            <div class="item tm_reports_activator" id="supply_reports_activator">
+                <i class="chart bar icon"></i>
+                <small>Reports</small>
+            </div>
+            <div class="item tm_reports_activator" id="supply_logs_activator">
+                <i class="history icon"></i>
+                <small>Logs</small>
+            </div>
+            <!-- <div class="item add_item_activator" id="add_item_activator">
+                <i class="orange archive icon"></i>
+                <small>Archived Clients</small>
+            </div> -->
+	    </div>
+	</div>
 </div>
 <style type="text/css">
 	main {

@@ -1447,6 +1447,805 @@ class Sys_model extends CI_Model {
 	    }
 	}
 
+	public function load_supply_inventory()
+	{
+	    $sql = "SELECT * FROM supply_inventory WHERE supply_item_status != 0";
+		$query = $this->db->query($sql);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function new_supply_item()
+	{
+	    // Handle pluralization of units
+	    function pluralize_unit($unit, $count) {
+	        $unit = strtolower(trim($unit));
+
+	        // Irregular plural forms
+	        $irregulars = [
+	            'man' => 'men',
+	            'woman' => 'women',
+	            'person' => 'people',
+	            'mouse' => 'mice',
+	            'goose' => 'geese',
+	            'tooth' => 'teeth',
+	            'foot' => 'feet',
+	            'child' => 'children',
+	        ];
+
+	        if ($count == 1) {
+	            // Return singular
+	            foreach ($irregulars as $singular => $plural) {
+	                if ($unit === $plural) return $singular;
+	            }
+	            if (preg_match('/(sh|ch|x|z|s)$/', $unit)) {
+	                return preg_replace('/(es)$/', '', $unit);
+	            } else {
+	                return preg_replace('/s$/', '', $unit);
+	            }
+	        } else {
+	            // Return plural
+	            if (array_key_exists($unit, $irregulars)) return $irregulars[$unit];
+	            if (in_array($unit, $irregulars)) return $unit;
+	            if (preg_match('/(sh|ch|x|z|s)$/', $unit)) return $unit . 'es';
+	            return preg_match('/s$/', $unit) ? $unit : $unit . 's';
+	        }
+	    }
+
+	    // Retrieve form inputs
+	    $new_supply_item_name = $_POST['new_supply_item_name'];
+	    $new_supply_item_price = $_POST['new_supply_item_price'];
+	    $new_supply_item_stock = $_POST['new_supply_item_stock'];
+	    $new_supply_item_unit = $_POST['new_supply_item_unit'];
+	    $new_supply_item_low = $_POST['new_supply_item_low'];
+	    $new_supply_item_image_base64 = $_POST['new_supply_item_image'] ?? '';
+	    $new_supply_item_image_name = $_POST['new_supply_item_image_name'] ?? '';
+
+	    // Check for duplicate item name
+	    $sql = "SELECT supply_item_name FROM supply_inventory WHERE supply_item_name = ?";
+	    $query = $this->db->query($sql, [$new_supply_item_name]);
+	    if ($query->num_rows() > 0) {
+	        echo "duplicate";
+	        return;
+	    }
+
+	    // Handle image saving
+	    $saved_file_path = null;
+	    if (!empty($new_supply_item_image_base64)) {
+	        $image_parts = explode(";base64,", $new_supply_item_image_base64);
+	        if (count($image_parts) == 2) {
+	            $image_base64 = base64_decode($image_parts[1]);
+	            $file_name = $new_supply_item_image_name;
+	            $upload_path = FCPATH . 'photos/supply_images/';
+
+	            if (!is_dir($upload_path)) {
+	                mkdir($upload_path, 0755, true);
+	            }
+
+	            file_put_contents($upload_path . $file_name, $image_base64);
+	            $saved_file_path = 'photos/supply_images/' . $file_name;
+	        }
+	    }
+
+	    // Insert new item into the database
+	    $sql = "INSERT INTO supply_inventory (supply_item_name, supply_item_price, supply_item_image, supply_item_stock, supply_item_unit, supply_item_low)
+	            VALUES (?, ?, ?, ?, ?, ?)";
+	    $this->db->query($sql, [
+	        $new_supply_item_name,
+	        $new_supply_item_price,
+	        $new_supply_item_image_name,
+	        $new_supply_item_stock,
+	        $new_supply_item_unit,
+	        $new_supply_item_low
+	    ]);
+
+	    if ($this->db->affected_rows() > 0) {
+	        echo "success";
+
+	        $supply_item_id = $this->db->insert_id();
+	        $unit_label = pluralize_unit($new_supply_item_unit, $new_supply_item_stock);
+	        $activity_type = "Item Creation";
+        	$supply_code = "Item ID: ". $supply_item_id;
+	        $activity = "
+	            <strong>Item '$new_supply_item_name' created.</strong>
+	            <br>Price: ₱$new_supply_item_price
+	            <br>Stock: $new_supply_item_stock $unit_label
+	            <br>Low: $new_supply_item_stock $unit_label
+	        ";
+	        $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
+	        $this->db->query($sql, [$activity_type, $supply_code, $activity]);
+	    } else {
+	        echo "error";
+	    }
+	}
+
+	public function update_supply_item()
+	{
+	    $supply_item_id        = $_POST['update_supply_item_id'];
+	    $supply_item_name      = $_POST['update_supply_item_name'];
+	    $supply_item_price     = $_POST['update_supply_item_price'];
+	    $supply_item_unit      = $_POST['update_supply_item_unit'];
+	    $supply_item_stock     = $_POST['update_supply_item_stock'];
+	    $supply_item_low       = $_POST['update_supply_item_low'];
+	    $supply_item_image_b64 = $_POST['update_supply_item_image'];
+	    $supply_item_image_name = $_POST['update_supply_item_image_name'];
+
+	    // Fetch current record for comparison
+	    $sql = "SELECT * FROM supply_inventory WHERE supply_item_id = ?";
+	    $query = $this->db->query($sql, array($supply_item_id));
+	    $current = $query->row_array();
+
+	    // Handle image update (if new image is provided)
+	    $file_path = null;
+	    if (!empty($supply_item_image_b64)) {
+	        $image_parts = explode(";base64,", $supply_item_image_b64);
+	        if (count($image_parts) == 2) {
+	            $image_base64 = base64_decode($image_parts[1]);
+	            $file_name = 'supply_item_' . time() . '.png';
+	            $upload_path = FCPATH . 'photos/supply_items/';
+
+	            if (!is_dir($upload_path)) {
+	                mkdir($upload_path, 0755, true);
+	            }
+
+	            file_put_contents($upload_path . $file_name, $image_base64);
+	            $supply_item_image_name = $file_name;
+	            $file_path = 'photos/supply_items/' . $file_name;
+	        }
+	    }
+
+	    // Prepare update query (with or without image)
+	    if ($file_path) {
+	        $sql = "UPDATE supply_inventory 
+	                   SET supply_item_name=?, supply_item_price=?, supply_item_unit=?, supply_item_stock=?, supply_item_low=?, supply_item_image=? 
+	                 WHERE supply_item_id=?";
+	        $update_query = $this->db->query($sql, array($supply_item_name, $supply_item_price, $supply_item_unit, $supply_item_stock, $supply_item_low, $supply_item_image_name, $supply_item_id));
+	    } else {
+	        $sql = "UPDATE supply_inventory 
+	                   SET supply_item_name=?, supply_item_price=?, supply_item_unit=?, supply_item_stock=?, supply_item_low=? 
+	                 WHERE supply_item_id=?";
+	        $update_query = $this->db->query($sql, array($supply_item_name, $supply_item_price, $supply_item_unit, $supply_item_stock, $supply_item_low, $supply_item_id));
+	    }
+
+	    // Track what changed
+	    $changed = array();
+	    if ($current['supply_item_name'] != $supply_item_name) $changed[] = 'Item Name';
+	    if ($current['supply_item_price'] != $supply_item_price) $changed[] = 'Item Price';
+	    if ($current['supply_item_unit'] != $supply_item_unit) $changed[] = 'Item Unit';
+	    if ($current['supply_item_stock'] != $supply_item_stock) $changed[] = 'Current Stock';
+	    if ($current['supply_item_low'] != $supply_item_low) $changed[] = 'Low Stock Level';
+	    if ($file_path && $current['supply_item_image'] != $supply_item_image_name) $changed[] = 'Item Image';
+
+	    // Respond and log
+	    if ($update_query) {
+	        echo "success";
+	        if (!empty($changed)) {
+	        	$supply_activity_type = "Item Updating";
+	        	$supply_code = "Item ID: ". $supply_item_id;
+	            $activity = "<strong>Updated:</strong><br>" . implode(', ', $changed);
+	            $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
+	        	$this->db->query($sql, [$activity_type, $supply_code, $activity]);
+	        }
+	    } else {
+	        echo "error";
+	    }
+	}
+
+	public function supply_checkout(){
+	    date_default_timezone_set('Asia/Manila');
+	    $current_date = date('Y-m-d H:i:s');
+
+	    // Generate unique checkout code
+	    $random_code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+	    $supply_checkout_code = 'supply-' . date('Ymd') . '-' . $random_code;
+
+	    // Retrieve POSted cart data
+	    $cart_items = $this->input->POSt('cart_items');
+	    if (is_string($cart_items)) {
+		    $cart_items = json_decode($cart_items, true);
+		}
+	    
+	    // Validate incoming cart data
+	    if (empty($cart_items) || !is_array($cart_items)) {
+	        echo "empty_cart";
+	    }
+
+	    $checked_out_items = []; // initialize array to store item names
+
+		foreach ($cart_items as $item) {
+		    $supply_item_id        = $item['supply_item_id'];
+		    $supply_item_name      = $item['supply_item_name'];
+		    $supply_item_price     = $item['supply_item_price'];
+		    $supply_item_count     = $item['item_count'];
+		    $supply_item_unit      = $item['supply_item_unit'];
+		    $supply_item_image     = $item['supply_item_image'];
+		    $supply_item_subtotal  = $item['total_item_price']; // price * qty from frontend
+
+		    $sql = "INSERT INTO supply_checkouts 
+		            (supply_checkout_code, supply_item_id, supply_item_name, supply_item_price, supply_item_count, supply_item_unit, supply_item_image, supply_item_subtotal, supply_checkout_date)
+		            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+		    $insert_query = $this->db->query($sql, array(
+		        $supply_checkout_code,
+		        $supply_item_id,
+		        $supply_item_name,
+		        $supply_item_price,
+		        $supply_item_count,
+		        $supply_item_unit,
+		        $supply_item_image,
+		        $supply_item_subtotal,
+		        $current_date
+		    ));
+
+		    $failed = false;
+			$update_query = false;
+
+		    if ($insert_query) {
+		        $sql = "UPDATE supply_inventory 
+		                SET supply_item_stock = supply_item_stock - ? 
+		                WHERE supply_item_id = ?";
+		        $update_query = $this->db->query($sql, [$supply_item_count, $supply_item_id]);
+		    }
+		    if (!$update_query) {
+		    	$failed = true;
+		    }
+
+		    $checked_out_items[] = "{$supply_item_name} ({$supply_item_count} {$supply_item_unit})";
+		}
+		if ($update_query) {
+	        echo "error";
+	    } else {
+	        echo "success";
+	    }
+
+		if (!empty($checked_out_items)) {
+			$activity_type = 'Checkout';
+		    $activity = implode('<br>', $checked_out_items);
+		    $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, 	supply_activity) VALUES (?, ?, ?)";
+        	$this->db->query($sql, [$activity_type, $supply_checkout_code, $activity]);
+		}
+	}
+
+	public function load_supply_checkout_codes(){
+	    $report_type = $_POST['supply_checkouts_type'];
+		$report_date = $_POST['supply_checkouts_date'];
+
+		if ($report_type == 'daily') {
+		    $sql = "
+		    	SELECT 
+				    c.supply_checkout_code,
+				    SUM(c.supply_item_count) AS total_item_count,
+				    MAX(c.supply_checkout_date) AS supply_checkout_date
+				FROM supply_checkouts c
+				WHERE DATE(c.supply_checkout_date) = ?
+				GROUP BY c.supply_checkout_code
+				ORDER BY c.supply_checkout_date DESC;
+		    ";
+		}
+		else if ($report_type == 'monthly') {
+		    $sql = "
+		    	SELECT 
+				    c.supply_checkout_code,
+				    SUM(c.supply_item_count) AS total_item_count,
+				    MAX(c.supply_checkout_date) AS supply_checkout_date
+				FROM supply_checkouts c
+				WHERE DATE_FORMAT(c.supply_checkout_date, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
+				GROUP BY c.supply_checkout_code
+				ORDER BY c.supply_checkout_date DESC;
+		    ";
+		}
+		else if ($report_type == 'annual') {
+		    $sql = "
+		    	SELECT 
+				    c.supply_checkout_code,
+				    SUM(c.supply_item_count) AS total_item_count,
+				    MAX(c.supply_checkout_date) AS supply_checkout_date
+				FROM supply_checkouts c
+				WHERE DATE_FORMAT(c.supply_checkout_date, '%Y') = DATE_FORMAT(?, '%Y')
+				GROUP BY c.supply_checkout_code
+				ORDER BY c.supply_checkout_date DESC;
+		    ";
+		}
+
+		$query = $this->db->query($sql, $report_date);
+
+		foreach ($query->result() as $row) {
+		    $output_data[] = $row;
+		}
+
+		if (isset($output_data)) {
+		    echo json_encode($output_data);
+		} else {
+		    echo json_encode('');
+		}
+	}
+
+	public function load_supply_checkout()
+	{
+	    $supply_checkout_code = $_POST['supply_checkout_code'];
+
+	    $sql = "
+	        SELECT 
+	            c.supply_checkout_id,
+	            i.supply_item_image,
+	            i.supply_item_name,
+	            i.supply_item_price,
+	            c.supply_item_count,
+	            i.supply_item_unit
+	        FROM 
+	            supply_checkouts c,
+	            supply_inventory i
+	        WHERE 
+	            c.supply_item_id = i.supply_item_id 
+	            AND
+	            supply_checkout_code = ?
+	        ORDER BY supply_checkout_id DESC;
+	    ";
+
+	    $query = $this->db->query($sql, [$supply_checkout_code]);
+
+	    foreach ($query->result() as $row) {
+	        $output_data[] = $row;
+	    }
+
+	    if (isset($output_data)) {
+	        echo json_encode($output_data);
+	    } else {
+	        echo json_encode('');
+	    }
+	}
+	public function void_supply_checkout_item(){
+	    $supply_checkout_id = $_POST['supply_checkout_id'];
+	
+	    $sql = "SELECT supply_item_id, supply_item_count, supply_checkout_code FROM supply_checkouts WHERE supply_checkout_id = ?";
+	    $select_query = $this->db->query($sql, [$supply_checkout_id]);
+		foreach ($select_query->result() as $row) {
+ 			$supply_item_id = $row->supply_item_id;
+ 			$supply_item_count = $row->supply_item_count;
+ 			$supply_checkout_code = $row->supply_checkout_code;
+		}
+        
+        $sql = "UPDATE supply_inventory SET supply_item_stock = supply_item_stock + ? WHERE supply_item_id = ?";
+	    $update_query = $this->db->query($sql, [$supply_item_count, $supply_item_id]);
+
+	    if ($update_query) {
+			$sql = "DELETE FROM supply_checkouts WHERE supply_checkout_id = ?";
+		    $delete_query = $this->db->query($sql, [$supply_checkout_id]);	 
+
+		    if ($delete_query) {
+		    	$sql = "SELECT COUNT(*) AS total FROM supply_checkouts WHERE supply_checkout_code = ?";
+				$query = $this->db->query($sql, [$supply_checkout_code]);
+				$result = $query->row();
+				$supply_checkout_count = $result->total;
+
+				if ($supply_checkout_count == 0) {
+		    		echo "success-null";
+				}
+				else {
+		    		echo "success";
+				}
+	       	}
+	       	else {
+	    		echo "error";
+	       	}
+	    }
+	    else {
+    		echo "error";
+	    }
+	}
+	public function void_supply_checkout(){
+	    $supply_checkout_code = $_POST['supply_checkout_code'];
+	
+	    $sql = "SELECT supply_item_id, supply_item_count FROM supply_checkouts WHERE supply_checkout_code = ?";
+	    $select_query = $this->db->query($sql, [$supply_checkout_code]);
+		foreach ($select_query->result() as $row) {
+ 			$supply_item_id = $row->supply_item_id;
+ 			$supply_item_count = $row->supply_item_count;
+		
+ 			$sql = "UPDATE supply_inventory SET supply_item_stock = supply_item_stock + ? WHERE supply_item_id = ?";
+	    	$update_query = $this->db->query($sql, [$supply_item_count, $supply_item_id]);
+		}
+
+	    if ($update_query) {
+			$sql = "DELETE FROM supply_checkouts WHERE supply_checkout_code = ?";
+		    $delete_query = $this->db->query($sql, [$supply_checkout_code]);	 
+
+		    if ($delete_query) {
+	    		echo "success";
+	       	}
+	       	else {
+	    		echo "error";
+	       	}
+	    }
+	    else {
+    		echo "error";
+	    }
+	}
+	public function supply_restock()
+	{
+	    $supply_restocking_date = $_POST['supply_restocking_date'];
+
+	    $random_code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+	    $supply_restocking_code = 'STK-' . $supply_restocking_date . '-' . $random_code;
+
+	    $supply_restocking_items = $this->input->POSt('supply_restocking_items');
+	    if (is_string($supply_restocking_items)) {
+	        $supply_restocking_items = json_decode($supply_restocking_items, true);
+	    }
+
+	    if (empty($supply_restocking_items) || !is_array($supply_restocking_items)) {
+	        echo "empty_cart";
+	        return;
+	    }
+
+	    $failed = false;
+	    $restocked_items = [];
+
+	    foreach ($supply_restocking_items as $item) {
+
+	        $supply_item_id = $item['supply_item_id'];
+	        $supply_item_count = $item['supply_item_count'];
+
+	        // get item details
+	        $sql = "SELECT supply_item_name, supply_item_unit FROM supply_inventory WHERE supply_item_id = ?";
+	        $select_query = $this->db->query($sql, [$supply_item_id]);
+
+	        if ($select_query->num_rows() == 0) {
+	            $failed = true;
+	            continue;
+	        }
+
+	        $row = $select_query->row();
+	        $supply_item_name = $row->supply_item_name;
+	        $supply_item_unit = $row->supply_item_unit;
+
+	        // insert restocking record
+	        $sql = "INSERT INTO supply_restocking
+	                (supply_restocking_code, supply_item_id, supply_item_count, supply_restocking_date)
+	                VALUES (?, ?, ?, ?)";
+
+	        $insert_query = $this->db->query($sql, [
+	            $supply_restocking_code,
+	            $supply_item_id,
+	            $supply_item_count,
+	            $supply_restocking_date
+	        ]);
+
+	        if (!$insert_query) {
+	            $failed = true;
+	            continue;
+	        }
+
+	        // update stock
+	        $sql = "UPDATE supply_inventory SET supply_item_stock = supply_item_stock + ? WHERE supply_item_id = ?";
+	        $update_query = $this->db->query($sql, [$supply_item_count, $supply_item_id]);
+
+	        if ($update_query) {
+	            $restocked_items[] = "{$supply_item_name} ({$supply_item_count} {$supply_item_unit})";
+	        } else {
+	            $failed = true;
+	        }
+	    }
+
+	    // insert one log AFTER all items
+	    if (!empty($restocked_items)) {
+			$activity_type = 'Restocking';
+	        $activity = implode('<br>', $restocked_items);
+	        $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
+	        $this->db->query($sql, [$activity_type, $supply_restocking_code, $activity]);
+	    }
+
+	    echo $failed ? "error" : "success";
+	}
+	public function load_supply_reports()
+	{
+	    $log_type = $_POST['supply_log_type'];
+	    $log_date = $_POST['supply_log_date'];
+
+	    if ($log_type == 'daily') {
+	    	$sql = "
+	    		SELECT 
+				    'Checkout' AS activity_type,
+				    c.supply_checkout_code AS reference_code,
+				    c.supply_item_name AS item_name,
+				    c.supply_item_count AS quantity,
+				    c.supply_item_subtotal AS amount,
+				    c.supply_item_image AS item_image,
+				    c.supply_checkout_date AS log_date
+				FROM supply_checkouts c
+				WHERE DATE(c.supply_checkout_date) = ?
+
+				UNION ALL
+
+				SELECT 
+				    'Restock' AS activity_type,
+				    r.supply_restocking_code AS reference_code,
+				    i.supply_item_name AS item_name,
+				    r.supply_item_count AS quantity,
+				    NULL AS amount,
+				    i.supply_item_image AS item_image,
+				    r.supply_restocking_timestamp AS log_date
+				FROM supply_restocking r
+				JOIN supply_inventory i ON r.supply_item_id = i.supply_item_id
+				WHERE DATE(r.supply_restocking_timestamp) = ?
+
+				ORDER BY log_date DESC;
+	    	";
+	    }
+	    else if ($log_type == 'monthly') {
+	    	$sql = "
+	    		SELECT 
+				    'Checkout' AS activity_type,
+				    c.supply_checkout_code AS reference_code,
+				    c.supply_item_name AS item_name,
+				    c.supply_item_count AS quantity,
+				    c.supply_item_subtotal AS amount,
+				    c.supply_item_image AS item_image,
+				    c.supply_checkout_date AS log_date
+				FROM supply_checkouts c
+				WHERE MONTH(c.supply_checkout_date) = MONTH(?)
+
+				UNION ALL
+
+				SELECT 
+				    'Restock' AS activity_type,
+				    r.supply_restocking_code AS reference_code,
+				    i.supply_item_name AS item_name,
+				    r.supply_item_count AS quantity,
+				    NULL AS amount,
+				    i.supply_item_image AS item_image,
+				    r.supply_restocking_timestamp AS log_date
+				FROM supply_restocking r
+				JOIN supply_inventory i ON r.supply_item_id = i.supply_item_id
+				WHERE MONTH(r.supply_restocking_timestamp) = MONTH(?)
+
+				ORDER BY log_date DESC;
+	    	";
+	    }
+	    else if ($log_type == 'annual') {
+	    	$sql = "
+	    		SELECT 
+				    'Checkout' AS activity_type,
+				    c.supply_checkout_code AS reference_code,
+				    c.supply_item_name AS item_name,
+				    c.supply_item_count AS quantity,
+				    c.supply_item_subtotal AS amount,
+				    c.supply_item_image AS item_image,
+				    c.supply_checkout_date AS log_date
+				FROM supply_checkouts c
+				WHERE YEAR(c.supply_checkout_date) = YEAR(?)
+
+				UNION ALL
+
+				SELECT 
+				    'Restock' AS activity_type,
+				    r.supply_restocking_code AS reference_code,
+				    i.supply_item_name AS item_name,
+				    r.supply_item_count AS quantity,
+				    NULL AS amount,
+				    i.supply_item_image AS item_image,
+				    r.supply_restocking_timestamp AS log_date
+				FROM supply_restocking r
+				JOIN supply_inventory i ON r.supply_item_id = i.supply_item_id
+				WHERE YEAR(r.supply_restocking_timestamp) = YEAR(?)
+
+				ORDER BY log_date DESC;
+	    	";
+	    }
+		$query = $this->db->query($sql, [$log_date, $log_date]);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function load_supply_logs()
+	{
+	    $log_type = $_POST['supply_log_type'];
+	    $log_date = $_POST['supply_log_date'];
+
+	    if ($log_type == 'daily') {
+	        $sql = "
+	            SELECT *
+	            FROM supply_logs
+	            WHERE DATE(timestamp) = ?
+	            ORDER BY supply_log_id ASC
+	        ";
+	    }
+	    else if ($log_type == 'monthly') {
+	        $sql = "
+	            SELECT *
+	            FROM supply_logs
+	            WHERE DATE_FORMAT(timestamp, '%Y-%m') = DATE_FORMAT(?, '%Y-%m')
+	            ORDER BY supply_log_id ASC
+	        ";
+	    }
+	    else if ($log_type == 'annual') {
+	        $sql = "
+	            SELECT *
+	            FROM supply_logs
+	            WHERE YEAR(timestamp) = YEAR(?)
+	            ORDER BY supply_log_id ASC
+	        ";
+	    }
+
+	    $query = $this->db->query($sql, [$log_date]);
+
+	    foreach ($query->result() as $row) {
+	        $output_data[] = $row;
+	    }
+
+	    if (isset($output_data)) {
+	        echo json_encode($output_data);
+	    } else {
+	        echo json_encode('');
+	    }
+	}
+	public function load_supply_restocking_codes()
+	{
+	    $report_type = $_POST['supply_restocking_report_type'];
+	    $report_date = $_POST['supply_restocking_report_date'];
+
+	    if ($report_type == 'daily') {
+	    	$sql = "
+	    		SELECT 
+				    r.supply_restocking_code,
+				    SUM(r.supply_item_count) AS total_item_count,
+				    MAX(r.supply_restocking_date) AS supply_restocking_date,
+				    MAX(r.supply_restocking_timestamp) AS supply_restocking_timestamp
+				FROM supply_restocking r
+				WHERE DATE(r.supply_restocking_date) = ?
+				GROUP BY r.supply_restocking_code
+				ORDER BY r.supply_restocking_timestamp DESC;
+	    	";
+	    }
+	    else if ($report_type == 'monthly') {
+	    	$sql = "
+	    		SELECT 
+				    r.supply_restocking_code,
+				    SUM(r.supply_item_count) AS total_item_count,
+				    MAX(r.supply_restocking_date) AS supply_restocking_date,
+				    MAX(r.supply_restocking_timestamp) AS supply_restocking_timestamp
+				FROM supply_restocking r
+				WHERE MONTH(r.supply_restocking_date) = MONTH(?)
+				GROUP BY r.supply_restocking_code
+				ORDER BY r.supply_restocking_timestamp DESC;
+	    	";
+	    }
+	    else if ($report_type == 'annual') {
+	    	$sql = "
+	    		SELECT 
+				    r.supply_restocking_code,
+				    SUM(r.supply_item_count) AS total_item_count,
+				    MAX(r.supply_restocking_date) AS supply_restocking_date,
+				    MAX(r.supply_restocking_timestamp) AS supply_restocking_timestamp
+				FROM supply_restocking r
+				WHERE YEAR(r.supply_restocking_date) = YEAR(?)
+				GROUP BY r.supply_restocking_code
+				ORDER BY r.supply_restocking_timestamp DESC;
+	    	";
+	    }
+		$query = $this->db->query($sql, [$report_date]);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+
+	public function load_supply_restocking()
+	{
+	    $supply_restocking_code = $_POST['supply_restocking_code'];
+    	$sql = "
+    		SELECT 
+			    r.supply_restocking_id,
+			    i.supply_item_image,
+			    i.supply_item_name,
+			    i.supply_item_price,
+			    r.supply_item_count,
+			    i.supply_item_unit
+			FROM 
+				supply_restocking r, 
+				supply_inventory i
+			WHERE 
+				r.supply_item_id = i.supply_item_id 
+				AND
+				supply_restocking_code = ?
+			ORDER BY supply_restocking_id DESC;
+    	";
+		$query = $this->db->query($sql, [$supply_restocking_code]);
+		foreach ($query->result() as $row) {
+ 			$output_data[] = $row;
+		}
+		if (isset($output_data)) {
+			echo json_encode($output_data);	
+		}
+		else {
+			echo json_encode('');
+		}
+	}
+	public function void_supply_restocking_item(){
+	    $supply_restocking_id = $_POST['supply_restocking_id'];
+	
+	    $sql = "SELECT supply_item_id, supply_item_count, supply_restocking_code FROM supply_restocking WHERE supply_restocking_id = ?";
+	    $select_query = $this->db->query($sql, [$supply_restocking_id]);
+		foreach ($select_query->result() as $row) {
+ 			$supply_item_id = $row->supply_item_id;
+ 			$supply_item_count = $row->supply_item_count;
+ 			$supply_restocking_code = $row->supply_restocking_code;
+		}
+        
+        $sql = "UPDATE supply_inventory SET supply_item_stock = supply_item_stock - ? WHERE supply_item_id = ?";
+	    $update_query = $this->db->query($sql, [$supply_item_count, $supply_item_id]);
+
+	    if ($update_query) {
+			$sql = "DELETE FROM supply_restocking WHERE supply_restocking_id = ?";
+		    $delete_query = $this->db->query($sql, [$supply_restocking_id]);	 
+
+		    if ($delete_query) {
+		    	$sql = "SELECT COUNT(*) AS total FROM supply_restocking WHERE supply_restocking_code = ?";
+				$query = $this->db->query($sql, [$supply_restocking_code]);
+				$result = $query->row();
+				$supply_restocking_count = $result->total;
+
+				if ($supply_restocking_count == 0) {
+		    		echo "success-null";
+				}
+				else {
+		    		echo "success";
+				}
+	       	}
+	       	else {
+	    		echo "error";
+	       	}
+	    }
+	    else {
+    		echo "error";
+	    }
+	}
+	public function void_supply_restocking(){
+	    $supply_restocking_code = $_POST['supply_restocking_code'];
+	
+	    $sql = "SELECT supply_item_id, supply_item_count FROM supply_restocking WHERE supply_restocking_code = ?";
+	    $select_query = $this->db->query($sql, [$supply_restocking_code]);
+		foreach ($select_query->result() as $row) {
+ 			$supply_item_id = $row->supply_item_id;
+ 			$supply_item_count = $row->supply_item_count;
+		
+ 			$sql = "UPDATE supply_inventory SET supply_item_stock = supply_item_stock - ? WHERE supply_item_id = ?";
+	    	$update_query = $this->db->query($sql, [$supply_item_count, $supply_item_id]);
+		}
+
+	    if ($update_query) {
+			$sql = "DELETE FROM supply_restocking WHERE supply_restocking_code = ?";
+		    $delete_query = $this->db->query($sql, [$supply_restocking_code]);	 
+
+		    if ($delete_query) {
+	    		echo "success";
+	       	}
+	       	else {
+	    		echo "error";
+	       	}
+	    }
+	    else {
+    		echo "error";
+	    }
+	}
+
 	public function shadow() {
 		global $top_shadow;
 		global $bottom_shadow;

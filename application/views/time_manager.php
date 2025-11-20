@@ -208,7 +208,7 @@
 						<a class="active gray item" data-tab="pos_tab" id="pos_tab">
 							<h3 class="ui header center aligned pointered">Sales</h3>
 						</a>
-						<a class="gray item" data-tab="inventory_tab" id="inventory_tab">
+						<a class="gray item" data-tab="supply_tab" id="supply_tab">
 							<h3 class="ui header center aligned pointered">Inventory</h3>
 						</a>	
 					</div>
@@ -268,12 +268,28 @@
 				            </div>
 				        </div>
 					</div>	
-					<div class="ui bottom attached tab" data-tab="inventory_tab">
+					<div class="ui bottom attached tab" data-tab="supply_tab">
+						<div class="ui secondary menu">
+							<div class="right menu">
+								<div class="ui search item" id="supply_inventory_search">
+									<div class="ui icon input">
+										<input class="prompt" type="text" placeholder="Search...">
+										<i class="search link icon"></i>
+									</div>
+									<div class="results"></div>
+								</div>
+								<div class="ui item" tabindex="0">
+									<i class="icons large link" id="supply_checkout_cart_activator" data-tooltip="Sales Checkout" data-supplyition="bottom left" data-variation="mini">
+										<i class="shopping cart icon teal link"></i>
+										<div class="floating ui mini orange label transition hidden" id="supply_checkout_cart_counter">0</div>
+									</i>
+								</div>
+							</div>
+						</div>
 						<br>
-						<div class="ui five doubling special cards" id="inventory_items_container">
-							
-					    </div>
-						<div class="ui centered grid" id="inventory_empty_message">
+						<div class="ui six doubling special cards" id="supply_items_container">
+						</div>
+						<div class="ui centered grid" id="supply_empty_message">
 				            <div class="sixteen wide column">
 				                <h1 class="ui grey header huge center aligned">
 				                	<br>
@@ -281,7 +297,7 @@
 				                </h1>
 				            </div>
 				        </div>
-					</div>	  
+					</div>  
 				</div>
 				<div class="column row centered">
 						
@@ -1168,6 +1184,515 @@
 		            </div>
 		        </div>
 		    </div>
+
+
+
+		    <div class="ui mini modal" id="new_supply_item_modal">
+			    <div class="ui header center aligned">
+			        <a class="break-text" id="new_client_header">New Item</a>
+			    </div>
+			    <div class="scrolling content">
+			        <form class="ui padded basic segment form" id="new_supply_item_form">
+			            <div class="required field">
+			                <label>Item Name</label>
+			                <input type="text" name="new_supply_item_name" id="new_supply_item_name" placeholder="e.g. Teddy Bear - Pink">
+			            </div>
+			            <div class="required field">
+			                <label>Item Price</label>
+			                <input type="text" name="new_supply_item_price" id="new_supply_item_price" placeholder="₱">
+			            </div>
+			            <div class="required field">
+			                <label>Item Unit (Singular)</label>
+			                <input type="text" name="new_supply_item_unit" id="new_supply_item_unit" placeholder="e.g. piece, box">
+			            </div>
+			            <div class="required field">
+			                <label>Initial Stock</label>
+			                <input type="text" name="new_supply_item_stock" id="new_supply_item_stock" placeholder="Initial Stock">
+			            </div>
+			            <div class="required field">
+			                <label>Low Stock Level</label>
+			                <input type="text" name="new_supply_item_low" id="new_supply_item_low" placeholder="Initial Stock">
+			            </div>
+			            <div class="required field">
+			                <label>Item Image</label>
+			                <input class="invisible" type="text" readonly name="new_supply_item_image_name" id="new_supply_item_image_name" value="">
+			                
+			                <div class="ui segment center aligned">
+			                    <video id="new_supply_camera_stream" autoplay></video>
+			                    <canvas id="new_supply_captured_canvas" style="display:none;"></canvas>
+			                    <img id="new_supply_uploaded_preview" style="aspect-ratio: 5 / 4; display:none; width:100%; height:auto; object-fit:cover;">
+
+			                    <!-- Hidden input for file upload -->
+			                    <input type="file" id="new_supply_image_file" accept="image/*" style="display:none;">
+
+			                    <div class="ui mini buttons">
+			                        <button type="button" id="new_supply_capture_button" class="ui teal button" style="display:none;">Capture</button>
+			                        <button type="button" id="new_supply_retake_button" class="ui yellow button" style="display:none;">Retake</button>
+			                    </div>
+			                </div>
+			            </div>
+			            <input type="hidden" id="new_supply_item_image" name="new_supply_item_image">
+			        </form>
+			    </div>
+			    <div class="actions modal-actions">
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
+			        </div>
+			        <button class="ui button green small button" form="new_supply_item_form" type="submit">
+			            Confirm
+			        </button>
+			    </div>
+			</div>
+			<div class="ui mini modal" id="update_supply_item_modal">
+			    <div class="ui header center aligned">
+			        <a class="break-text" id="update_client_header">Edit Item</a>
+			    </div>
+			    <div class="scrolling content">
+			        <form class="ui padded basic segment form" id="update_supply_item_form">
+					    <!-- Hidden ID for updating -->
+					    <input type="hidden" name="update_supply_item_id" id="update_supply_item_id">
+
+					    <div class="required field">
+					        <label>Item Name</label>
+					        <input type="text" name="update_supply_item_name" id="update_supply_item_name" placeholder="e.g. Teddy Bear - Pink">
+					    </div>
+					    <div class="required field">
+					        <label>Item Price</label>
+					        <input type="text" name="update_supply_item_price" id="update_supply_item_price" placeholder="₱">
+					    </div>
+					    <div class="required field">
+					        <label>Item Unit (Singular)</label>
+					        <input type="text" name="update_supply_item_unit" id="update_supply_item_unit" placeholder="e.g. piece, box">
+					    </div>
+					    <div class="required field">
+					        <label>Current Stock</label>
+					        <input type="text" name="update_supply_item_stock" id="update_supply_item_stock" placeholder="Initial Stock">
+					    </div>
+					    <div class="required field">
+					        <label>Low Stock Level</label>
+					        <input type="text" name="update_supply_item_low" id="update_supply_item_low" placeholder="Initial Stock">
+					    </div>
+
+					    <!-- Current Image Section -->
+					    <div class="field" id="current_supply_image_field" style="text-align:center;">
+					        <label>Current Item Image</label>
+					        <div class="ui segment center aligned">
+					            <img id="current_supply_item_image" 
+					                 src="" 
+					                 alt="Current Item Image"
+					                 style="max-width:100%; aspect-ratio:5/4; object-fit:cover;">
+					            <div class="ui labeled green mini icon button" id="update_supply_item_image_button">
+					                <i class="redo icon"></i>
+					                Retake Image
+					            </div>
+					        </div>
+					    </div>
+
+					    <!-- Webcam Section -->
+					    <div class="field invisible" id="update_supply_webcam_field" style="text-align:center;">
+					        <label>Replace Item Image (Optional)</label>
+					        <input class="invisible" type="text" readonly name="update_supply_item_image_name" id="update_supply_item_image_name" value="">
+
+					        <div class="ui segment center aligned">
+					            <video id="update_supply_camera_stream" autoplay></video>
+					            <canvas id="update_supply_captured_canvas" style="display:none;"></canvas>
+					            <img id="update_supply_uploaded_preview" style="aspect-ratio: 5 / 4; display:none; width:100%; height:auto; object-fit:cover;">
+					            
+					            <input type="file" id="update_supply_image_file" accept="image/*" style="display:none;">
+					            <div class="ui mini buttons">
+					                <button type="button" id="update_supply_capture_button" class="ui teal button">Capture</button>
+					                <button type="button" id="update_supply_retake_button" class="ui yellow button" style="display:none;">Retake</button>
+					                <button type="button" id="cancel_supply_image_update" class="ui orange button">Cancel</button>
+					            </div>
+					        </div>
+					    </div>
+
+					    <input type="hidden" id="update_supply_item_image" name="update_supply_item_image">
+					</form>
+
+			    </div>
+			    <div class="actions modal-actions">
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
+			        </div>
+			        <button class="ui button green small button" form="update_supply_item_form" type="submit">
+			            Confirm
+			        </button>
+			    </div>
+			</div>
+
+			<div class="ui tiny modal" id="supply_checkout_cart_modal">
+		        <div class="ui header center aligned">
+		            <a class="break-text">Sales Checkout</a>
+		        </div>
+		        <div class="scrolling content">
+		        	<div class="ui centered grid transition" id="supply_checkout_cart_empty_message">
+			            <div class="sixteen wide column">
+			                <h2 class="ui grey header huge center aligned">
+			                    Empty
+			                </h2>
+			            </div>
+			        </div>
+		        	<div class="ui relaxed divided list" id="supply_checkout_cart_content">
+						
+					</div>
+				</div>
+		        <div class="actions modal-actions">
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
+		            </div>
+		            <button class="ui button green small button" id="supply_checkout_submit">
+			            Checkout
+			        </button>
+		        </div>
+		    </div>
+
+		    <div class="ui small modal" id="supply_checkouts_modal">
+			    <div class="ui header center aligned">
+			        <a class="break-text" id="supply_checkouts_header">Sales Records</a>
+			    </div>
+
+			    <div class="content">
+			        <div class="ui form">
+			            <div class="fields">
+			                <div class="field">
+			                    <label>Report Type</label>
+			                    <div class="ui selection dropdown" id="supply_checkouts_type_dropdown">
+			                        <input type="hidden" name="supply_checkouts_type" id="supply_checkouts_type">
+			                        <i class="dropdown icon"></i>
+			                        <div class="default text">Select Report Type</div>
+			                        <div class="menu">
+			                            <div class="item" data-value="daily">Daily</div>
+			                            <div class="item" data-value="monthly">Monthly</div>
+			                            <div class="item" data-value="annual">Annually</div>
+			                        </div>
+			                    </div>
+			                </div>
+
+			                <div class="field">
+			                    <label>Sales Date</label>
+			                    <input type="date" name="supply_checkouts_date" id="supply_checkouts_date" placeholder="Sales Date" value="<?= date('Y-m-d'); ?>">
+			                </div>
+			            </div>
+			        </div>
+			    </div>
+
+			    <div class="ui fitted divider"></div>
+
+			    <div class="scrolling content">
+			        <!-- Daily Table -->
+			        <table class="ui selectable sortable teal table transition hidden supply_checkouts_table" id="daily_supply_checkouts_table">
+			            <thead>
+			                <tr>
+			                    <th>Reference Code</th>
+			                    <th>Total Items</th>
+			                    <th class="sorted descending">Activity Date</th>
+			                </tr>
+			            </thead>
+			            <tbody class="supply_checkouts_tbody" id="daily_supply_checkouts"></tbody>
+			        </table>
+
+			        <!-- Monthly Table -->
+			        <table class="ui selectable sortable teal table transition hidden supply_checkouts_table" id="monthly_supply_checkouts_table">
+			            <thead>
+			                <tr>
+			                    <th>Reference Code</th>
+			                    <th>Total Items</th>
+			                    <th class="sorted descending">Activity Date</th>
+			                </tr>
+			            </thead>
+			            <tbody class="supply_checkouts_tbody" id="monthly_supply_checkouts"></tbody>
+			        </table>
+
+			        <!-- Annual Table -->
+			        <table class="ui selectable sortable teal table transition hidden supply_checkouts_table" id="annual_supply_checkouts_table">
+			            <thead>
+			                <tr>
+			                    <th>Reference Code</th>
+			                    <th>Total Items</th>
+			                    <th class="sorted descending">Activity Date</th>
+			                </tr>
+			            </thead>
+			            <tbody class="supply_checkouts_tbody" id="annual_supply_checkouts"></tbody>
+			        </table>
+			    </div>
+
+			    <div class="actions modal-actions">
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
+			        </div>
+			    </div>
+			</div>
+
+			<div class="ui small modal" id="supply_restocking_modal">
+			    <div class="ui header center aligned">
+			        <a class="break-text">Restocking</a>
+			    </div>
+
+			    <div class="content">
+			        <!-- Tab Menu -->
+					<div class="ui secondary labeled icon pointing tabular menu fluid item two">
+			            <a class="item active" data-tab="form_tab" id="restock_items">Restock Items</a>
+			            <a class="item" data-tab="records_tab" id="records_tab">Restocking Records</a>
+			        </div>
+
+			        <!-- === RESTOCKING FORM TAB === -->
+			        <div class="ui active tab" data-tab="form_tab">
+			            <form class="ui tiny form" id="supply_restocking_form">
+			                <div class="fields">
+			                    <div class="six wide required supply_restocking_date_field field">
+			                        <label>Restocking Date</label>
+			                        <input type="date" name="supply_restocking_date" id="supply_restocking_date" required placeholder="Restocking Date" value="<?= date('Y-m-d'); ?>">
+			                    </div>
+			                </div>
+
+			                <div class="fields">
+			                    <div class="ten wide required supply_restocking_item_field field">
+			                        <label>Item</label>
+			                        <div class="ui selection search dropdown" id="supply_restocking_items_drop">
+			                            <input type="hidden" name="supply_restocking_items" id="supply_restocking_items">
+			                            <div class="default text">Select Item</div>
+			                            <div class="menu" id="supply_restocking_menu"></div>
+			                        </div>
+			                    </div>
+
+			                    <div class="six wide required supply_restocking_quantity_field field">
+			                        <label>Quantity</label>
+			                        <input type="text" name="supply_restock_quantity" id="supply_restock_quantity" placeholder="Restock Quantity">
+			                    </div>
+			                </div>
+		                	<button class="ui right aligned teal small button" id="supply_restocking_insert" type="submit" form="supply_restocking_form">
+			                    <i class="ui plus icon"></i>
+			                    Add Stock
+			                </button>	
+			                <h4>Restocking List</h4>
+			                <div class="scrolling content">
+			                    <div class="ui celled list" id="supply_restocking_list"></div>
+			                </div>
+
+			            </form>
+			        </div>
+
+			        <!-- === RESTOCKING RECORDS TAB === -->
+			        <div class="ui tab" data-tab="records_tab">
+			            <div class="ui form">
+			                <div class="fields">
+			                    <div class="field">
+			                        <label>Report Type</label>
+			                        <div class="ui selection dropdown" id="supply_restocking_type_dropdown">
+			                            <input type="hidden" name="supply_restocking_report_type" id="supply_restocking_report_type">
+			                            <i class="dropdown icon"></i>
+			                            <div class="default text">Select Report Type</div>
+			                            <div class="menu">
+		                                <div class="item" data-value="daily">Daily</div>
+		                                <div class="item" data-value="monthly">Monthly</div>
+		                                <div class="item" data-value="annual">Annually</div>
+			                            </div>
+			                        </div>
+			                    </div>
+
+			                    <div class="field">
+			                        <label>Restock Date</label>
+			                        <input type="date" name="supply_restocking_report_date" id="supply_restocking_report_date" placeholder="Restock Date" value="<?= date('Y-m-d'); ?>">
+			                    </div>
+			                </div>
+			            </div>
+
+			            <div class="ui fitted divider"></div>
+
+					    <div class="scrolling content">
+					        <!-- Daily Table -->
+					        <table class="ui selectable sortable teal table transition hidden supply_restocking_table" id="daily_supply_restocking_table">
+					            <thead>
+					                <tr>
+					                    <th>Reference Code</th>
+					                    <th>Total Items</th>
+					                    <th class="sorted descending">Activity Date</th>
+					                    <th>Timestamp</th>
+					                </tr>
+					            </thead>
+					            <tbody class="supply_restocking_tbody" id="daily_supply_restocking"></tbody>
+					        </table>
+
+					        <!-- Monthly Table -->
+					        <table class="ui selectable sortable teal table transition hidden supply_restocking_table" id="monthly_supply_restocking_table">
+					            <thead>
+					                <tr>
+					                    <th>Reference Code</th>
+					                    <th>Total Items</th>
+					                    <th class="sorted descending">Activity Date</th>
+					                    <th>Timestamp</th>
+					                </tr>
+					            </thead>
+					            <tbody class="supply_restocking_tbody" id="monthly_supply_restocking"></tbody>
+					        </table>
+
+					        <!-- Annual Table -->
+					        <table class="ui selectable sortable teal table transition hidden supply_restocking_table" id="annual_supply_restocking_table">
+					            <thead>
+					                <tr>
+					                    <th>Reference Code</th>
+					                    <th>Total Items</th>
+					                    <th class="sorted descending">Activity Date</th>
+					                    <th>Timestamp</th>
+					                </tr>
+					            </thead>
+					            <tbody class="supply_restocking_tbody" id="annual_supply_restocking"></tbody>
+					        </table>
+					    </div>
+			        </div>
+			    </div>
+
+			    <!-- Close Icon -->
+			    <div class="actions modal-actions">
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
+			        </div>
+			        <button class="ui right aligned green invisible small button" id="supply_restocking_submit">
+	                    <i class="ui check icon"></i>
+                		Confirm
+                	</button>
+			    </div>
+			</div>
+
+		    <div class="ui modal" id="supply_logs_modal">
+		        <div class="ui header center aligned">
+		            <a class="break-text" id="supply_logs_header">Supply Logs</a>
+		        </div>
+		        <div class="content">
+		        	<div class="ui form">
+					    <div class="fields">
+					        <!-- Report Type Dropdown -->
+					        <div class="field">
+					            <label>Log Type</label>
+					            <div class="ui selection dropdown" id="supply_log_type_dropdown">
+					                <input type="hidden" name="supply_log_type" id="supply_log_type">
+					                <i class="dropdown icon"></i>
+					                <div class="default text">Select Log Type</div>
+					                <div class="menu">
+					                    <div class="item" data-value="daily">Daily</div>
+					                    <div class="item" data-value="monthly">Monthly</div>
+					                    <div class="item" data-value="annual">Annually</div>
+					                </div>
+					            </div>
+					        </div>
+
+					        <!-- log Date Button -->
+					        <div class="field">
+							    <label>Log Date</label>
+							    <input type="date" name="supply_log_date" id="supply_log_date" placeholder="Log Date" value="<?= date('Y-m-d'); ?>">
+						  	</div>
+					    </div>
+					</div>
+				</div>
+				<div class="ui fitted divider"></div>
+		        <div class="scrolling content">
+		        	<table class="ui selectable teal sortable fixed table transition hidden supply_log_table" id="supply_daily_log_table">
+						<thead>
+							<tr>
+								<th class="three wide">Activity Type</th>
+								<th class="four wide">Reference Code</th>
+								<th class="six wide">Activity/Items</th>
+								<th class="sorted ascending three wide">Timestamp</th>
+							</tr>
+						</thead>
+						<tbody id="supply_daily_log">
+							
+						</tbody>
+					</table>
+					<table class="ui selectable teal sortable fixed table transition hidden supply_log_table" id="supply_monthly_log_table">
+						<thead>
+							<tr>
+								<th class="three wide">Activity Type</th>
+								<th class="four wide">Reference Code</th>
+								<th class="six wide">Activity/Items</th>
+								<th class="sorted ascending three wide">Timestamp</th>
+							</tr>
+						</thead>
+						<tbody id="supply_monthly_log">
+							
+						</tbody>
+					</table>
+					<table class="ui selectable teal sortable fixed table transition hidden supply_log_table" id="supply_annual_log_table">
+						<thead>
+							<tr>
+								<th class="three wide">Activity Type</th>
+								<th class="four wide">Reference Code</th>
+								<th class="six wide">Activity/Items</th>
+								<th class="sorted ascending three wide">Timestamp</th>
+							</tr>
+						</thead>
+						<tbody id="supply_annual_log">
+							
+						</tbody>
+					</table>
+		        </div>
+		        <div class="actions modal-actions">
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
+		            </div>
+		        </div>
+		    </div>
+
+		    <div class="ui modal" id="supply_transaction_view_modal">
+		        <div class="ui header center aligned">
+		            <a class="break-text">Transaction View</a>
+		        </div>
+		        <div class="content">
+		        	<h5 class="ui header">
+						<div id="supply_transaction_view_activity"></div>
+						<div class="sub header" id="supply_transaction_view_date"></div>
+					</h5>
+		        </div>
+		        <div class="scrolling content">
+		        	<table class="ui selectable sortable teal table">
+			            <thead>
+			                <tr>
+			                    <th class="sorted descending">No.</th>
+			                    <th>Item Name</th>
+			                    <th>Item Price</th>
+			                    <th>Quantity</th>
+			                    <th>Total Price</th>
+			                </tr>
+			            </thead>
+			            <tbody id="supply_transaction_view_container"></tbody>
+			            <tfoot>
+			                <tr>
+			                    <td colspan="4" class="right aligned"><strong>Total:</strong></td>
+			                    <td>
+			                    	<u id="supply_transaction_view_total"></u>
+			                    </td>
+			                </tr>
+			            </tfoot>
+			        </table>
+				</div>
+		        <div class="actions modal-actions">
+		            <div class="ui orange right corner deny pointered small label">
+		                <i class="ui times pointered big icon"></i>
+		            </div>
+		            <div class="ui purple pointered small button" id="supply_transaction_void_button" data-supply_transaction_code="" data-supply_transaction_type="">
+		                <i class="ui times pointered icon"></i>
+		                Void
+		            </div>
+		        </div>
+		    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  
 		</main>
 		<footer>
@@ -1179,11 +1704,11 @@
     $('.menu .item').tab();
 
 	function check_active_tab() {
-	    const tabs = $('#time_manager_tab, #pos_tab, #inventory_tab');
+	    const tabs = $('#time_manager_tab, #pos_tab, #supply_tab');
 	    const tab_functions = {
 	        time_manager_tab: load_time_manager_tab,
 	        pos_tab: load_pos_tab,
-	        inventory_tab: load_inventory_tab
+	        supply_tab: load_supply_tab
 	    };
 
 	    const tab_check = (tab_id) => {
@@ -1218,10 +1743,10 @@
 		load_pos_inventory();
 	}
 
-	function load_inventory_tab() {
+	function load_supply_tab() {
 		$('.floater-button').addClass('invisible');
-		$('#inventory_tab_actions').removeClass('invisible');
-		load_inventory();
+		$('#supply_tab_actions').removeClass('invisible');
+		load_supply_inventory();
 	}
 
 	$('#pos_checkout_cart_activator').on('click', function() {
@@ -2483,163 +3008,7 @@
         ;
     });
 
-    function initialize_time_manager_camera() {
-		const video = $('#camera_stream')[0];
-	    const canvas = $('#captured_canvas')[0];
-	    const context = canvas.getContext('2d');
-	    const capture_button = $('#capture_button');
-	    const retake_button = $('#retake_button');
-
-	    // Force 5:4 aspect ratio on the live video
-	    $('#camera_stream').css({
-	        'aspect-ratio': '5 / 4',
-	        'width': '100%',
-	        'height': 'auto',
-	        'object-fit': 'cover'
-	    });
-
-	    // Capture with 5:4 aspect ratio
-	    capture_button.on('click', function() {
-	        let full_name = $('input[name="full_name"]').val().replace(/\s+/g, '_');
-	        let birthdate = $('input[name="birthdate"]').val().replace(/-/g, '_');
-	        let file_name = `${full_name}_${birthdate}.png`;
-	    
-	        $('#profile_image_name').val(file_name);
-	        image_name = $('#profile_image_name').val();
-
-	        if (image_name != '') {
-		        $('#profile_image_name').removeClass('invisible');
-	        }
-	        else {
-		        $('#profile_image_name').addClass('invisible');
-	        }
-
-	        const aspect_w = 5;
-	        const aspect_h = 4;
-
-	        const vid_w = video.videoWidth;
-	        const vid_h = video.videoHeight;
-
-	        let target_w = vid_w;
-	        let target_h = Math.floor((vid_w / aspect_w) * aspect_h);
-
-	        if (target_h > vid_h) {
-	            target_h = vid_h;
-	            target_w = Math.floor((vid_h / aspect_h) * aspect_w);
-	        }
-
-	        const offset_x = Math.floor((vid_w - target_w) / 2);
-	        const offset_y = Math.floor((vid_h - target_h) / 2);
-
-	        canvas.width = target_w;
-	        canvas.height = target_h;
-	        context.drawImage(video, offset_x, offset_y, target_w, target_h, 0, 0, target_w, target_h);
-
-	        $('#camera_stream').hide();
-	        $('#captured_canvas').show();
-	        capture_button.hide();
-	        retake_button.show();
-
-	        $('#profile_image').val(canvas.toDataURL('image/png'));
-	    });
-
-	    // Retake logic
-	    retake_button.on('click', function() {
-	        $('#captured_canvas').hide();
-	        $('#camera_stream').show();
-	        capture_button.show();
-	        retake_button.hide();
-	        $('#profile_image').val('');
-	        $('#profile_image_name').val('');
-
-	        image_name = $('#profile_image_name').val();
-	        if (image_name != '') {
-		        $('#profile_image_name').removeClass('invisible');
-	        }
-	        else {
-		        $('#profile_image_name').addClass('invisible');
-	        }
-	    });
-	}
-	
-	function initialize_time_manager_update_camera() {
-		const video = $('#update_camera_stream')[0];
-	    const canvas = $('#update_captured_canvas')[0];
-	    const context = canvas.getContext('2d');
-	    const capture_button = $('#update_capture_button');
-	    const retake_button = $('#update_retake_button');
-
-	    // Force 5:4 aspect ratio
-	    $('#update_camera_stream').css({
-	        'aspect-ratio': '5 / 4',
-	        'width': '100%',
-	        'height': 'auto',
-	        'object-fit': 'cover'
-	    });
-
-	    // Capture new image
-	    capture_button.on('click', function(e) {
-	        e.preventDefault();
-
-	        let full_name = $('#update_full_name').val().replace(/\s+/g, '_');
-	        let birthdate = $('#update_birthdate').val().replace(/-/g, '_');
-	        let file_name = `${full_name}_${birthdate}.png`;
-	    
-	        $('#update_profile_image_name').val(file_name);
-
-	        const aspect_w = 5;
-	        const aspect_h = 4;
-	        const vid_w = video.videoWidth;
-	        const vid_h = video.videoHeight;
-
-	        let target_w = vid_w;
-	        let target_h = Math.floor((vid_w / aspect_w) * aspect_h);
-
-	        if (target_h > vid_h) {
-	            target_h = vid_h;
-	            target_w = Math.floor((vid_h / aspect_h) * aspect_w);
-	        }
-
-	        const offset_x = Math.floor((vid_w - target_w) / 2);
-	        const offset_y = Math.floor((vid_h - target_h) / 2);
-
-	        canvas.width = target_w;
-	        canvas.height = target_h;
-	        context.drawImage(video, offset_x, offset_y, target_w, target_h, 0, 0, target_w, target_h);
-
-	        $('#update_camera_stream').hide();
-	        $('#update_captured_canvas').show();
-	        capture_button.hide();
-	        retake_button.show();
-
-	        $('#update_profile_image').val(canvas.toDataURL('image/png'));
-	    });
-
-	    // Retake new image
-	    retake_button.on('click', function(e) {
-	        e.preventDefault();
-
-	        $('#update_captured_canvas').hide();
-	        $('#update_camera_stream').show();
-	        capture_button.show();
-	        retake_button.hide();
-	        $('#update_profile_image').val('');
-	        $('#update_profile_image_name').val('');
-	    });
-
-	    $('#update_image_button').on('click', function() {
-	    	$('#current_image_field').addClass('invisible');
-	    	$('#update_webcam_field').removeClass('invisible');
-        	start_update_camera();
-	    });
-	    $('#cancel_image_update').on('click', function() {
-	    	$('#current_image_field').removeClass('invisible');
-	    	$('#update_webcam_field').addClass('invisible');
-	    	stop_update_camera();
-	    });
-	}
-
-	function initialize_pos_item_camera() {
+    function initialize_pos_item_camera() {
 	    const video = $('#new_pos_camera_stream')[0];
 	    const canvas = $('#new_pos_captured_canvas')[0];
 	    const context = canvas.getContext('2d');
@@ -2852,6 +3221,2217 @@
 		initialize_pos_item_camera();
 		initialize_pos_item_update_camera();
 	});
+
+	function toggle_new_pos_capture_button() {
+	    let item_name = $('input[name="new_pos_item_name"]').val();
+
+	    if (item_name !== '') {
+	        $('#new_pos_capture_button').show();
+	    } else {
+	        $('#new_pos_capture_button').hide();
+	    }
+	}
+
+	$('input[name="new_pos_item_name"]').on('change', toggle_new_pos_capture_button);
+
+	$('#new_pos_item_form')
+	    .form({
+	        on: 'change',
+	        inline: false,
+	        transition: 'fade',
+	        onSuccess: function(event) {
+	            event.preventDefault();
+	            var ajax = $.ajax({
+	                method: 'POST',
+	                url   : '<?php echo base_url();?>i.php/sys_control/new_pos_item',
+	                data  : new FormData(this),
+	                contentType: false,
+	                cache: false,
+	                processData: false
+	            });
+	            var jqxhr = ajax
+	                .always(function() {
+	                    var response = jqxhr.responseText;
+	                    if (response == 'success') {
+	                        alert('New Item added successfully.')
+	                        $('#new_pos_item_modal').modal('hide');
+	                    	load_pos_inventory();
+	                    }
+	                    else {
+	                        alert('Time Profile creation failed. Please try again.')
+	                    }
+	                })
+	            ;
+	        },
+	        fields: {
+	            new_pos_item_name: {
+	                identifier: 'new_pos_item_name',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please select a valid Name.'
+	                    }
+	                ]
+	            },
+	            new_pos_item_price: {
+	                identifier: 'new_pos_item_price',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please enter a valid Number.'
+	                    }
+	                ]
+	            },
+	            new_pos_item_image_name: {
+	                identifier: 'new_pos_item_image_name',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please select a valid Image.'
+	                    }
+	                ]
+	            },
+	            new_pos_item_stock: {
+	                identifier: 'new_pos_item_stock',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please enter a valid Num.'
+	                    }
+	                ]
+	            },
+	            new_pos_item_unit: {
+	                identifier: 'new_pos_item_unit',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please enter a valid Number.'
+	                    }
+	                ]
+	            },
+	            new_pos_item_image: {
+	                identifier: 'new_pos_item_image',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please select a valid Image.'
+	                    }
+	                ]
+	            }
+	        }
+	    })
+	;
+
+	$('#update_pos_item_form')
+    .form({
+        on: 'change',
+        inline: false,
+        transition: 'fade',
+        onSuccess: function(event) {
+            event.preventDefault();
+
+            var ajax = $.ajax({
+                method: 'POST',
+                url   : '<?php echo base_url();?>i.php/sys_control/update_pos_item',
+                data  : new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false
+            });
+
+            var jqxhr = ajax
+                .always(function() {
+                    var response = jqxhr.responseText.trim();
+                    if (response == 'success') {
+                        alert('Item Updated Successfully.');
+                        $('#update_pos_item_modal').modal('hide');
+                    	load_pos_inventory();
+                    } 
+                    else {
+                        alert('Update Failed. Please try again.');
+                    }
+                });
+        },
+        fields: {
+            update_pos_item_name: {
+                identifier: 'update_pos_item_name',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter the item name.'
+                    }
+                ]
+            },
+            update_pos_item_price: {
+                identifier: 'update_pos_item_price',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter a price.'
+                    },
+                    {
+                        type: 'decimal',
+                        prompt: 'Price must be a valid number.'
+                    }
+                ]
+            },
+            update_pos_item_unit: {
+                identifier: 'update_pos_item_unit',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter the unit (e.g. piece, box).'
+                    }
+                ]
+            },
+            update_pos_item_stock: {
+                identifier: 'update_pos_item_stock',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter current stock.'
+                    },
+                    {
+                        type: 'integer',
+                        prompt: 'Stock must be a whole number.'
+                    }
+                ]
+            },
+            update_pos_item_low: {
+                identifier: 'update_pos_item_low',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter low stock level.'
+                    },
+                    {
+                        type: 'integer',
+                        prompt: 'Low stock level must be a whole number.'
+                    }
+                ]
+            }
+        }
+    });
+
+    let new_pos_camera_stream = null;
+	function start_new_pos_camera() {
+		const video = $('#new_pos_camera_stream')[0];
+
+	    // Start webcam
+	    navigator.mediaDevices.getUserMedia({ video: true })
+	        .then(function(stream) {
+	            new_pos_camera_stream = stream;
+	            video.srcObject = stream;
+	        })
+	        .catch(function(err) {
+	            console.error("Camera access denied:", err);
+	            alert('Camera not accessible. Please allow permission or use HTTPS.');
+	        })
+	    ;
+	}
+	function stop_new_pos_camera() {
+	    if (new_pos_camera_stream) {
+	        new_pos_camera_stream.getTracks().forEach(track => {
+	            track.stop();
+	        });
+	        new_pos_camera_stream = null;
+	    }
+
+	    const video = $('#new_pos_camera_stream')[0];
+	    if (video) {
+	        video.srcObject = null;
+	        video.pause();
+	        video.removeAttribute('src');
+	        video.load();
+	    }
+	}
+
+	let update_pos_camera_stream = null;
+	function start_update_pos_camera() {
+		const video = $('#update_pos_camera_stream')[0];
+
+	    // Start webcam
+	    navigator.mediaDevices.getUserMedia({ video: true })
+	        .then(function(stream) {
+	            update_pos_camera_stream = stream;
+	            video.srcObject = stream;
+	        })
+	        .catch(function(err) {
+	            console.error("Camera access denied:", err);
+	            alert('Camera not accessible. Please allow permission or use HTTPS.');
+	        })
+	    ;
+	}
+	function stop_update_pos_camera() {
+	    if (update_pos_camera_stream) {
+	        update_pos_camera_stream.getTracks().forEach(track => {
+	            track.stop();
+	        });
+	        update_pos_camera_stream = null;
+	    }
+
+	    const video = $('#update_pos_camera_stream')[0];
+	    if (video) {
+	        video.srcObject = null;
+	        video.pause();
+	        video.removeAttribute('src');
+	        video.load();
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	$('#supply_checkout_cart_activator').on('click', function() {
+		$('#supply_checkout_cart_modal')
+		.modal({
+	        useFlex: true,
+	        allowMultiple: false,
+	        autofocus: false,
+	        blurring: true,
+	        closable: false,
+	        onHide: function() {
+	            // stop_update_supply_camera();
+	        },
+	        onShow: function(){
+	        	// start_update_supply_camera();
+	        }
+	    })
+	    .modal('show')
+
+	})
+	
+	$('#supply_checkouts_type_dropdown').dropdown('set selected', 'daily');
+
+	document.addEventListener('DOMContentLoaded', function () {
+	    const today = new Date().toISOString().split('T')[0];
+	    document.getElementById('supply_checkouts_date').value = today;
+	});
+
+	$('#supply_checkouts_activator').on('click', function() {
+		$('#supply_checkouts_modal')
+            .modal({
+                useFlex: true,
+                allowMultiple: false,
+                autofocus: false,
+                blurring: true,
+                closable: false,
+                onShow: function() {
+                	load_supply_checkout_codes();
+                    // load_inactive_clients();
+		        }
+            })
+            .modal('show')
+        ;
+	});
+	$('#supply_restocking_activator').on('click', function() {
+		$('#supply_restocking_modal')
+            .modal({
+                useFlex: true,
+                allowMultiple: false,
+                autofocus: false,
+                blurring: true,
+                closable: false,
+                onShow: function() {
+                	// load_supply_checkouts();
+                    // load_inactive_clients();
+		        }
+            })
+            .modal('show')
+        ;
+	});
+
+	function load_supply_checkout_codes() {
+	    let supply_checkouts_type = $('#supply_checkouts_type').val();
+	    let supply_checkouts_date = $('#supply_checkouts_date').val();
+
+	    var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/load_supply_checkout_codes',
+	        data  : { 
+	            supply_checkouts_type: supply_checkouts_type, 
+	            supply_checkouts_date: supply_checkouts_date
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response_data = JSON.parse(jqxhr.responseText);
+
+	        $('.supply_checkouts_table').addClass('hidden');
+	        $(`#${supply_checkouts_type}_supply_checkouts_table`).removeClass('hidden');
+
+	        $('.supply_checkouts_tbody').html('');
+
+	        if (response_data != '') {
+
+	            $.each(response_data, function(key, value) {
+	                var supply_checkout_code = value.supply_checkout_code;
+	                var total_item_count  = value.total_item_count;
+	                var supply_checkout_date = value.supply_checkout_date;
+
+	                let supply_report = `
+	                    <tr class="pointered supply_checkout_view" 
+	                        data-supply_checkout_code="${supply_checkout_code}" data-supply_checkout_date="${supply_checkout_date}">
+	                        
+	                        <td class="no-break">${supply_checkout_code}</td>
+	                        <td class="no-break">${total_item_count}</td>
+	                        <td class="no-break">${supply_checkout_date}</td>
+	                    </tr>
+	                `;
+
+	                $(`#${supply_checkouts_type}_supply_checkouts`).append(supply_report);
+	            });
+
+	            $('.supply_checkout_view').on('click', function() {
+	                let supply_checkout_code = $(this).data('supply_checkout_code');
+	                let supply_checkout_date = $(this).data('supply_checkout_date');
+
+	                $('#supply_transaction_view_modal')
+	                    .modal({
+	                        useFlex: true,
+	                        allowMultiple: true,
+	                        autofocus: false,
+	                        blurring: true,
+	                        closable: false,
+	                        onShow: function() {
+	                            load_supply_checkout(supply_checkout_code, supply_checkout_date);
+	                        }
+	                    })
+	                    .modal('show');
+	            });
+	        }
+	        else {
+	            $(`#${supply_checkouts_type}_supply_checkouts_table`).removeClass('hidden');
+	            $(`#${supply_checkouts_type}_supply_checkouts`).html(
+	                '<tr><td colspan="6" class="center aligned">No records found</td></tr>'
+	            );
+	        }
+	    });
+	}
+	function load_supply_checkout(supply_checkout_code, supply_checkout_date) {
+	    let view_activity = `Checkout: <u>${supply_checkout_code}</u>`;
+	    let transaction_date = `Date: <u>${supply_checkout_date}</u>`;
+	    $('#supply_transaction_void_button').data('supply_transaction_code', supply_checkout_code);
+	    $('#supply_transaction_void_button').data('supply_transaction_type', 'checkout');
+
+	    $('#supply_transaction_view_activity').html(view_activity);
+	    $('#supply_transaction_view_date').html(transaction_date);
+
+	    var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/load_supply_checkout',
+	        data  : { 
+	            supply_checkout_code: supply_checkout_code
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response_data = JSON.parse(jqxhr.responseText);
+
+	        if (response_data != '') {
+
+	            $('#supply_transaction_view_container').html('');
+	            let final_total = 0;
+
+	            $.each(response_data, function(key, value) {
+	                var supply_checkout_id  = value.supply_checkout_id;
+	                var supply_item_name  = value.supply_item_name;
+	                var supply_item_image = value.supply_item_image;
+	                var supply_item_price = value.supply_item_price;
+	                var supply_item_count = value.supply_item_count;
+	                var supply_item_unit  = value.supply_item_unit;
+
+	                var total_price = supply_item_count * supply_item_price;
+	                var display_total_price = parseFloat(total_price).toFixed(2);
+
+	                let formatted_item_price  = supply_item_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	                let formatted_total_price = display_total_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+	                final_total += total_price;
+
+	                // pluralize units
+	                if (supply_item_count > 1) {
+	                    unit_last = supply_item_unit[supply_item_unit.length - 1].toLowerCase();
+
+	                    if (
+	                        unit_last == 's' ||
+	                        unit_last == 'h' && supply_item_unit.endsWith('sh') ||
+	                        unit_last == 'h' && supply_item_unit.endsWith('ch') ||
+	                        unit_last == 'x' ||
+	                        unit_last == 'z'
+	                    ) {
+	                        supply_item_unit = supply_item_unit + 'es';
+	                    } else {
+	                        supply_item_unit = supply_item_unit + 's';
+	                    }
+	                }
+
+	                let view_data = `
+						<tr id="supply_checkout_item${supply_checkout_id}" data-supply_checkout_code="${supply_checkout_code}" data-supply_checkout_date="${supply_checkout_date}">
+	                        <td>${key+1}</td>
+	                        <td class="break-text">
+	                			<i class="red pointered x icon  void_supply_checkout_item" data-supply_checkout_id="${supply_checkout_id}" data-supply_item_name="${supply_item_name}"></i>
+	                            <img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}" class="ui avatar image">
+	                            <span>${supply_item_name}</span>
+	                        </td>
+	                        <td class="no-break">₱${formatted_item_price}</td>
+	                        <td class="no-break">${supply_item_count} ${supply_item_unit}</td>
+	                        <td class="no-break">₱${formatted_total_price}</td>
+	                    </tr>
+	                `;
+
+	                $('#supply_transaction_view_container').append(view_data);
+	            });
+
+	            $('.void_supply_checkout_item').on('dblclick', function() {
+	            	let supply_checkout_id = $(this).data('supply_checkout_id');
+	            	let supply_item_name = $(this).data('supply_item_name');
+	            	let confirmed = confirm('Are you sure you want to void this checkout item?');
+	            	if (confirmed) {
+	            		void_supply_checkout_item(supply_checkout_id, supply_item_name);
+	            	}
+	            });
+	            let formatted_final_total = parseFloat(final_total).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                $('#supply_transaction_view_total').html('₱'+formatted_final_total);
+
+	        } else {
+
+	            $('#supply_transaction_view_container').html('');
+
+	        }
+	    });
+	}
+
+	function void_supply_checkout_item(supply_checkout_id, supply_item_name) {
+	    var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/void_supply_checkout_item',
+	        data  : { 
+	            supply_checkout_id: supply_checkout_id
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response = jqxhr.responseText;
+        	if (response == 'success') {
+	        	alert(`${supply_item_name} was successfully voided from this checkout.`);
+	        	let supply_checkout_code = $(`#supply_checkout_item${supply_checkout_id}`).data('supply_checkout_code');
+	        	let supply_checkout_date = $(`#supply_checkout_item${supply_checkout_id}`).data('supply_checkout_date');
+
+	        	load_supply_checkout(supply_checkout_code, supply_checkout_date);
+            	load_supply_inventory();
+	        }
+	        else if (response == 'success-null') {
+	        	$('#supply_transaction_view_modal').modal('hide');
+	        	alert(`${supply_item_name} was successfully voided. All items from this checkout has been voided.`);
+	        	load_supply_checkout_codes();
+            	load_supply_inventory();
+	        }
+	        else {
+	        	alert(`Voiding failed. Please try again.`);
+	        }
+	    });
+	}
+
+	function void_supply_checkout(supply_checkout_code) {
+		var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/void_supply_checkout',
+	        data  : { 
+	            supply_checkout_code: supply_checkout_code
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response = jqxhr.responseText;
+	        if (response == 'success') {
+	        	$('#supply_transaction_view_modal').modal('hide');
+	        	alert(`Checkout with code "${supply_checkout_code}" was successfully voided.`);
+	        	load_supply_checkout_codes();
+            	load_supply_inventory();
+	        }
+	        else {
+	        	alert(`Voiding failed. Please try again.`);
+	        }
+	    });
+	}
+
+
+	// Auto load on page open
+	$('#supply_checkouts_modal').modal({
+	    onShow: function() {
+	        load_supply_checkout_codes();
+	    }
+	});
+
+	// Reload when filters change
+	$('#supply_checkouts_type_dropdown').dropdown({
+	    onChange: function () {
+	        load_supply_checkout_codes();
+	    }
+	});
+
+	$('#supply_checkouts_date').on('change', function () {
+	    load_supply_checkout_codes();
+	});
+
+
+	let supply_cart_array = [];
+	function load_supply_inventory() {
+        var ajax = $.ajax({
+            method: 'POST',
+            url   : '<?php echo base_url();?>i.php/sys_control/load_supply_inventory'
+        });
+        var jqxhr = ajax
+        .always(function() {
+            var response_data = JSON.parse(jqxhr.responseText);
+            if (response_data != '') {
+			    var search_content = [];
+        		$(`#supply_items_container`).html('');
+                $('#supply_empty_message').addClass('invisible');
+                $.each(response_data, function(key, value) {
+                    let supply_item_id = value.supply_item_id;
+                    let supply_item_name = value.supply_item_name;
+                    let supply_item_price = value.supply_item_price;
+                    let supply_item_image = value.supply_item_image;
+                    let supply_item_stock = value.supply_item_stock;
+                    let supply_item_unit = value.supply_item_unit;
+                    let supply_item_low = value.supply_item_low;
+                    let supply_item_status = value.supply_item_status;
+
+
+                    let default_supply_item_unit = supply_item_unit;
+
+                    let formatted_item_price = supply_item_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+
+                    if (supply_item_stock > 1) {
+						unit_last = supply_item_unit[supply_item_unit.length-1].toLowerCase();
+				        if (
+					        unit_last == 's' ||
+					        unit_last == 'h' && supply_item_unit.endsWith('sh') ||
+					        unit_last == 'h' && supply_item_unit.endsWith('ch') ||
+					        unit_last == 'x' ||
+					        unit_last == 'z'
+					    ) {
+					        supply_item_unit = supply_item_unit + 'es';
+					    } else {
+					        supply_item_unit = supply_item_unit + 's';
+					    }
+					}
+
+                    let supply_item = `
+						<div class="ui fluid link card transition" id="supply_item${supply_item_id}" data-supply_item_id="${supply_item_id}" data-supply_item_name="${supply_item_name}" data-supply_item_price="${supply_item_price}" data-supply_item_image="${supply_item_image}" data-supply_item_stock="${supply_item_stock}" data-supply_item_unit="${default_supply_item_unit}" data-supply_item_low="${supply_item_low}" data-supply_item_status="${supply_item_status}">
+						    <div class="blurring dimmable image image-container">
+								<div class="ui dimmer">
+									<div class="content">
+                    					<div class="ui blue mini inverted button edit_supply_item">
+											Edit
+										</div>
+                    					<br><br>
+                    					<div class="ui orange mini inverted button archive_supply_item">
+											Archive
+										</div>
+									</div>
+								</div>
+                            	<img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}">
+							</div>
+						    <div class="content">
+					    		<input type="text" class="supply_card_focus_handler file_input" data-item_id="${supply_item_id}">
+						    	<div class="item">
+									<h5 class="ui tiny header">${supply_item_name}</h5>
+								    <div class="content">
+										<a class="ui tiny grey header"><x class="supply_item_stock">${supply_item_stock}</x> <x class="supply_item_unit">${supply_item_unit}</x></a>
+								    </div>
+								</div>
+						    </div>
+						    <div class="extra content">
+						    	<div class="ui left floated small buttons">
+									<button class="ui basic button supply_count_minus">
+										<i class="left floated minus icon"></i>
+									</button>
+									<div class="or supply_count_container" data-text="0" data-max_limit="${supply_item_stock}"></div>
+									<button class="ui basic button supply_count_plus">
+										<i class="right floated plus icon"></i>
+									</button>
+								</div>
+								<div class="ui right floated basic small button add_to_supply_cart invisible">
+									Add
+									<i class="right cart plus icon"></i>
+								</div>
+						    </div>
+						</div>
+                    `;
+
+                    let supply_restocking_item = `
+                    	<div class="item supply_restocking_item" data-value="${supply_item_id}" data-supply_item_name="${supply_item_name}" data-supply_item_image="${supply_item_image}">
+							<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/supply_images/${supply_item_image}">
+							<span>${supply_item_name}</span>
+						</div>
+                    `;
+
+            		$(`#supply_items_container`).append(supply_item);
+            		$(`#supply_restocking_menu`).append(supply_restocking_item);
+		      		search_content.push({id:supply_item_id,title:supply_item_name,description:"₱ "+formatted_item_price});
+                })
+				let supply_restocking_array = [];
+				let supply_restocking_list_item = '';
+				let supply_list_restock_date = '';
+				let supply_list_item_id = '';
+				let supply_list_item_name = '';
+				let supply_list_item_image = '';
+
+				$('#supply_restocking_items_drop').dropdown({
+				    action: function (text, value, element) {
+				    	$('#supply_restocking_menu .supply_restocking_item').removeClass('invisible');
+						$('#supply_restocking_menu .supply_restocking_item').addClass('item');
+
+				        supply_restocking_array.forEach(function(item) {
+			                let element = $(`#supply_restocking_items_drop [data-value='${item.supply_item_id}']`);
+
+			                element.addClass('invisible');
+			                element.removeClass('active');
+							element.removeClass('item');
+						});
+						$(this).dropdown('set selected', value);
+						$(this).dropdown('hide');
+						supply_list_item_id = value;
+						supply_list_item_name = $(element).data('supply_item_name');
+						supply_list_item_image = $(element).data('supply_item_image');
+						$('#supply_restock_quantity').trigger('focus');
+				    },
+				    forceSelection: false
+				});
+				// $('#supply_restocking_insert').on('click', function(){
+					
+				// });
+
+				$('#supply_restocking_form')
+				    .form({
+				        on: 'change',
+				        inline: false,
+				        transition: 'fade',
+				        onSuccess: function(event) {
+				            event.preventDefault();
+
+				            let supply_list_restock_date = $('#supply_restocking_date').val();
+							let supply_list_restock_quantity = $('#supply_restock_quantity').val();
+							let errors = [];
+
+							if (!supply_list_restock_date) {
+								errors.push("Restocking Date");
+							}
+							if (!supply_list_item_id) {
+								errors.push("Item");
+							}
+							if (!supply_list_restock_quantity) {
+								errors.push("Quantity");
+							}
+
+							if (errors.length > 0) {
+								if (errors.length === 1) {
+									alert(`Please provide a valid ${errors[0]}.`);
+								} else if (errors.length === 2) {
+									alert(`Please provide valid ${errors[0]} and ${errors[1]}.`);
+								} else {
+									alert(`Please provide valid ${errors.join(", ")}.`);
+								}
+								return; // Stop execution if there are errors
+							}
+
+							if (supply_list_restock_quantity <= 0) {
+								alert("Please provide a valid quantity.")
+							}
+							else {
+								supply_restocking_list_item = `
+									<div class="item" data-supply_item_id="${supply_list_item_id}">
+										<div class="right floated content">
+						                	<i class="ui x red icon pointered supply_restocking_item_remover"></i>
+										</div>
+			                        	<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/supply_images/${supply_list_item_image}">
+								    	<div class="content">
+									      	<a class="header">${supply_list_item_name}</a>
+									    	<div class="description">
+												x${supply_list_restock_quantity}
+									    	</div>
+									    </div>
+									</div>
+								`;
+								$('#supply_restocking_list').append(supply_restocking_list_item);	
+
+								$('.supply_restocking_item_remover').on('dblclick', function() {
+									confirmed = confirm('Remove this restocking item?');
+									if (confirmed) {
+									    const item = $(this).closest('.item');
+									    const supply_item_id = item.data('supply_item_id');
+									    $(`#supply_restocking_list .item[data-supply_item_id='${supply_item_id}']`).remove();
+
+									    for (let i = 0; i < supply_restocking_array.length; i++) {
+								            if (supply_restocking_array[i].supply_item_id == supply_item_id) { // use == to allow type coercion
+								                supply_restocking_array.splice(i, 1);
+								                break;
+								            }
+								        }
+
+										$('#supply_restocking_menu .supply_restocking_item').removeClass('invisible');
+										$('#supply_restocking_menu .supply_restocking_item').addClass('item');
+									    supply_restocking_array.forEach(function(item) {
+							                let element = $(`#supply_restocking_items_drop [data-value='${item.supply_item_id}']`);
+
+							                element.addClass('invisible');
+							                element.removeClass('active');
+											element.removeClass('item');
+										});
+
+										if ($('#supply_restocking_menu .item').length === $('#supply_restocking_menu .item.invisible').length) {
+										    $('#supply_restocking_items_drop').addClass('disabled');
+										} 
+										else {
+										    $('#supply_restocking_items_drop').removeClass('disabled');
+										}
+									}
+								});
+
+								supply_restocking_array.push({
+								    supply_item_id: supply_list_item_id,
+								    supply_item_count: supply_list_restock_quantity
+								});
+								$('#supply_restocking_menu .supply_restocking_item').removeClass('invisible');
+								$('#supply_restocking_menu .supply_restocking_item').addClass('item');
+								supply_restocking_array.forEach(function(item) {
+									// alert(item.supply_item_id)
+					                let element = $(`#supply_restocking_items_drop [data-value='${item.supply_item_id}']`);
+
+					                element.addClass('invisible');
+					                element.removeClass('active');
+									element.removeClass('item');
+								});
+
+								if ($('#supply_restocking_menu .item').length === $('#supply_restocking_menu .item.invisible').length) {
+								    $('#supply_restocking_items_drop').addClass('disabled');
+								} 
+								else {
+								    $('#supply_restocking_items_drop').removeClass('disabled');
+								}
+
+								// $('#supply_restocking_form').form('reset');
+								$('#supply_restocking_items_drop').dropdown('clear');
+								$('#supply_restock_quantity').val('');
+
+								$('.supply_restocking_divider').removeClass('invisible');
+							}
+							if (supply_restocking_array.length > 0) {
+								$('#supply_restocking_submit').removeClass('invisible');
+							}
+
+	        				$('#supply_restocking_items_drop .search').focus();
+				        },
+				        fields: {
+				            supply_restocking_date: {
+				                identifier: 'supply_restocking_date',
+				                rules: [
+				                    {
+				                        type: 'empty',
+				                        prompt: ''
+				                    }
+				                ]
+				            },
+				            supply_restocking_items_drop: {
+				                identifier: 'supply_restocking_items_drop',
+				                rules: [
+				                    {
+				                        type: 'empty',
+				                        prompt: ''
+				                    }
+				                ]
+				            },
+				            supply_restock_quantity: {
+				                identifier: 'supply_restock_quantity',
+				                rules: [
+				                    {
+				                        type: 'empty',
+				                        prompt: ''
+				                    }
+				                ]
+				            }
+				        }
+				    })
+				;
+
+				$('#supply_restocking_submit').on('dblclick', function(e) {
+				    e.preventDefault();
+
+				    if (!supply_restocking_array || supply_restocking_array.length === 0) {
+				        alert('Cart is empty.');
+				        return;
+				    }
+
+				    let formData = new FormData();
+				    formData.append('supply_restocking_items', JSON.stringify(supply_restocking_array)); // send cart as JSON string
+					formData.append('supply_restocking_date', $('#supply_restocking_date').val());
+				    
+				    $.ajax({
+				        url: '<?php echo base_url(); ?>i.php/sys_control/supply_restock',
+				        method: 'POST',
+				        data: formData,
+				        processData: false,  // important for FormData
+				        contentType: false,  // important for FormData
+				        success: function (response) {
+				            if (response === 'success') {
+				                supply_restocking_array = []; // clear current cart
+						    	$('#supply_checkout_cart_empty_message').addClass('hidden');
+						    	$('#supply_checkout_cart_empty_message').removeClass('visible');
+						    	$('#supply_checkout_cart_content').html('');
+				                alert('Restocking successful! Inventory content will reload shortly...');
+				                load_supply_inventory();
+				                $('#supply_restocking_modal').modal('hide')
+				            } 
+				            else if (response === 'empty_cart') {
+				                alert('Restocking is empty. Nothing to insert.');
+				            }
+				            else {
+				                alert('Restocking failed. Try again.');
+				            }
+				        },
+				        error: function (xhr, status, error) {
+				            console.error(xhr.responseText);
+				            alert('AJAX error during checkout.');
+				        }
+				    });
+				});
+
+                $('#supply_inventory_search')
+					.search({
+						source: search_content,
+						fullTextSearch: 'exact',
+						maxResults: 100,
+						minCharacters: 2,
+						showNoResults: false,
+						onSelect: function(result, response) {
+							search_supply_item_id = result.id;
+							$('.supply_card_focus_handler[data-item_id="' + result.id + '"]').focus();
+
+							$('#supply_item'+search_supply_item_id)
+								.transition('pulse')
+								.transition('flash')
+							;
+						}
+					})
+				;
+
+                function open_supply_item_update_modal(data) {
+			        $('#update_supply_item_id').val(data.supply_item_id);
+			        $('#update_supply_item_name').val(data.supply_item_name);
+			        $('#update_supply_item_price').val(data.supply_item_price);
+			        $('#update_supply_item_stock').val(data.supply_item_stock);
+			        $('#update_supply_item_unit').val(data.supply_item_unit);
+			        $('#update_supply_item_low').val(data.supply_item_low);
+			        $('#current_supply_item_image').attr('src', data.supply_item_image_url);
+
+			        $('#update_supply_item_modal')
+			            .modal({
+			                useFlex: true,
+			                allowMultiple: false,
+			                autofocus: false,
+			                blurring: true,
+			                closable: false,
+			                onHide: function() {
+					            // stop_update_supply_camera();
+					        },
+					        onShow: function(){
+					        	// start_update_supply_camera();
+					        }
+			            })
+			            .modal('show')
+			        ;
+			    }
+                $('.edit_supply_item').on('click', function() {
+					let card = $(this).closest('.card'); // go up to the parent card
+
+					let supply_item_id = card.data('supply_item_id');
+					let supply_item_name = card.data('supply_item_name');
+					let supply_item_price = card.data('supply_item_price');
+					let supply_item_image = card.data('supply_item_image');
+					let supply_item_stock = card.data('supply_item_stock');
+					let supply_item_unit = card.data('supply_item_unit');
+					let supply_item_low = card.data('supply_item_low');
+					let supply_item_status = card.data('supply_item_status');
+
+			        open_supply_item_update_modal({
+				        supply_item_id: supply_item_id,
+				        supply_item_name: supply_item_name,
+				        supply_item_price: supply_item_price,
+				        supply_item_image: supply_item_image,
+				        supply_item_stock: supply_item_stock,
+				        supply_item_unit: supply_item_unit,
+				        supply_item_low: supply_item_low,
+				        supply_item_status: supply_item_status,
+				        supply_item_image_url: `<?php echo base_url();?>photos/supply_images/${supply_item_image}`
+				    });
+        		});
+        		$('.supply_count_minus, .supply_count_plus').on('click', function() {
+					let container = $(this).siblings('.supply_count_container');
+					let item_count = Number(container.attr('data-text'));
+					let max_limit = Number(container.attr('data-max_limit'));
+					// let max_limit = supply_item_stock;
+					let card = $(this).closest('.card');
+					let stock_el = card.find('.supply_item_stock').first();
+					let current_stock = Number(stock_el.text());
+
+					let unit_el = card.find('.supply_item_unit').first();
+					let current_unit = unit_el.text();
+					let add_button = card.find('.add_to_supply_cart');
+
+					if ($(this).hasClass('supply_count_plus')) {
+						if (item_count < max_limit && current_stock > 0) {
+							item_count++;
+							current_stock--;
+						}
+					} else {
+						if (item_count > 0) {
+							item_count--;
+							current_stock++;
+						}
+					}
+
+					container.attr('data-text', item_count);
+					stock_el.text(current_stock);
+					item_count > 0 ? add_button.removeClass('invisible') : add_button.addClass('invisible');
+
+					if (current_unit.endsWith('es')) {
+					    if (/(sh|ch|x|z|s)es$/.test(current_unit)) {
+					        current_unit = current_unit.slice(0, -2);
+					    } else if (!current_unit.endsWith('ses')) {
+					        current_unit = current_unit.slice(0, -1);
+					    }
+					} else if (current_unit.endsWith('s')) {
+					    if (!current_unit.endsWith('ss')) {
+					        current_unit = current_unit.slice(0, -1);
+					    }
+					}
+
+					if (current_stock != 1) {
+					    unit_last = current_unit[current_unit.length - 1].toLowerCase();
+					    if (
+					        unit_last == 's' ||
+					        unit_last == 'h' && current_unit.endsWith('sh') ||
+					        unit_last == 'h' && current_unit.endsWith('ch') ||
+					        unit_last == 'x' ||
+					        unit_last == 'z'
+					    ) {
+					        current_unit = current_unit + 'es';
+					    } 
+					    else {
+					        current_unit = current_unit + 's';
+					    }
+					} 
+					else {
+					    if (current_unit.endsWith('es')) {
+					        current_unit = current_unit.slice(0, -2);
+					    } 
+					    else if (current_unit.endsWith('s')) {
+					        current_unit = current_unit.slice(0, -1);
+					    }
+					}
+
+					unit_el.text(current_unit);
+				});
+
+				$('.add_to_supply_cart').on('click', function() {
+				    let card = $(this).closest('.card');
+				    let add_button = card.find('.add_to_supply_cart');
+				    let supply_checkout_cart_el = $('#supply_checkout_cart_activator');
+
+				    let item_count_el = card.find('.supply_count_container').first();
+				    let item_stock_el = card.find('.supply_item_stock').first();
+
+				    let supply_item_id     = card.data('supply_item_id');
+				    let supply_item_name   = card.data('supply_item_name');
+				    let supply_item_price  = card.data('supply_item_price');
+				    let supply_item_image  = card.data('supply_item_image');
+				    let supply_item_stock  = card.data('supply_item_stock');
+				    let supply_item_unit   = card.data('supply_item_unit');
+				    let supply_item_low    = card.data('supply_item_low');
+				    let supply_item_status = card.data('supply_item_status');
+
+				    let item_stock = item_stock_el.text();
+				    let item_count = item_count_el.attr('data-text');
+				    let remaining = item_stock;
+				    let total_item_price = supply_item_price * item_count;
+
+				    let formatted_item_price = parseFloat(total_item_price).toFixed(2);
+				    formatted_item_price = formatted_item_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+				    item_stock_el.text(remaining);
+				    item_count_el.attr('data-text', 0);
+				    add_button.addClass('invisible');
+
+				    card.transition({
+				        animation: 'bounce',
+				        onComplete: function() {
+				            supply_checkout_cart_el.transition('jiggle')
+				        }
+				    });
+
+				    if (item_count > 1) {
+				        unit_last = supply_item_unit[supply_item_unit.length-1].toLowerCase();
+				        if (
+				            unit_last == 's' ||
+				            unit_last == 'h' && supply_item_unit.endsWith('sh') ||
+				            unit_last == 'h' && supply_item_unit.endsWith('ch') ||
+				            unit_last == 'x' ||
+				            unit_last == 'z'
+				        ) {
+				            supply_item_unit = supply_item_unit + 'es';
+				        } else {
+				            supply_item_unit = supply_item_unit + 's';
+				        }
+				    }
+
+				    supply_cart_array.push({
+					    supply_item_id: supply_item_id,
+					    supply_item_name: supply_item_name,
+					    supply_item_price: supply_item_price,
+					    item_count: item_count,
+					    supply_item_unit: supply_item_unit,
+					    supply_item_image: supply_item_image,
+					    total_item_price: total_item_price
+					});
+
+				    item_data = `
+				        <div class="item supply_checkout_cart_item" data-supply_item_id="${supply_item_id}">
+				            <img class="ui item_avatar image" src="<?php echo base_url();?>photos/supply_images/${supply_item_image}">
+				            <div class="content">
+				                <div class="header supply_cart_item_name">${supply_item_name}</div>
+				                <div class="meta">
+				                    <span>₱<x class="supply_cart_item_price">${formatted_item_price}</x>
+				                    - <x class="supply_cart_item_count">${item_count}</x>
+				                    <x class="supply_cart_item_unit">${supply_item_unit}</x></span>
+				                </div>
+				            </div>
+				            <div class="right floated content supply_cart_actions">
+				                <i class="ui link red minus circle icon supply_remove_item"></i>
+				            </div>
+				        </div>`;
+
+				    $('#supply_checkout_cart_content').append(item_data);
+
+				    let cart_item_count = $('#supply_checkout_cart_content .supply_checkout_cart_item').length;
+
+				    if (cart_item_count > 0) {
+				    	$('#supply_checkout_code').addClass('hidden');
+				    	$('#supply_checkout_code').removeClass('visible');
+				    	
+				    	$('#supply_checkout_cart_empty_message').addClass('hidden');
+				    	$('#supply_checkout_cart_empty_message').removeClass('visible');
+				    }
+				    else {
+				    	$('#supply_checkout_cart_empty_message').addClass('visible');
+				    	$('#supply_checkout_cart_empty_message').removeClass('hidden');
+				    }
+				});
+
+
+                $('.special.cards .image').dimmer({
+				  	on: 'hover'
+				});
+            }
+            else {
+        		$(`#supply_items_container`).html('');
+                $('#supply_empty_message').removeClass('invisible');
+            }
+        })
+    }
+
+    $('#supply_log_type_dropdown').dropdown('set selected', 'daily');
+	document.addEventListener('DOMContentLoaded', function () {
+	    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+	    const date_input = document.getElementById('supply_log_date');
+	    date_input.value = today;
+	});
+
+	$('#supply_log_type_dropdown,#supply_log_date').on('change', function() {
+    	load_supply_logs();
+	});
+
+    function load_supply_logs() {
+		let supply_log_type = $('#supply_log_type').val();
+		let supply_log_date = $('#supply_log_date').val();
+        var ajax = $.ajax({
+            method: 'POST',
+            url   : '<?php echo base_url();?>i.php/sys_control/load_supply_logs',
+            data  : { 
+            	supply_log_type:supply_log_type, 
+            	supply_log_date:supply_log_date
+            }
+        });
+        var jqxhr = ajax
+        .always(function() {
+            var response_data = JSON.parse(jqxhr.responseText);
+    		$(`.supply_log_table`).addClass('hidden');
+    		$(`#supply_${supply_log_type}_log_table`).removeClass('hidden');
+            if (response_data != '') {
+        		$(`#supply_${supply_log_type}_log`).html('');
+        		let final_rate = 0;
+                $.each(response_data, function(key, value) {
+                    var supply_log_id = value.supply_log_id;
+                    var supply_activity_type = value.supply_activity_type;
+                    var supply_code = value.supply_code;
+                    var supply_activity = value.supply_activity;
+                    var timestamp = value.timestamp;
+
+                    let supply_log = `
+						<tr>
+							<td class="break-text">${supply_activity_type}</td>
+							<td class="no-break">${supply_code}</td>
+							<td class="break-text">${supply_activity}</td>
+							<td class="no-break">${timestamp}</td>
+						</tr>
+                    `;
+
+            		$(`#supply_${supply_log_type}_log`).append(supply_log);
+                    $('.special.cards .image').dimmer({
+					  	on: 'hover'
+					});
+                })
+            }
+            else {
+        		$(`#${log_type}_log`).html('');
+            }
+        })
+    }
+    $('#supply_logs_activator').on('click', function() {
+		$('#supply_logs_modal')
+            .modal({
+                useFlex: true,
+                allowMultiple: false,
+                autofocus: false,
+                blurring: true,
+                closable: false,
+                onShow: function() {
+                	load_supply_logs();
+                    // load_inactive_clients();
+		        }
+            })
+            .modal('show')
+        ;
+	});
+
+	$('#records_tab').on('click', function() {
+		load_supply_restocking_codes();
+	});
+
+	$('#supply_restocking_type_dropdown').dropdown('set selected', 'daily');
+
+	function load_supply_restocking_codes() {
+		let supply_restocking_report_type = $('#supply_restocking_report_type').val();
+		let supply_restocking_report_date = $('#supply_restocking_report_date').val();
+        var ajax = $.ajax({
+            method: 'POST',
+            url   : '<?php echo base_url();?>i.php/sys_control/load_supply_restocking_codes',
+            data  : { 
+            	supply_restocking_report_type:supply_restocking_report_type, 
+            	supply_restocking_report_date:supply_restocking_report_date
+            }
+        });
+        var jqxhr = ajax
+        .always(function() {
+            var response_data = JSON.parse(jqxhr.responseText);
+    		$(`.supply_restocking_table`).addClass('hidden');
+    		$(`#${supply_restocking_report_type}_supply_restocking_table`).removeClass('hidden');
+
+    		$(`.supply_restocking_tbody`).html('');
+            if (response_data != '') {
+        		let final_rate = 0;
+                $.each(response_data, function(key, value) {
+                    var supply_restocking_code = value.supply_restocking_code;
+                    var total_item_count = value.total_item_count;
+                    var supply_restocking_date = value.supply_restocking_date;
+                    var supply_restocking_timestamp = value.supply_restocking_timestamp;
+
+                    let supply_report = `
+						<tr class="pointered supply_restocking_view" data-supply_restocking_code="${supply_restocking_code}" data-supply_restocking_date="${supply_restocking_date}">
+							<td class="no-break">${supply_restocking_code}</td>
+							<td class="no-break">${total_item_count}</td>
+							<td class="no-break">${supply_restocking_date}</td>
+							<td class="no-break">${supply_restocking_timestamp}</td>
+						</tr>
+                    `;
+
+                    // alert(`#${supply_restocking_report_type}_supply_restocking`)
+
+            		$(`#${supply_restocking_report_type}_supply_restocking`).append(supply_report);
+                })
+
+                $('.supply_restocking_view').on('click', function() {
+                	let supply_restocking_code = $(this).data('supply_restocking_code');
+                	let supply_restocking_date = $(this).data('supply_restocking_date');
+                	$('#supply_transaction_view_modal')
+			            .modal({
+			                useFlex: true,
+			                allowMultiple: true,
+			                autofocus: false,
+			                blurring: true,
+			                closable: false,
+			                onShow: function() {
+			                	load_supply_restocking(supply_restocking_code, supply_restocking_date);
+			                    // load_inactive_clients();
+					        }
+			            })
+			            .modal('show')
+			        ;
+                });
+            }
+            else {
+    			$(`#${supply_restocking_report_type}_supply_restocking_table`).removeClass('hidden');
+    			$(`#${supply_restocking_report_type}_supply_restocking`).html('`<tr><td colspan="6" class="center aligned">No records found</td></tr>`');
+            }
+        })
+    }
+
+    function load_supply_restocking(supply_restocking_code, supply_restocking_date) {
+    	let view_activity = `Restocking: <u>${supply_restocking_code}</u>`;
+    	let transaction_date = `Date: <u>${supply_restocking_date}</u>`;
+	    $('#supply_transaction_void_button').data('supply_transaction_code', supply_restocking_code);
+	    $('#supply_transaction_void_button').data('supply_transaction_type', 'restocking');
+
+    	$('#supply_transaction_view_activity').html(view_activity);
+    	$('#supply_transaction_view_date').html(transaction_date);
+
+        var ajax = $.ajax({
+            method: 'POST',
+            url   : '<?php echo base_url();?>i.php/sys_control/load_supply_restocking',
+            data  : { 
+            	supply_restocking_code:supply_restocking_code
+            }
+        });
+        var jqxhr = ajax
+        .always(function() {
+            var response_data = JSON.parse(jqxhr.responseText);
+            if (response_data != '') {
+
+        		$(`#supply_transaction_view_container`).html('');
+        		let final_total = 0;
+                $.each(response_data, function(key, value) {
+                    var supply_restocking_id = value.supply_restocking_id;
+                    var supply_item_name = value.supply_item_name;
+                    var supply_item_image = value.supply_item_image;
+                    var supply_item_price = value.supply_item_price;
+                    var supply_item_count = value.supply_item_count;
+                    var supply_item_unit = value.supply_item_unit;
+                    var total_price = supply_item_count*supply_item_price;
+                    var display_total_price = parseFloat(supply_item_count*supply_item_price).toFixed(2);
+
+                    let formatted_item_price = supply_item_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    let formatted_total_price = display_total_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                    final_total = final_total + total_price;
+
+                    if (supply_item_count > 1) {
+						unit_last = supply_item_unit[supply_item_unit.length-1].toLowerCase();
+				        if (
+					        unit_last == 's' ||
+					        unit_last == 'h' && supply_item_unit.endsWith('sh') ||
+					        unit_last == 'h' && supply_item_unit.endsWith('ch') ||
+					        unit_last == 'x' ||
+					        unit_last == 'z'
+					    ) {
+					        supply_item_unit = supply_item_unit + 'es';
+					    } else {
+					        supply_item_unit = supply_item_unit + 's';
+					    }
+					}
+
+
+                    let view_data = `
+						<tr id="supply_restocking_item${supply_restocking_id}" data-supply_restocking_code="${supply_restocking_code}" data-supply_restocking_date="${supply_restocking_date}">
+							<td>${key+1}</td>
+							<td class="break-text">
+	                			<i class="red pointered x icon  void_supply_restocking_item" data-supply_restocking_id="${supply_restocking_id}" data-supply_item_name="${supply_item_name}"></i>
+                                <img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}" class="ui avatar image">
+                				<span>${supply_item_name}</span>
+							</td>
+							<td class="no-break">₱${formatted_item_price}</td>
+							<td class="no-break">${supply_item_count} ${supply_item_unit}</td>
+							<td class="no-break">₱${formatted_total_price}</td>
+						</tr>
+                    `;
+
+            		$(`#supply_transaction_view_container`).append(view_data);
+                });
+
+                $('.void_supply_restocking_item').on('dblclick', function() {
+	            	let supply_restocking_id = $(this).data('supply_restocking_id');
+	            	let supply_item_name = $(this).data('supply_item_name');
+	            	let confirmed = confirm('Are you sure you want to void this restocking item?');
+	            	if (confirmed) {
+	            		void_supply_restocking_item(supply_restocking_id, supply_item_name);
+	            	}
+	            });
+
+                let formatted_final_total = parseFloat(final_total).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                $('#supply_transaction_view_total').html('₱'+formatted_final_total);
+            }
+            else {
+        		$(`#supply_transaction_view_container`).html('');
+            }
+        })
+    }
+
+    function void_supply_restocking_item(supply_restocking_id, supply_item_name) {
+	    var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/void_supply_restocking_item',
+	        data  : { 
+	            supply_restocking_id: supply_restocking_id
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response = jqxhr.responseText;
+	        if (response == 'success') {
+	        	alert(`${supply_item_name} was successfully voided from this restocking.`);
+	        	let supply_restocking_code = $(`#supply_restocking_item${supply_restocking_id}`).data('supply_restocking_code');
+	        	let supply_restocking_date = $(`#supply_restocking_item${supply_restocking_id}`).data('supply_restocking_date');
+
+	        	load_supply_restocking(supply_restocking_code, supply_restocking_date);
+            	load_supply_inventory();
+	        }
+	        else if (response == 'success-null') {
+	        	$('#supply_transaction_view_modal').modal('hide');
+	        	alert(`${supply_item_name} was successfully voided. All items from this restock has been voided.`);
+	        	load_supply_restocking_codes();
+            	load_supply_inventory();
+	        }
+	        else {
+	        	alert(`Voiding failed. Please try again.`);
+	        }
+	    });
+	}
+
+	$('#supply_transaction_void_button').on('dblclick', function() {
+		let supply_transaction_code = $(this).data('supply_transaction_code');
+		let supply_transaction_type = $(this).data('supply_transaction_type');
+    	let confirmed = confirm('Are you sure you want to void this transaction and all related items? Once voided, it cannot be restored.');
+    	if (confirmed) {
+    		if (supply_transaction_type == 'checkout') {
+	    		void_supply_checkout(supply_transaction_code);
+    		}
+    		else if (supply_transaction_type == 'restocking') {
+	    		void_supply_restocking(supply_transaction_code);
+    		}
+    	}
+	});
+
+	function void_supply_restocking(supply_restocking_code) {
+		var ajax = $.ajax({
+	        method: 'POST',
+	        url   : '<?php echo base_url();?>i.php/sys_control/void_supply_restocking',
+	        data  : { 
+	            supply_restocking_code: supply_restocking_code
+	        }
+	    });
+
+	    var jqxhr = ajax
+	    .always(function() {
+	        var response = jqxhr.responseText;
+	        if (response == 'success') {
+	        	$('#supply_transaction_view_modal').modal('hide');
+	        	alert(`Restocking with code "${supply_restocking_code}" was successfully voided.`);
+	        	load_supply_restocking_codes();
+	            load_supply_inventory();
+	        }
+	        else {
+	        	alert(`Voiding failed. Please try again.`);
+	        }
+	    });
+	}
+
+    $('#supply_restocking_type_dropdown,#supply_restocking_report_date').on('change', function() {
+    	load_supply_restocking_codes();
+	});
+
+	$('#supply_restocking_items_drop, #supply_restock_quantity').on('keydown', function(e) {
+	    if (e.key === 'Enter') {
+	        $('#supply_restocking_form').submit();
+	    }
+	});
+
+
+    $('#supply_logs_activator').on('click', function() {
+		$('#supply_logs_modal')
+            .modal({
+                useFlex: true,
+                allowMultiple: false,
+                autofocus: false,
+                blurring: true,
+                closable: false,
+                onShow: function() {
+                	load_supply_logs();
+                    // load_inactive_clients();
+		        }
+            })
+            .modal('show')
+        ;
+	});
+
+    $('#supply_checkout_submit').on('dblclick', function(e) {
+	    e.preventDefault();
+
+	    if (!supply_cart_array || supply_cart_array.length === 0) {
+	        alert('Cart is empty.');
+	        return;
+	    }
+
+	    let formData = new FormData();
+	    formData.append('cart_items', JSON.stringify(supply_cart_array)); // send cart as JSON string
+
+	    $.ajax({
+	        url: '<?php echo base_url(); ?>i.php/sys_control/supply_checkout',
+	        method: 'POST',
+	        data: formData,
+	        processData: false,  // important for FormData
+	        contentType: false,  // important for FormData
+	        success: function (response) {
+	            if (response === 'success') {
+	                supply_cart_array = []; // clear current cart
+			    	$('#supply_checkout_cart_empty_message').addClass('hidden');
+			    	$('#supply_checkout_cart_empty_message').removeClass('visible');
+			    	$('#supply_checkout_cart_content').html('');
+	                alert('Checkout successful!');
+	            } 
+	            else if (response === 'empty_cart') {
+	                alert('Cart is empty. Nothing to checkout.');
+	            }
+	            else {
+	                alert('Checkout failed. Try again.');
+	            }
+	        },
+	        error: function (xhr, status, error) {
+	            console.error(xhr.responseText);
+	            alert('AJAX error during checkout.');
+	        }
+	    });
+	});
+
+
+    $('.new_supply_item_activator').on('click', function (event) {
+    	toggle_new_supply_capture_button();
+        $('#new_supply_item_modal')
+            .modal({
+                useFlex: true,
+                allowMultiple: false,
+                autofocus: false,
+                blurring: true,
+                closable: false,
+                onHide: function() {
+		            stop_new_supply_camera();
+		        },
+		        onShow: function(){
+		        	start_new_supply_camera();
+		        }
+            })
+            .modal('show')
+        ;
+    });
+
+    function initialize_supply_item_camera() {
+	    const video = $('#new_supply_camera_stream')[0];
+	    const canvas = $('#new_supply_captured_canvas')[0];
+	    const context = canvas.getContext('2d');
+	    const capture_button = $('#new_supply_capture_button');
+	    const retake_button = $('#new_supply_retake_button');
+	    const file_input = $('#new_supply_image_file')[0];
+	    const uploaded_preview = $('#new_supply_uploaded_preview');
+
+	    // --- Setup video element ---
+	    $('#new_supply_camera_stream').css({
+	        'aspect-ratio': '5 / 4',
+	        'width': '100%',
+	        'height': 'auto',
+	        'object-fit': 'cover',
+	        'cursor': 'pointer',
+	        'pointer-events': 'auto'
+	    });
+
+	    // --- Handle camera or upload click ---
+	    $('#new_supply_camera_stream, #new_supply_camera_container').off('dblclick').on('dblclick', function () {
+	        console.log('Double-click detected — opening file chooser');
+	        file_input.click();
+	    });
+
+	    // --- File input handling ---
+	    file_input.addEventListener('change', function (e) {
+	        const file = e.target.files[0];
+	        if (!file) return;
+
+	        const reader = new FileReader();
+	        reader.onload = function (ev) {
+	            // Hide video & canvas, show uploaded preview
+	            $('#new_supply_camera_stream, #new_supply_captured_canvas').hide();
+	            uploaded_preview.attr('src', ev.target.result).show();
+
+	            // Generate filename
+	            const item_name = $('#new_supply_item_name').val().replace(/\s+/g, '_');
+	            const timestamp = Date.now();
+	            const file_name = `${item_name}_${timestamp}.png`;
+
+	            // Assign to hidden inputs
+	            $('#new_supply_item_image').val(ev.target.result);
+	            $('#new_supply_item_image_name').val(file_name).removeClass('invisible');
+
+	            capture_button.hide();
+	            retake_button.show();
+	        };
+	        reader.readAsDataURL(file);
+	    });
+
+	    // --- Capture from camera ---
+	    capture_button.off('click').on('click', function() {
+	        const item_name = $('#new_supply_item_name').val().replace(/\s+/g, '_');
+	        const timestamp = Date.now();
+	        const file_name = `${item_name}_${timestamp}.png`;
+
+	        $('#new_supply_item_image_name').val(file_name).removeClass('invisible');
+
+	        const aspect_w = 5, aspect_h = 4;
+	        const vid_w = video.videoWidth;
+	        const vid_h = video.videoHeight;
+	        let target_w = vid_w;
+	        let target_h = Math.floor((vid_w / aspect_w) * aspect_h);
+
+	        if (target_h > vid_h) {
+	            target_h = vid_h;
+	            target_w = Math.floor((vid_h / aspect_h) * aspect_w);
+	        }
+
+	        const offset_x = Math.floor((vid_w - target_w) / 2);
+	        const offset_y = Math.floor((vid_h - target_h) / 2);
+
+	        canvas.width = target_w;
+	        canvas.height = target_h;
+	        context.drawImage(video, offset_x, offset_y, target_w, target_h, 0, 0, target_w, target_h);
+
+	        $('#new_supply_camera_stream').hide();
+	        $('#new_supply_captured_canvas').show();
+	        capture_button.hide();
+	        retake_button.show();
+
+	        $('#new_supply_item_image').val(canvas.toDataURL('image/png'));
+	    });
+
+	    // --- Retake logic ---
+	    retake_button.off('click').on('click', function() {
+	        $('#new_supply_captured_canvas, #new_supply_uploaded_preview').hide();
+	        $('#new_supply_camera_stream').show();
+	        capture_button.show();
+	        retake_button.hide();
+
+	        $('#new_supply_item_image').val('');
+	        $('#new_supply_item_image_name').val('').addClass('invisible');
+	        file_input.value = '';
+	    });
+	}
+	function initialize_supply_item_update_camera() {
+	    const video = $('#update_supply_camera_stream')[0];
+	    const canvas = $('#update_supply_captured_canvas')[0];
+	    const context = canvas.getContext('2d');
+	    const capture_button = $('#update_supply_capture_button');
+	    const retake_button = $('#update_supply_retake_button');
+	    const file_input = $('#update_supply_image_file')[0];
+	    const uploaded_preview = $('#update_supply_uploaded_preview');
+
+	    // --- Setup video element ---
+	    $('#update_supply_camera_stream').css({
+	        'aspect-ratio': '5 / 4',
+	        'width': '100%',
+	        'height': 'auto',
+	        'object-fit': 'cover',
+	        'cursor': 'pointer',
+	        'pointer-events': 'auto'
+	    });
+
+	    // --- Handle camera or upload click ---
+	    $('#update_supply_camera_stream, #update_supply_camera_container').off('dblclick').on('dblclick', function () {
+	        console.log('Double-click detected — opening file chooser');
+	        file_input.click();
+	    });
+
+	    // --- File input handling ---
+	    file_input.addEventListener('change', function (e) {
+	        const file = e.target.files[0];
+	        if (!file) return;
+
+	        const reader = new FileReader();
+	        reader.onload = function (ev) {
+	            // Hide video & canvas, show uploaded preview
+	            $('#update_supply_camera_stream, #update_supply_captured_canvas').hide();
+	            uploaded_preview.attr('src', ev.target.result).show();
+
+	            // Generate filename
+	            const item_name = $('#update_supply_item_name').val().replace(/\s+/g, '_');
+	            const timestamp = Date.now();
+	            const file_name = `${item_name}_${timestamp}.png`;
+
+	            // Assign to hidden inputs
+	            $('#update_supply_item_image').val(ev.target.result);
+	            $('#update_supply_item_image_name').val(file_name).removeClass('invisible');
+
+	            capture_button.hide();
+	            retake_button.show();
+	        };
+	        reader.readAsDataURL(file);
+	    });
+
+	    // --- Capture from camera ---
+	    capture_button.off('click').on('click', function() {
+	        const item_name = $('#update_supply_item_name').val().replace(/\s+/g, '_');
+	        const timestamp = Date.now();
+	        const file_name = `${item_name}_${timestamp}.png`;
+
+	        $('#update_supply_item_image_name').val(file_name).removeClass('invisible');
+
+	        const aspect_w = 5, aspect_h = 4;
+	        const vid_w = video.videoWidth;
+	        const vid_h = video.videoHeight;
+	        let target_w = vid_w;
+	        let target_h = Math.floor((vid_w / aspect_w) * aspect_h);
+
+	        if (target_h > vid_h) {
+	            target_h = vid_h;
+	            target_w = Math.floor((vid_h / aspect_h) * aspect_w);
+	        }
+
+	        const offset_x = Math.floor((vid_w - target_w) / 2);
+	        const offset_y = Math.floor((vid_h - target_h) / 2);
+
+	        canvas.width = target_w;
+	        canvas.height = target_h;
+	        context.drawImage(video, offset_x, offset_y, target_w, target_h, 0, 0, target_w, target_h);
+
+	        $('#update_supply_camera_stream').hide();
+	        $('#update_supply_captured_canvas').show();
+	        capture_button.hide();
+	        retake_button.show();
+
+	        $('#update_supply_item_image').val(canvas.toDataURL('image/png'));
+	    });
+
+	    // --- Retake logic ---
+	    retake_button.off('click').on('click', function() {
+	        $('#update_supply_captured_canvas, #update_supply_uploaded_preview').hide();
+	        $('#update_supply_camera_stream').show();
+	        capture_button.show();
+	        retake_button.hide();
+
+	        $('#update_supply_item_image').val('');
+	        $('#update_supply_item_image_name').val('').addClass('invisible');
+	        file_input.value = '';
+	    });
+
+	    $('#update_supply_item_image_button').on('click', function() {
+	    	$('#current_supply_image_field').addClass('invisible');
+	    	$('#update_supply_webcam_field').removeClass('invisible');
+            start_update_supply_camera();
+
+	    });
+	    $('#cancel_supply_image_update').on('click', function() {
+	    	$('#current_supply_image_field').removeClass('invisible');
+	    	$('#update_supply_webcam_field').addClass('invisible');
+            stop_update_supply_camera();
+	    });
+	}
+
+	$(document).ready(function() {
+		initialize_time_manager_camera();
+		initialize_time_manager_update_camera();
+		initialize_supply_item_camera();
+		initialize_supply_item_update_camera();
+	});
+
+	function toggle_new_supply_capture_button() {
+	    let item_name = $('input[name="new_supply_item_name"]').val();
+
+	    if (item_name !== '') {
+	        $('#new_supply_capture_button').show();
+	    } else {
+	        $('#new_supply_capture_button').hide();
+	    }
+	}
+
+	$('input[name="new_supply_item_name"]').on('change', toggle_new_supply_capture_button);
+
+	$('#new_supply_item_form')
+	    .form({
+	        on: 'change',
+	        inline: false,
+	        transition: 'fade',
+	        onSuccess: function(event) {
+	            event.preventDefault();
+	            var ajax = $.ajax({
+	                method: 'POST',
+	                url   : '<?php echo base_url();?>i.php/sys_control/new_supply_item',
+	                data  : new FormData(this),
+	                contentType: false,
+	                cache: false,
+	                processData: false
+	            });
+	            var jqxhr = ajax
+	                .always(function() {
+	                    var response = jqxhr.responseText;
+	                    if (response == 'success') {
+	                        alert('New Item added successfully.')
+	                        $('#new_supply_item_modal').modal('hide');
+	                    	load_supply_inventory();
+	                    }
+	                    else {
+	                        alert('Time Profile creation failed. Please try again.')
+	                    }
+	                })
+	            ;
+	        },
+	        fields: {
+	            new_supply_item_name: {
+	                identifier: 'new_supply_item_name',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please select a valid Name.'
+	                    }
+	                ]
+	            },
+	            new_supply_item_price: {
+	                identifier: 'new_supply_item_price',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please enter a valid Number.'
+	                    }
+	                ]
+	            },
+	            new_supply_item_image_name: {
+	                identifier: 'new_supply_item_image_name',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please select a valid Image.'
+	                    }
+	                ]
+	            },
+	            new_supply_item_stock: {
+	                identifier: 'new_supply_item_stock',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please enter a valid Num.'
+	                    }
+	                ]
+	            },
+	            new_supply_item_unit: {
+	                identifier: 'new_supply_item_unit',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please enter a valid Number.'
+	                    }
+	                ]
+	            },
+	            new_supply_item_image: {
+	                identifier: 'new_supply_item_image',
+	                rules: [
+	                    {
+	                        type: 'empty',
+	                        prompt: 'Please select a valid Image.'
+	                    }
+	                ]
+	            }
+	        }
+	    })
+	;
+
+	$('#update_supply_item_form')
+    .form({
+        on: 'change',
+        inline: false,
+        transition: 'fade',
+        onSuccess: function(event) {
+            event.preventDefault();
+
+            var ajax = $.ajax({
+                method: 'POST',
+                url   : '<?php echo base_url();?>i.php/sys_control/update_supply_item',
+                data  : new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false
+            });
+
+            var jqxhr = ajax
+                .always(function() {
+                    var response = jqxhr.responseText.trim();
+                    if (response == 'success') {
+                        alert('Item Updated Successfully.');
+                        $('#update_supply_item_modal').modal('hide');
+                    	load_supply_inventory();
+                    } 
+                    else {
+                        alert('Update Failed. Please try again.');
+                    }
+                });
+        },
+        fields: {
+            update_supply_item_name: {
+                identifier: 'update_supply_item_name',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter the item name.'
+                    }
+                ]
+            },
+            update_supply_item_price: {
+                identifier: 'update_supply_item_price',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter a price.'
+                    },
+                    {
+                        type: 'decimal',
+                        prompt: 'Price must be a valid number.'
+                    }
+                ]
+            },
+            update_supply_item_unit: {
+                identifier: 'update_supply_item_unit',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter the unit (e.g. piece, box).'
+                    }
+                ]
+            },
+            update_supply_item_stock: {
+                identifier: 'update_supply_item_stock',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter current stock.'
+                    },
+                    {
+                        type: 'integer',
+                        prompt: 'Stock must be a whole number.'
+                    }
+                ]
+            },
+            update_supply_item_low: {
+                identifier: 'update_supply_item_low',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Please enter low stock level.'
+                    },
+                    {
+                        type: 'integer',
+                        prompt: 'Low stock level must be a whole number.'
+                    }
+                ]
+            }
+        }
+    });
+
+    let new_supply_camera_stream = null;
+	function start_new_supply_camera() {
+		const video = $('#new_supply_camera_stream')[0];
+
+	    // Start webcam
+	    navigator.mediaDevices.getUserMedia({ video: true })
+	        .then(function(stream) {
+	            new_supply_camera_stream = stream;
+	            video.srcObject = stream;
+	        })
+	        .catch(function(err) {
+	            console.error("Camera access denied:", err);
+	            alert('Camera not accessible. Please allow permission or use HTTPS.');
+	        })
+	    ;
+	}
+	function stop_new_supply_camera() {
+	    if (new_supply_camera_stream) {
+	        new_supply_camera_stream.getTracks().forEach(track => {
+	            track.stop();
+	        });
+	        new_supply_camera_stream = null;
+	    }
+
+	    const video = $('#new_supply_camera_stream')[0];
+	    if (video) {
+	        video.srcObject = null;
+	        video.pause();
+	        video.removeAttribute('src');
+	        video.load();
+	    }
+	}
+
+	let update_supply_camera_stream = null;
+	function start_update_supply_camera() {
+		const video = $('#update_supply_camera_stream')[0];
+
+	    // Start webcam
+	    navigator.mediaDevices.getUserMedia({ video: true })
+	        .then(function(stream) {
+	            update_supply_camera_stream = stream;
+	            video.srcObject = stream;
+	        })
+	        .catch(function(err) {
+	            console.error("Camera access denied:", err);
+	            alert('Camera not accessible. Please allow permission or use HTTPS.');
+	        })
+	    ;
+	}
+	function stop_update_supply_camera() {
+	    if (update_supply_camera_stream) {
+	        update_supply_camera_stream.getTracks().forEach(track => {
+	            track.stop();
+	        });
+	        update_supply_camera_stream = null;
+	    }
+
+	    const video = $('#update_supply_camera_stream')[0];
+	    if (video) {
+	        video.srcObject = null;
+	        video.pause();
+	        video.removeAttribute('src');
+	        video.load();
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function initialize_time_manager_camera() {
+		const video = $('#camera_stream')[0];
+	    const canvas = $('#captured_canvas')[0];
+	    const context = canvas.getContext('2d');
+	    const capture_button = $('#capture_button');
+	    const retake_button = $('#retake_button');
+
+	    // Force 5:4 aspect ratio on the live video
+	    $('#camera_stream').css({
+	        'aspect-ratio': '5 / 4',
+	        'width': '100%',
+	        'height': 'auto',
+	        'object-fit': 'cover'
+	    });
+
+	    // Capture with 5:4 aspect ratio
+	    capture_button.on('click', function() {
+	        let full_name = $('input[name="full_name"]').val().replace(/\s+/g, '_');
+	        let birthdate = $('input[name="birthdate"]').val().replace(/-/g, '_');
+	        let file_name = `${full_name}_${birthdate}.png`;
+	    
+	        $('#profile_image_name').val(file_name);
+	        image_name = $('#profile_image_name').val();
+
+	        if (image_name != '') {
+		        $('#profile_image_name').removeClass('invisible');
+	        }
+	        else {
+		        $('#profile_image_name').addClass('invisible');
+	        }
+
+	        const aspect_w = 5;
+	        const aspect_h = 4;
+
+	        const vid_w = video.videoWidth;
+	        const vid_h = video.videoHeight;
+
+	        let target_w = vid_w;
+	        let target_h = Math.floor((vid_w / aspect_w) * aspect_h);
+
+	        if (target_h > vid_h) {
+	            target_h = vid_h;
+	            target_w = Math.floor((vid_h / aspect_h) * aspect_w);
+	        }
+
+	        const offset_x = Math.floor((vid_w - target_w) / 2);
+	        const offset_y = Math.floor((vid_h - target_h) / 2);
+
+	        canvas.width = target_w;
+	        canvas.height = target_h;
+	        context.drawImage(video, offset_x, offset_y, target_w, target_h, 0, 0, target_w, target_h);
+
+	        $('#camera_stream').hide();
+	        $('#captured_canvas').show();
+	        capture_button.hide();
+	        retake_button.show();
+
+	        $('#profile_image').val(canvas.toDataURL('image/png'));
+	    });
+
+	    // Retake logic
+	    retake_button.on('click', function() {
+	        $('#captured_canvas').hide();
+	        $('#camera_stream').show();
+	        capture_button.show();
+	        retake_button.hide();
+	        $('#profile_image').val('');
+	        $('#profile_image_name').val('');
+
+	        image_name = $('#profile_image_name').val();
+	        if (image_name != '') {
+		        $('#profile_image_name').removeClass('invisible');
+	        }
+	        else {
+		        $('#profile_image_name').addClass('invisible');
+	        }
+	    });
+	}
+	
+	function initialize_time_manager_update_camera() {
+		const video = $('#update_camera_stream')[0];
+	    const canvas = $('#update_captured_canvas')[0];
+	    const context = canvas.getContext('2d');
+	    const capture_button = $('#update_capture_button');
+	    const retake_button = $('#update_retake_button');
+
+	    // Force 5:4 aspect ratio
+	    $('#update_camera_stream').css({
+	        'aspect-ratio': '5 / 4',
+	        'width': '100%',
+	        'height': 'auto',
+	        'object-fit': 'cover'
+	    });
+
+	    // Capture new image
+	    capture_button.on('click', function(e) {
+	        e.preventDefault();
+
+	        let full_name = $('#update_full_name').val().replace(/\s+/g, '_');
+	        let birthdate = $('#update_birthdate').val().replace(/-/g, '_');
+	        let file_name = `${full_name}_${birthdate}.png`;
+	    
+	        $('#update_profile_image_name').val(file_name);
+
+	        const aspect_w = 5;
+	        const aspect_h = 4;
+	        const vid_w = video.videoWidth;
+	        const vid_h = video.videoHeight;
+
+	        let target_w = vid_w;
+	        let target_h = Math.floor((vid_w / aspect_w) * aspect_h);
+
+	        if (target_h > vid_h) {
+	            target_h = vid_h;
+	            target_w = Math.floor((vid_h / aspect_h) * aspect_w);
+	        }
+
+	        const offset_x = Math.floor((vid_w - target_w) / 2);
+	        const offset_y = Math.floor((vid_h - target_h) / 2);
+
+	        canvas.width = target_w;
+	        canvas.height = target_h;
+	        context.drawImage(video, offset_x, offset_y, target_w, target_h, 0, 0, target_w, target_h);
+
+	        $('#update_camera_stream').hide();
+	        $('#update_captured_canvas').show();
+	        capture_button.hide();
+	        retake_button.show();
+
+	        $('#update_profile_image').val(canvas.toDataURL('image/png'));
+	    });
+
+	    // Retake new image
+	    retake_button.on('click', function(e) {
+	        e.preventDefault();
+
+	        $('#update_captured_canvas').hide();
+	        $('#update_camera_stream').show();
+	        capture_button.show();
+	        retake_button.hide();
+	        $('#update_profile_image').val('');
+	        $('#update_profile_image_name').val('');
+	    });
+
+	    $('#update_image_button').on('click', function() {
+	    	$('#current_image_field').addClass('invisible');
+	    	$('#update_webcam_field').removeClass('invisible');
+        	start_update_camera();
+	    });
+	    $('#cancel_image_update').on('click', function() {
+	    	$('#current_image_field').removeClass('invisible');
+	    	$('#update_webcam_field').addClass('invisible');
+	    	stop_update_camera();
+	    });
+	}
 
 	$('.time_manager_header').on('dblclick', function () {
 		let active_label = $(this).html().trim();
@@ -3759,196 +6339,7 @@
 	$('input[name="guardian_name"], input[name="guardian_contact"], input[name="full_name"], input[name="birthdate"]').on('input change', toggle_capture_button);
 	$('input[name="gender"]').on('change', toggle_capture_button);
 
-	function toggle_new_pos_capture_button() {
-	    let item_name = $('input[name="new_pos_item_name"]').val();
-
-	    if (item_name !== '') {
-	        $('#new_pos_capture_button').show();
-	    } else {
-	        $('#new_pos_capture_button').hide();
-	    }
-	}
-
-	$('input[name="new_pos_item_name"]').on('change', toggle_new_pos_capture_button);
-
-	$('#new_pos_item_form')
-	    .form({
-	        on: 'change',
-	        inline: false,
-	        transition: 'fade',
-	        onSuccess: function(event) {
-	            event.preventDefault();
-	            var ajax = $.ajax({
-	                method: 'POST',
-	                url   : '<?php echo base_url();?>i.php/sys_control/new_pos_item',
-	                data  : new FormData(this),
-	                contentType: false,
-	                cache: false,
-	                processData: false
-	            });
-	            var jqxhr = ajax
-	                .always(function() {
-	                    var response = jqxhr.responseText;
-	                    if (response == 'success') {
-	                        alert('New Item added successfully.')
-	                        $('#new_pos_item_modal').modal('hide');
-	                    	load_pos_inventory();
-	                    }
-	                    else {
-	                        alert('Time Profile creation failed. Please try again.')
-	                    }
-	                })
-	            ;
-	        },
-	        fields: {
-	            new_pos_item_name: {
-	                identifier: 'new_pos_item_name',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: 'Please select a valid Name.'
-	                    }
-	                ]
-	            },
-	            new_pos_item_price: {
-	                identifier: 'new_pos_item_price',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: 'Please enter a valid Number.'
-	                    }
-	                ]
-	            },
-	            new_pos_item_image_name: {
-	                identifier: 'new_pos_item_image_name',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: 'Please select a valid Image.'
-	                    }
-	                ]
-	            },
-	            new_pos_item_stock: {
-	                identifier: 'new_pos_item_stock',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: 'Please enter a valid Num.'
-	                    }
-	                ]
-	            },
-	            new_pos_item_unit: {
-	                identifier: 'new_pos_item_unit',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: 'Please enter a valid Number.'
-	                    }
-	                ]
-	            },
-	            new_pos_item_image: {
-	                identifier: 'new_pos_item_image',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: 'Please select a valid Image.'
-	                    }
-	                ]
-	            }
-	        }
-	    })
-	;
-
-	$('#update_pos_item_form')
-    .form({
-        on: 'change',
-        inline: false,
-        transition: 'fade',
-        onSuccess: function(event) {
-            event.preventDefault();
-
-            var ajax = $.ajax({
-                method: 'POST',
-                url   : '<?php echo base_url();?>i.php/sys_control/update_pos_item',
-                data  : new FormData(this),
-                contentType: false,
-                cache: false,
-                processData: false
-            });
-
-            var jqxhr = ajax
-                .always(function() {
-                    var response = jqxhr.responseText.trim();
-                    if (response == 'success') {
-                        alert('Item Updated Successfully.');
-                        $('#update_pos_item_modal').modal('hide');
-                    	load_pos_inventory();
-                    } 
-                    else {
-                        alert('Update Failed. Please try again.');
-                    }
-                });
-        },
-        fields: {
-            update_pos_item_name: {
-                identifier: 'update_pos_item_name',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Please enter the item name.'
-                    }
-                ]
-            },
-            update_pos_item_price: {
-                identifier: 'update_pos_item_price',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Please enter a price.'
-                    },
-                    {
-                        type: 'decimal',
-                        prompt: 'Price must be a valid number.'
-                    }
-                ]
-            },
-            update_pos_item_unit: {
-                identifier: 'update_pos_item_unit',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Please enter the unit (e.g. piece, box).'
-                    }
-                ]
-            },
-            update_pos_item_stock: {
-                identifier: 'update_pos_item_stock',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Please enter current stock.'
-                    },
-                    {
-                        type: 'integer',
-                        prompt: 'Stock must be a whole number.'
-                    }
-                ]
-            },
-            update_pos_item_low: {
-                identifier: 'update_pos_item_low',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Please enter low stock level.'
-                    },
-                    {
-                        type: 'integer',
-                        prompt: 'Low stock level must be a whole number.'
-                    }
-                ]
-            }
-        }
-    });
+	
 
 	$('#signup_form')
 	    .form({
@@ -4434,72 +6825,6 @@
 	    }
 
 	    const video = $('#update_camera_stream')[0];
-	    if (video) {
-	        video.srcObject = null;
-	        video.pause();
-	        video.removeAttribute('src');
-	        video.load();
-	    }
-	}
-
-	let new_pos_camera_stream = null;
-	function start_new_pos_camera() {
-		const video = $('#new_pos_camera_stream')[0];
-
-	    // Start webcam
-	    navigator.mediaDevices.getUserMedia({ video: true })
-	        .then(function(stream) {
-	            new_pos_camera_stream = stream;
-	            video.srcObject = stream;
-	        })
-	        .catch(function(err) {
-	            console.error("Camera access denied:", err);
-	            alert('Camera not accessible. Please allow permission or use HTTPS.');
-	        })
-	    ;
-	}
-	function stop_new_pos_camera() {
-	    if (new_pos_camera_stream) {
-	        new_pos_camera_stream.getTracks().forEach(track => {
-	            track.stop();
-	        });
-	        new_pos_camera_stream = null;
-	    }
-
-	    const video = $('#new_pos_camera_stream')[0];
-	    if (video) {
-	        video.srcObject = null;
-	        video.pause();
-	        video.removeAttribute('src');
-	        video.load();
-	    }
-	}
-
-	let update_pos_camera_stream = null;
-	function start_update_pos_camera() {
-		const video = $('#update_pos_camera_stream')[0];
-
-	    // Start webcam
-	    navigator.mediaDevices.getUserMedia({ video: true })
-	        .then(function(stream) {
-	            update_pos_camera_stream = stream;
-	            video.srcObject = stream;
-	        })
-	        .catch(function(err) {
-	            console.error("Camera access denied:", err);
-	            alert('Camera not accessible. Please allow permission or use HTTPS.');
-	        })
-	    ;
-	}
-	function stop_update_pos_camera() {
-	    if (update_pos_camera_stream) {
-	        update_pos_camera_stream.getTracks().forEach(track => {
-	            track.stop();
-	        });
-	        update_pos_camera_stream = null;
-	    }
-
-	    const video = $('#update_pos_camera_stream')[0];
 	    if (video) {
 	        video.srcObject = null;
 	        video.pause();

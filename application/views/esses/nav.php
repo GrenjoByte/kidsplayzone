@@ -1,9 +1,5 @@
 <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
 <style type="text/css">
-     .ui.search .results {
-          overflow-y: auto;
-          max-height: 60vh;
-     }
      .chewy-text {
          font-family: 'Chewy', cursive !important;
          font-size: 5vh !important;
