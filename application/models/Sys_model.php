@@ -827,7 +827,7 @@ class Sys_model extends CI_Model {
 	    if ($update_query) {
 	        echo "success";
 	        if (!empty($changed)) {
-	        	$pos_activity_type = "Item Updating";
+	        	$activity_type = "Item Updating";
 	        	$pos_code = "Item ID: ". $pos_item_id;
 	            $activity = "<strong>Updated:</strong><br>" . implode(', ', $changed);
 	            $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
@@ -1707,7 +1707,7 @@ class Sys_model extends CI_Model {
 		if (!empty($checked_out_items)) {
 			$activity_type = 'Checkout';
 		    $activity = implode('<br>', $checked_out_items);
-		    $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, 	supply_activity) VALUES (?, ?, ?)";
+		    $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
         	$this->db->query($sql, [$activity_type, $supply_checkout_code, $activity]);
 		}
 	}

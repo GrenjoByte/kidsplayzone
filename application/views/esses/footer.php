@@ -38,14 +38,14 @@
 			<div class="ui text small gray-text">Copyright © 2025 <a class="white-text pointered dev_card">Grenjo</a>. All Rights Reserved</div>
 		</div>
 	</div>
-	<div class="ui circular icon dropdown button blue bottom right pointing actions_drop floater-button" id="time_manager_tab_actions">
+	<div class="ui circular icon dropdown button teal bottom right pointing actions_drop floater-button" id="time_manager_tab_actions">
 	<!-- <div class="ui dropdown labeled icon top pointing right "> -->
 	    <i class="cog large icon loading"></i>
 	    <!-- <i class="ellipsis horizontal large icon"></i> -->
 	    <div class="menu">
-	        <div class="ui center aligned blue tiny header">
+	        <div class="ui center aligned teal tiny header">
 	            <i class="large cogs icon"></i>
-	            Actions
+	            Time Manager Actions
 	        </div>
 	        <div class="item new_client_activator" id="new_client_activator">
                 <i class="edit outline icon"></i>
@@ -76,7 +76,7 @@
 	    <div class="menu">
 	        <div class="ui center aligned blue tiny header">
 	            <i class="large cogs icon"></i>
-	            Actions
+	            POS Actions
 	        </div>
 	        <div class="item new_pos_item_activator" id="new_pos_item_activator">
                 <i class="plus icon"></i>
@@ -90,10 +90,10 @@
                 <i class="clipboard list icon"></i>
                 <small>Checkouts</small>
             </div>
-            <div class="item tm_reports_activator" id="pos_reports_activator">
+            <!-- <div class="item tm_reports_activator" id="pos_reports_activator">
                 <i class="chart bar icon"></i>
                 <small>Reports</small>
-            </div>
+            </div> -->
             <div class="item tm_reports_activator" id="pos_logs_activator">
                 <i class="history icon"></i>
                 <small>Logs</small>
@@ -104,14 +104,14 @@
             </div> -->
 	    </div>
 	</div>
-	<div class="ui circular icon dropdown button blue bottom right pointing actions_drop floater-button" id="supply_tab_actions">
+	<div class="ui circular icon dropdown button green bottom right pointing actions_drop floater-button" id="supply_tab_actions">
 	<!-- <div class="ui dropdown labeled icon top pointing right "> -->
 	    <i class="cog large icon loading"></i>
 	    <!-- <i class="ellipsis horizontal large icon"></i> -->
 	    <div class="menu">
-	        <div class="ui center aligned blue tiny header">
+	        <div class="ui center aligned green tiny header">
 	            <i class="large cogs icon"></i>
-	            Actions
+	            Inventory Actions
 	        </div>
 	        <div class="item new_supply_item_activator" id="new_supply_item_activator">
                 <i class="plus icon"></i>
@@ -125,10 +125,10 @@
                 <i class="clipboard list icon"></i>
                 <small>Checkouts</small>
             </div>
-            <div class="item tm_reports_activator" id="supply_reports_activator">
+            <!-- <div class="item tm_reports_activator" id="supply_reports_activator">
                 <i class="chart bar icon"></i>
                 <small>Reports</small>
-            </div>
+            </div> -->
             <div class="item tm_reports_activator" id="supply_logs_activator">
                 <i class="history icon"></i>
                 <small>Logs</small>

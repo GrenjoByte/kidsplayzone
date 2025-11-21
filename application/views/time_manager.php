@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=0">
-	<title>Time Manager</title>
+	<title>KidsPlayZone</title>
 	<style>
 		.floater-button{
 	        position: fixed !important;
@@ -175,6 +175,13 @@
 			overflow: hidden;
 			box-sizing: border-box;
 		}
+
+		/*html {
+		    transform: scale(0.9);
+		    transform-origin: top left;
+		    width: 111%;
+		}*/
+
 	    
 	</style>
 </head>
@@ -250,7 +257,7 @@
 								</div>
 								<div class="ui item" tabindex="0">
 									<i class="icons large link" id="pos_checkout_cart_activator" data-tooltip="Sales Checkout" data-position="bottom left" data-variation="mini">
-										<i class="shopping cart icon teal link"></i>
+										<i class="shopping cart icon blue link"></i>
 										<div class="floating ui mini orange label transition hidden" id="pos_checkout_cart_counter">0</div>
 									</i>
 								</div>
@@ -279,8 +286,8 @@
 									<div class="results"></div>
 								</div>
 								<div class="ui item" tabindex="0">
-									<i class="icons large link" id="supply_checkout_cart_activator" data-tooltip="Sales Checkout" data-supplyition="bottom left" data-variation="mini">
-										<i class="shopping cart icon teal link"></i>
+									<i class="icons large link" id="supply_checkout_cart_activator" data-tooltip="Supply Checkout" data-position="bottom left" data-variation="mini">
+										<i class="shopping cart icon green link"></i>
 										<div class="floating ui mini orange label transition hidden" id="supply_checkout_cart_counter">0</div>
 									</i>
 								</div>
@@ -934,7 +941,7 @@
 
 			<div class="ui small modal" id="pos_restocking_modal">
 			    <div class="ui header center aligned">
-			        <a class="break-text">Restocking</a>
+			        <a class="break-text">Sales Restocking</a>
 			    </div>
 
 			    <div class="content">
@@ -1323,7 +1330,7 @@
 
 			<div class="ui tiny modal" id="supply_checkout_cart_modal">
 		        <div class="ui header center aligned">
-		            <a class="break-text">Sales Checkout</a>
+		            <a class="break-text">Supply Checkout</a>
 		        </div>
 		        <div class="scrolling content">
 		        	<div class="ui centered grid transition" id="supply_checkout_cart_empty_message">
@@ -1349,7 +1356,7 @@
 
 		    <div class="ui small modal" id="supply_checkouts_modal">
 			    <div class="ui header center aligned">
-			        <a class="break-text" id="supply_checkouts_header">Sales Records</a>
+			        <a class="break-text" id="supply_checkouts_header">Supply Records</a>
 			    </div>
 
 			    <div class="content">
@@ -1370,8 +1377,8 @@
 			                </div>
 
 			                <div class="field">
-			                    <label>Sales Date</label>
-			                    <input type="date" name="supply_checkouts_date" id="supply_checkouts_date" placeholder="Sales Date" value="<?= date('Y-m-d'); ?>">
+			                    <label>Date</label>
+			                    <input type="date" name="supply_checkouts_date" id="supply_checkouts_date" placeholder="Date" value="<?= date('Y-m-d'); ?>">
 			                </div>
 			            </div>
 			        </div>
@@ -1426,7 +1433,7 @@
 
 			<div class="ui small modal" id="supply_restocking_modal">
 			    <div class="ui header center aligned">
-			        <a class="break-text">Restocking</a>
+			        <a class="break-text">Supply Restocking</a>
 			    </div>
 
 			    <div class="content">
@@ -1702,6 +1709,40 @@
 </div>
 <script type="text/javascript">
     $('.menu .item').tab();
+
+    function monitor_item_stock(on_change_callback) {
+	    function attach_observer(item) {
+	        const observer = new MutationObserver(function(mutations) {
+	            mutations.forEach(function() {
+	                on_change_callback(item);
+	            });
+	        });
+
+	        observer.observe(item, {
+	            childList: true,  // watches added/removed text nodes
+	            characterData: true, // watches changes to text nodes
+	            subtree: true       // watches inside the element
+	        });
+	    }
+
+	    // Attach to existing items
+	    document.querySelectorAll('.item_stock').forEach(attach_observer);
+
+	    // Watch for newly added items
+	    const dom_observer = new MutationObserver(function(mutations) {
+	        mutations.forEach(function(mutation) {
+	            mutation.addedNodes.forEach(function(node) {
+	                if (node.nodeType === 1) {
+	                    if (node.classList.contains('item_stock')) attach_observer(node);
+	                    node.querySelectorAll('.item_stock').forEach(attach_observer);
+	                }
+	            });
+	        });
+	    });
+
+	    dom_observer.observe(document.body, { childList: true, subtree: true });
+	}
+
 
 	function check_active_tab() {
 	    const tabs = $('#time_manager_tab, #pos_tab, #supply_tab');
@@ -2092,7 +2133,7 @@
 					}
 
                     let pos_item = `
-						<div class="ui fluid link card transition" id="pos_item${pos_item_id}" data-pos_item_id="${pos_item_id}" data-pos_item_name="${pos_item_name}" data-pos_item_price="${pos_item_price}" data-pos_item_image="${pos_item_image}" data-pos_item_stock="${pos_item_stock}" data-pos_item_unit="${default_pos_item_unit}" data-pos_item_low="${pos_item_low}" data-pos_item_status="${pos_item_status}">
+						<div class="ui fluid link card transition item_card" id="pos_item${pos_item_id}" data-pos_item_id="${pos_item_id}" data-pos_item_name="${pos_item_name}" data-pos_item_price="${pos_item_price}" data-pos_item_image="${pos_item_image}" data-pos_item_stock="${pos_item_stock}" data-pos_item_unit="${default_pos_item_unit}" data-pos_item_low="${pos_item_low}" data-pos_item_status="${pos_item_status}">
 						    <div class="blurring dimmable image image-container">
 								<div class="ui dimmer">
 									<div class="content">
@@ -2100,7 +2141,7 @@
 											Edit
 										</div>
                     					<br><br>
-                    					<div class="ui orange mini inverted button archive_pos_item">
+                    					<div class="ui orange mini inverted button archive_pos_item invisible">
 											Archive
 										</div>
 									</div>
@@ -2110,9 +2151,9 @@
 						    <div class="content">
 					    		<input type="text" class="pos_card_focus_handler file_input" data-item_id="${pos_item_id}">
 						    	<div class="item">
-									<h5 class="ui tiny header">${pos_item_name}</h5>
+									<h5 class="no-break pos_item_name" data-content="${pos_item_name}" data-position="bottom left">${pos_item_name}</h5>
 								    <div class="content">
-										<a class="ui tiny grey header"><x class="pos_item_stock">${pos_item_stock}</x> <x class="pos_item_unit">${pos_item_unit}</x></a>
+										<a class="ui tiny grey header"><x class="item_stock pos_item_stock" data-item_low="${pos_item_low}" data-item_id="${pos_item_id}">${pos_item_stock}</x> <x class="pos_item_unit">${pos_item_unit}</x></a>
 										<a class="ui yellow right floated tag label small">₱ ${formatted_item_price}</a>
 								    </div>
 								</div>
@@ -2146,6 +2187,10 @@
             		$(`#pos_restocking_menu`).append(pos_restocking_item);
 		      		search_content.push({id:pos_item_id,title:pos_item_name,description:"₱ "+formatted_item_price});
                 })
+				$('.pos_item_name').popup({
+                	on: 'click'
+                });
+
 				let pos_restocking_array = [];
 				let pos_restocking_list_item = '';
 				let pos_list_restock_date = '';
@@ -3220,6 +3265,24 @@
 		initialize_time_manager_update_camera();
 		initialize_pos_item_camera();
 		initialize_pos_item_update_camera();
+		initialize_supply_item_camera();
+		initialize_supply_item_update_camera();
+
+		monitor_item_stock(function(el) {
+		    var current_stock = parseFloat(el.textContent.trim());
+		    var low_stock = parseFloat(el.dataset.item_low);
+		    var item_id = parseFloat(el.dataset.item_id);
+
+		    // Example: log it
+		    console.log("Stock changed:", current_stock);
+
+		    // Example: add a class if low
+		    if (current_stock <= low_stock) {
+		        el.classList.add('low_stock');
+		    } else {
+		        el.classList.remove('low_stock');
+		    }
+		});
 	});
 
 	function toggle_new_pos_capture_button() {
@@ -3855,7 +3918,7 @@
 					}
 
                     let supply_item = `
-						<div class="ui fluid link card transition" id="supply_item${supply_item_id}" data-supply_item_id="${supply_item_id}" data-supply_item_name="${supply_item_name}" data-supply_item_price="${supply_item_price}" data-supply_item_image="${supply_item_image}" data-supply_item_stock="${supply_item_stock}" data-supply_item_unit="${default_supply_item_unit}" data-supply_item_low="${supply_item_low}" data-supply_item_status="${supply_item_status}">
+						<div class="ui fluid link card transition item_card" id="supply_item${supply_item_id}" data-supply_item_id="${supply_item_id}" data-supply_item_name="${supply_item_name}" data-supply_item_price="${supply_item_price}" data-supply_item_image="${supply_item_image}" data-supply_item_stock="${supply_item_stock}" data-supply_item_unit="${default_supply_item_unit}" data-supply_item_low="${supply_item_low}" data-supply_item_status="${supply_item_status}">
 						    <div class="blurring dimmable image image-container">
 								<div class="ui dimmer">
 									<div class="content">
@@ -3863,7 +3926,7 @@
 											Edit
 										</div>
                     					<br><br>
-                    					<div class="ui orange mini inverted button archive_supply_item">
+                    					<div class="ui orange mini inverted button archive_supply_item invisible">
 											Archive
 										</div>
 									</div>
@@ -3873,20 +3936,20 @@
 						    <div class="content">
 					    		<input type="text" class="supply_card_focus_handler file_input" data-item_id="${supply_item_id}">
 						    	<div class="item">
-									<h5 class="ui tiny header">${supply_item_name}</h5>
+									<h5 class="no-break supply_item_name" data-content="${supply_item_name}" data-position="bottom left">${supply_item_name}</h5>
 								    <div class="content">
-										<a class="ui tiny grey header"><x class="supply_item_stock">${supply_item_stock}</x> <x class="supply_item_unit">${supply_item_unit}</x></a>
+										<a class="ui tiny grey header"><x class="item_stock supply_item_stock" data-item_low="${supply_item_low}" data-item_id="${supply_item_id}">${supply_item_stock}</x> <x class="supply_item_unit">${supply_item_unit}</x></a>
 								    </div>
 								</div>
 						    </div>
 						    <div class="extra content">
 						    	<div class="ui left floated small buttons">
-									<button class="ui basic button supply_count_minus">
-										<i class="left floated minus icon"></i>
+									<button class="ui basic compact mini button supply_count_minus">
+										<i class="left floated small minus icon"></i>
 									</button>
 									<div class="or supply_count_container" data-text="0" data-max_limit="${supply_item_stock}"></div>
-									<button class="ui basic button supply_count_plus">
-										<i class="right floated plus icon"></i>
+									<button class="ui basic compact mini button supply_count_plus">
+										<i class="right floated small plus icon"></i>
 									</button>
 								</div>
 								<div class="ui right floated basic small button add_to_supply_cart invisible">
@@ -3908,6 +3971,10 @@
             		$(`#supply_restocking_menu`).append(supply_restocking_item);
 		      		search_content.push({id:supply_item_id,title:supply_item_name,description:"₱ "+formatted_item_price});
                 })
+
+                $('.supply_item_name').popup({
+                	on: 'click'
+                });
 				let supply_restocking_array = [];
 				let supply_restocking_list_item = '';
 				let supply_list_restock_date = '';
@@ -4976,13 +5043,6 @@
             stop_update_supply_camera();
 	    });
 	}
-
-	$(document).ready(function() {
-		initialize_time_manager_camera();
-		initialize_time_manager_update_camera();
-		initialize_supply_item_camera();
-		initialize_supply_item_update_camera();
-	});
 
 	function toggle_new_supply_capture_button() {
 	    let item_name = $('input[name="new_supply_item_name"]').val();

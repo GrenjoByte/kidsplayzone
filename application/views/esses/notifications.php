@@ -5,7 +5,7 @@
   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
   crossorigin="anonymous"></script>
 <script src="<?php echo base_url();?>semantic/semantic.min.js"></script>
-<link rel="icon" href="<?php echo base_url();?>photos/icons/psa.png">
+<link rel="icon" href="<?php echo base_url();?>photos/icons/logo.png">
 
 <div class="ui mini modal" id="file_deletion">
 	<div class="ui icon header">
