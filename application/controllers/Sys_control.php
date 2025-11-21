@@ -41,9 +41,9 @@ class Sys_control extends CI_Controller
 			echo $_SERVER['warning_message'];
 		}
 	}
-	public function time_manager()
+	public function play()
 	{
-		$this->load->view('time_manager');	
+		$this->load->view('play');	
 	}
 	public function save_child_profile()
 	{

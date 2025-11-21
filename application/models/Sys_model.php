@@ -9,6 +9,7 @@ class Sys_model extends CI_Model {
 		$_SESSION['87gBAi89'] = 'Ferreras';
 		$_SESSION['HyA23jas'] = 'Advincula';
 		$_SESSION['oljnAS78'] = '1998-03-21';
+		date_default_timezone_set('Asia/Manila');
 	}
 	public function load_system_datetime()
 	{
@@ -91,56 +92,79 @@ class Sys_model extends CI_Model {
 	}
 	public function save_child_profile()
 	{
-	    $guardian_name = $_POST['guardian_name'];
-	    $guardian_contact = $_POST['guardian_contact'];
-	    $full_name = $_POST['full_name'];
-	    $gender = $_POST['gender'];
-	    $birthdate = $_POST['birthdate'];
-	    $profile_image_base64 = $_POST['profile_image'];
-	    $profile_image_name = $_POST['profile_image_name'];
+	    $guardian_name      = $_POST['guardian_name'];
+	    $guardian_contact   = $_POST['guardian_contact'];
+	    $full_name          = $_POST['full_name'];
+	    $gender             = $_POST['gender'];
+	    $birthdate          = $_POST['birthdate'];
 
-		$sql = "SELECT client_id FROM client_profiles WHERE full_name = ? AND birthdate = ?";
-		$query = $this->db->query($sql, array($full_name, $birthdate));
-		foreach ($query->result() as $row) {
- 			$client_id = $row->client_id;
-		}
-		if (isset($client_id)) {
-			echo "duplicate";
-		}
-		else {
-			$saved_file_path = null;
-		    if (!empty($profile_image_base64)) {
-		        $image_parts = explode(";base64,", $profile_image_base64);
-		        if (count($image_parts) == 2) {
-		            $image_base64 = base64_decode($image_parts[1]);
-		            $file_name = 'profile_' . time() . '.png';
-		            $upload_path = FCPATH . 'photos/profile_pictures/';
+	    // Correct field name
+	    $profile_image_base64 = $_POST['profile_image_base64'] ?? null;
 
-		            if (!is_dir($upload_path)) {
-		                mkdir($upload_path, 0755, true);
-		            }
+	    // Check if profile already exists
+	    $sql = "SELECT client_id FROM client_profiles WHERE full_name = ? AND birthdate = ?";
+	    $query = $this->db->query($sql, [$full_name, $birthdate]);
 
-		            file_put_contents($upload_path . $profile_image_name, $image_base64);
-		            $saved_file_path = 'photos/profile_pictures/' . $profile_image_name;
-		        }
-		    }
+	    if ($query->num_rows() > 0) {
+	        echo "duplicate";
+	        return;
+	    }
 
-		    $sql = "INSERT INTO client_profiles (guardian_name, guardian_contact, full_name, gender, birthdate, profile_image)
-		            VALUES (?, ?, ?, ?, ?, ?)";
-		    $this->db->query($sql, array($guardian_name, $guardian_contact, $full_name, $gender, $birthdate, $profile_image_name));
+	    // Default value
+	    $saved_file_name = null;
 
-		    if ($this->db->affected_rows() > 0) {
-		        echo "success";
-	        	$client_id = $this->db->insert_id();
-		        $activity = "<strong>Account Created</strong>";
-		        $sql = "INSERT INTO time_logs (client_id, activity)
-		            VALUES (?, ?)";
-		    	$this->db->query($sql, array($client_id, $activity));
-		    } else {
-		        echo "error";
-		    }	
-		}
+	    // Process base64 image if provided
+	    if (!empty($profile_image_base64)) {
+
+	        // Expected format: data:image/png;base64,XXXXXX
+	        if (strpos($profile_image_base64, 'base64,') !== false) {
+
+	            list($meta, $content) = explode('base64,', $profile_image_base64);
+
+	            $image_binary = base64_decode($content);
+
+	            // Safe generated name
+	            $saved_file_name = 'profile_' . time() . '.png';
+	            $upload_path = FCPATH . 'photos/profile_pictures/';
+
+	            if (!is_dir($upload_path)) {
+	                mkdir($upload_path, 0755, true);
+	            }
+
+	            file_put_contents($upload_path . $saved_file_name, $image_binary);
+	        }
+	    }
+
+	    // Insert client profile
+	    $sql = "INSERT INTO client_profiles 
+	            (guardian_name, guardian_contact, full_name, gender, birthdate, profile_image)
+	            VALUES (?, ?, ?, ?, ?, ?)";
+
+	    $this->db->query($sql, [
+	        $guardian_name,
+	        $guardian_contact,
+	        $full_name,
+	        $gender,
+	        $birthdate,
+	        $saved_file_name
+	    ]);
+
+	    if ($this->db->affected_rows() > 0) {
+
+	        echo "success";
+
+	        $client_id = $this->db->insert_id();
+
+	        $activity = "<strong>Account Created</strong>";
+	        $sql = "INSERT INTO time_logs (client_id, activity) VALUES (?, ?)";
+	        $this->db->query($sql, [$client_id, $activity]);
+
+	    } else {
+
+	        echo "error";
+	    }
 	}
+
 	public function update_child_profile()
 	{
 	    $client_id = $_POST['update_client_id'];
@@ -749,7 +773,7 @@ class Sys_model extends CI_Model {
 	    if ($this->db->affected_rows() > 0) {
 	        echo "success";
 
-	        $item_id = $this->db->insert_id();
+	        $pos_item_id = $this->db->insert_id();
 	        $unit_label = pluralize_unit($new_pos_item_unit, $new_pos_item_stock);
 	        $activity_type = "Item Creation";
         	$pos_code = "Item ID: ". $pos_item_id;
@@ -757,7 +781,7 @@ class Sys_model extends CI_Model {
 	            <strong>Item '$new_pos_item_name' created.</strong>
 	            <br>Price: ₱$new_pos_item_price
 	            <br>Stock: $new_pos_item_stock $unit_label
-	            <br>Low: $new_pos_item_stock $unit_label
+	            <br>Low: $new_pos_item_low
 	        ";
 	        $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
 	        $this->db->query($sql, [$activity_type, $pos_code, $activity]);
@@ -849,68 +873,72 @@ class Sys_model extends CI_Model {
 	    // Retrieve posted cart data
 	    $cart_items = $this->input->post('cart_items');
 	    if (is_string($cart_items)) {
-		    $cart_items = json_decode($cart_items, true);
-		}
+	        $cart_items = json_decode($cart_items, true);
+	    }
 	    
-	    // Validate incoming cart data
 	    if (empty($cart_items) || !is_array($cart_items)) {
 	        echo "empty_cart";
+	        return;
 	    }
 
-	    $checked_out_items = []; // initialize array to store item names
+	    $checked_out_items = [];
+	    $failed = false; // <-- final status tracker
 
-		foreach ($cart_items as $item) {
-		    $pos_item_id        = $item['pos_item_id'];
-		    $pos_item_name      = $item['pos_item_name'];
-		    $pos_item_price     = $item['pos_item_price'];
-		    $pos_item_count     = $item['item_count'];
-		    $pos_item_unit      = $item['pos_item_unit'];
-		    $pos_item_image     = $item['pos_item_image'];
-		    $pos_item_subtotal  = $item['total_item_price']; // price * qty from frontend
+	    foreach ($cart_items as $item) {
+	        $pos_item_id        = $item['pos_item_id'];
+	        $pos_item_name      = $item['pos_item_name'];
+	        $pos_item_price     = $item['pos_item_price'];
+	        $pos_item_count     = $item['item_count'];
+	        $pos_item_unit      = $item['pos_item_unit'];
+	        $pos_item_image     = $item['pos_item_image'];
+	        $pos_item_subtotal  = $item['total_item_price'];
 
-		    $sql = "INSERT INTO pos_checkouts 
-		            (pos_checkout_code, pos_item_id, pos_item_name, pos_item_price, pos_item_count, pos_item_unit, pos_item_image, pos_item_subtotal, pos_checkout_date)
-		            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	        // Insert checkout item
+	        $sql = "INSERT INTO pos_checkouts 
+	                (pos_checkout_code, pos_item_id, pos_item_name, pos_item_price, pos_item_count, pos_item_unit, pos_item_image, pos_item_subtotal, pos_checkout_date)
+	                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-		    $insert_query = $this->db->query($sql, array(
-		        $pos_checkout_code,
-		        $pos_item_id,
-		        $pos_item_name,
-		        $pos_item_price,
-		        $pos_item_count,
-		        $pos_item_unit,
-		        $pos_item_image,
-		        $pos_item_subtotal,
-		        $current_date
-		    ));
+	        $insert_query = $this->db->query($sql, [
+	            $pos_checkout_code,
+	            $pos_item_id,
+	            $pos_item_name,
+	            $pos_item_price,
+	            $pos_item_count,
+	            $pos_item_unit,
+	            $pos_item_image,
+	            $pos_item_subtotal,
+	            $current_date
+	        ]);
 
-		    $failed = false;
-			$update_query = false;
+	        if (!$insert_query) {
+	            $failed = true;
+	            continue; // skip stock update for this item
+	        }
 
-		    if ($insert_query) {
-		        $sql = "UPDATE pos_inventory 
-		                SET pos_item_stock = pos_item_stock - ? 
-		                WHERE pos_item_id = ?";
-		        $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
-		    }
-		    if (!$update_query) {
-		    	$failed = true;
-		    }
+	        // Update inventory
+	        $sql = "UPDATE pos_inventory 
+	                SET pos_item_stock = pos_item_stock - ? 
+	                WHERE pos_item_id = ?";
+	        $update_query = $this->db->query($sql, [$pos_item_count, $pos_item_id]);
 
-		    $checked_out_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
-		}
-		if ($update_query) {
-	        echo "error";
-	    } else {
-	        echo "success";
+	        if (!$update_query) {
+	            $failed = true;
+	        }
+
+	        $checked_out_items[] = "{$pos_item_name} ({$pos_item_count} {$pos_item_unit})";
 	    }
 
-		if (!empty($checked_out_items)) {
-			$activity_type = 'Checkout';
-		    $activity = implode('<br>', $checked_out_items);
-		    $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, 	pos_activity) VALUES (?, ?, ?)";
-        	$this->db->query($sql, [$activity_type, $pos_checkout_code, $activity]);
-		}
+	    // Log only if at least something was processed
+	    if (!empty($checked_out_items)) {
+	        $activity_type = 'Checkout';
+	        $activity = implode('<br>', $checked_out_items);
+	        $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity)
+	                VALUES (?, ?, ?)";
+	        $this->db->query($sql, [$activity_type, $pos_checkout_code, $activity]);
+	    }
+
+	    // Final output
+	    echo $failed ? "error" : "success";
 	}
 
 	public function load_pos_checkout_codes(){
@@ -1004,12 +1032,13 @@ class Sys_model extends CI_Model {
 	public function void_pos_checkout_item(){
 	    $pos_checkout_id = $_POST['pos_checkout_id'];
 	
-	    $sql = "SELECT pos_item_id, pos_item_count, pos_checkout_code FROM pos_checkouts WHERE pos_checkout_id = ?";
+	    $sql = "SELECT pos_item_id, pos_item_count, pos_checkout_code, pos_item_name FROM pos_checkouts WHERE pos_checkout_id = ?";
 	    $select_query = $this->db->query($sql, [$pos_checkout_id]);
 		foreach ($select_query->result() as $row) {
  			$pos_item_id = $row->pos_item_id;
  			$pos_item_count = $row->pos_item_count;
  			$pos_checkout_code = $row->pos_checkout_code;
+ 			$pos_item_name = $row->pos_item_name;
 		}
         
         $sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock + ? WHERE pos_item_id = ?";
@@ -1024,6 +1053,14 @@ class Sys_model extends CI_Model {
 				$query = $this->db->query($sql, [$pos_checkout_code]);
 				$result = $query->row();
 				$pos_checkout_count = $result->total;
+
+				$activity_type = "Checkout Item Voided";
+	        	$pos_code = $pos_checkout_code;
+		        $activity = "
+		            Voided $pos_item_name * $pos_item_count from '$pos_checkout_code'.
+		        ";
+		        $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
+		        $this->db->query($sql, [$activity_type, $pos_code, $activity]);
 
 				if ($pos_checkout_count == 0) {
 		    		echo "success-null";
@@ -1056,6 +1093,14 @@ class Sys_model extends CI_Model {
 	    if ($update_query) {
 			$sql = "DELETE FROM pos_checkouts WHERE pos_checkout_code = ?";
 		    $delete_query = $this->db->query($sql, [$pos_checkout_code]);	 
+
+		    $activity_type = "Checkout Voided";
+        	$pos_code = $pos_checkout_code;
+	        $activity = "
+	            Voided the whole checkout with code '$pos_checkout_code'.
+	        ";
+	        $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
+	        $this->db->query($sql, [$activity_type, $pos_code, $activity]);
 
 		    if ($delete_query) {
 	    		echo "success";
@@ -1382,12 +1427,13 @@ class Sys_model extends CI_Model {
 	public function void_pos_restocking_item(){
 	    $pos_restocking_id = $_POST['pos_restocking_id'];
 	
-	    $sql = "SELECT pos_item_id, pos_item_count, pos_restocking_code FROM pos_restocking WHERE pos_restocking_id = ?";
+	    $sql = "SELECT pos_inventory.pos_item_id, pos_item_count, pos_restocking_code, pos_item_name FROM pos_restocking, pos_inventory WHERE pos_restocking.pos_item_id = pos_inventory.pos_item_id AND pos_restocking_id = ?";
 	    $select_query = $this->db->query($sql, [$pos_restocking_id]);
 		foreach ($select_query->result() as $row) {
  			$pos_item_id = $row->pos_item_id;
  			$pos_item_count = $row->pos_item_count;
  			$pos_restocking_code = $row->pos_restocking_code;
+ 			$pos_item_name = $row->pos_item_name;
 		}
         
         $sql = "UPDATE pos_inventory SET pos_item_stock = pos_item_stock - ? WHERE pos_item_id = ?";
@@ -1402,6 +1448,14 @@ class Sys_model extends CI_Model {
 				$query = $this->db->query($sql, [$pos_restocking_code]);
 				$result = $query->row();
 				$pos_restocking_count = $result->total;
+
+				$activity_type = "Restock Item Voided";
+	        	$pos_code = $pos_restocking_code;
+		        $activity = "
+		            Voided $pos_item_name * $pos_item_count from '$pos_restocking_code'.
+		        ";
+		        $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
+		        $this->db->query($sql, [$activity_type, $pos_code, $activity]);
 
 				if ($pos_restocking_count == 0) {
 		    		echo "success-null";
@@ -1436,6 +1490,13 @@ class Sys_model extends CI_Model {
 		    $delete_query = $this->db->query($sql, [$pos_restocking_code]);	 
 
 		    if ($delete_query) {
+		        $activity_type = "Restock Voided";
+	        	$pos_code = $pos_restocking_code;
+		        $activity = "
+		            Voided the whole restocking with code '$pos_restocking_code'.
+		        ";
+		        $sql = "INSERT INTO pos_logs (pos_activity_type, pos_code, pos_activity) VALUES (?, ?, ?)";
+		        $this->db->query($sql, [$activity_type, $pos_code, $activity]);
 	    		echo "success";
 	       	}
 	       	else {
@@ -1556,7 +1617,7 @@ class Sys_model extends CI_Model {
 	            <strong>Item '$new_supply_item_name' created.</strong>
 	            <br>Price: ₱$new_supply_item_price
 	            <br>Stock: $new_supply_item_stock $unit_label
-	            <br>Low: $new_supply_item_stock $unit_label
+	            <br>Low: $new_supply_item_low
 	        ";
 	        $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
 	        $this->db->query($sql, [$activity_type, $supply_code, $activity]);
@@ -1626,7 +1687,7 @@ class Sys_model extends CI_Model {
 	    if ($update_query) {
 	        echo "success";
 	        if (!empty($changed)) {
-	        	$supply_activity_type = "Item Updating";
+	        	$activity_type = "Item Updating";
 	        	$supply_code = "Item ID: ". $supply_item_id;
 	            $activity = "<strong>Updated:</strong><br>" . implode(', ', $changed);
 	            $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
@@ -1643,73 +1704,77 @@ class Sys_model extends CI_Model {
 
 	    // Generate unique checkout code
 	    $random_code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
-	    $supply_checkout_code = 'supply-' . date('Ymd') . '-' . $random_code;
+	    $supply_checkout_code = 'SPL-' . date('Ymd') . '-' . $random_code;
 
 	    // Retrieve POSted cart data
-	    $cart_items = $this->input->POSt('cart_items');
+	    $cart_items = $this->input->post('cart_items');
 	    if (is_string($cart_items)) {
-		    $cart_items = json_decode($cart_items, true);
-		}
+	        $cart_items = json_decode($cart_items, true);
+	    }
 	    
-	    // Validate incoming cart data
 	    if (empty($cart_items) || !is_array($cart_items)) {
 	        echo "empty_cart";
+	        return;
 	    }
 
-	    $checked_out_items = []; // initialize array to store item names
+	    $checked_out_items = [];
+	    $failed = false; // <-- final status tracker
 
-		foreach ($cart_items as $item) {
-		    $supply_item_id        = $item['supply_item_id'];
-		    $supply_item_name      = $item['supply_item_name'];
-		    $supply_item_price     = $item['supply_item_price'];
-		    $supply_item_count     = $item['item_count'];
-		    $supply_item_unit      = $item['supply_item_unit'];
-		    $supply_item_image     = $item['supply_item_image'];
-		    $supply_item_subtotal  = $item['total_item_price']; // price * qty from frontend
+	    foreach ($cart_items as $item) {
+	        $supply_item_id        = $item['supply_item_id'];
+	        $supply_item_name      = $item['supply_item_name'];
+	        $supply_item_price     = $item['supply_item_price'];
+	        $supply_item_count     = $item['item_count'];
+	        $supply_item_unit      = $item['supply_item_unit'];
+	        $supply_item_image     = $item['supply_item_image'];
+	        $supply_item_subtotal  = $item['total_item_price'];
 
-		    $sql = "INSERT INTO supply_checkouts 
-		            (supply_checkout_code, supply_item_id, supply_item_name, supply_item_price, supply_item_count, supply_item_unit, supply_item_image, supply_item_subtotal, supply_checkout_date)
-		            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	        // Insert checkout item
+	        $sql = "INSERT INTO supply_checkouts 
+	                (supply_checkout_code, supply_item_id, supply_item_name, supply_item_price, supply_item_count, supply_item_unit, supply_item_image, supply_item_subtotal, supply_checkout_date)
+	                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-		    $insert_query = $this->db->query($sql, array(
-		        $supply_checkout_code,
-		        $supply_item_id,
-		        $supply_item_name,
-		        $supply_item_price,
-		        $supply_item_count,
-		        $supply_item_unit,
-		        $supply_item_image,
-		        $supply_item_subtotal,
-		        $current_date
-		    ));
+	        $insert_query = $this->db->query($sql, [
+	            $supply_checkout_code,
+	            $supply_item_id,
+	            $supply_item_name,
+	            $supply_item_price,
+	            $supply_item_count,
+	            $supply_item_unit,
+	            $supply_item_image,
+	            $supply_item_subtotal,
+	            $current_date
+	        ]);
 
-		    $failed = false;
-			$update_query = false;
+	        if (!$insert_query) {
+	            $failed = true;
+	            continue; // skip stock update for this item
+	        }
 
-		    if ($insert_query) {
-		        $sql = "UPDATE supply_inventory 
-		                SET supply_item_stock = supply_item_stock - ? 
-		                WHERE supply_item_id = ?";
-		        $update_query = $this->db->query($sql, [$supply_item_count, $supply_item_id]);
-		    }
-		    if (!$update_query) {
-		    	$failed = true;
-		    }
+	        // Update inventory
+	        $sql = "UPDATE supply_inventory 
+	                SET supply_item_stock = supply_item_stock - ? 
+	                WHERE supply_item_id = ?";
+	        $update_query = $this->db->query($sql, [$supply_item_count, $supply_item_id]);
 
-		    $checked_out_items[] = "{$supply_item_name} ({$supply_item_count} {$supply_item_unit})";
-		}
-		if ($update_query) {
-	        echo "error";
-	    } else {
-	        echo "success";
+	        if (!$update_query) {
+	            $failed = true;
+	        }
+
+	        $checked_out_items[] = "{$supply_item_name} ({$supply_item_count} {$supply_item_unit})";
 	    }
 
-		if (!empty($checked_out_items)) {
-			$activity_type = 'Checkout';
-		    $activity = implode('<br>', $checked_out_items);
-		    $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
-        	$this->db->query($sql, [$activity_type, $supply_checkout_code, $activity]);
-		}
+	    // Log only if at least something was processed
+	    if (!empty($checked_out_items)) {
+	        $activity_type = 'Checkout';
+	        $activity = implode('<br>', $checked_out_items);
+	        $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity)
+	                VALUES (?, ?, ?)";
+	        $this->db->query($sql, [$activity_type, $supply_checkout_code, $activity]);
+	    }
+
+	    // Final output
+	    echo $failed ? "error" : "success";
 	}
 
 	public function load_supply_checkout_codes(){
@@ -1803,12 +1868,13 @@ class Sys_model extends CI_Model {
 	public function void_supply_checkout_item(){
 	    $supply_checkout_id = $_POST['supply_checkout_id'];
 	
-	    $sql = "SELECT supply_item_id, supply_item_count, supply_checkout_code FROM supply_checkouts WHERE supply_checkout_id = ?";
+	    $sql = "SELECT supply_item_id, supply_item_count, supply_checkout_code, supply_item_name FROM supply_checkouts WHERE supply_checkout_id = ?";
 	    $select_query = $this->db->query($sql, [$supply_checkout_id]);
 		foreach ($select_query->result() as $row) {
  			$supply_item_id = $row->supply_item_id;
  			$supply_item_count = $row->supply_item_count;
  			$supply_checkout_code = $row->supply_checkout_code;
+ 			$supply_item_name = $row->supply_item_name;
 		}
         
         $sql = "UPDATE supply_inventory SET supply_item_stock = supply_item_stock + ? WHERE supply_item_id = ?";
@@ -1823,6 +1889,14 @@ class Sys_model extends CI_Model {
 				$query = $this->db->query($sql, [$supply_checkout_code]);
 				$result = $query->row();
 				$supply_checkout_count = $result->total;
+
+				$activity_type = "Checkout Item Voided";
+	        	$supply_code = $supply_checkout_code;
+		        $activity = "
+		            Voided $supply_item_name * $supply_item_count from '$supply_checkout_code'.
+		        ";
+		        $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
+		        $this->db->query($sql, [$activity_type, $supply_code, $activity]);
 
 				if ($supply_checkout_count == 0) {
 		    		echo "success-null";
@@ -1855,6 +1929,14 @@ class Sys_model extends CI_Model {
 	    if ($update_query) {
 			$sql = "DELETE FROM supply_checkouts WHERE supply_checkout_code = ?";
 		    $delete_query = $this->db->query($sql, [$supply_checkout_code]);	 
+
+		    $activity_type = "Checkout Voided";
+        	$supply_code = $supply_checkout_code;
+	        $activity = "
+	            Voided the whole checkout with code '$supply_checkout_code'.
+	        ";
+	        $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
+	        $this->db->query($sql, [$activity_type, $supply_code, $activity]);
 
 		    if ($delete_query) {
 	    		echo "success";
@@ -2179,14 +2261,15 @@ class Sys_model extends CI_Model {
 		}
 	}
 	public function void_supply_restocking_item(){
-	    $supply_restocking_id = $_POST['supply_restocking_id'];
+	    $supply_restocking_id = $_supplyT['supply_restocking_id'];
 	
-	    $sql = "SELECT supply_item_id, supply_item_count, supply_restocking_code FROM supply_restocking WHERE supply_restocking_id = ?";
+	    $sql = "SELECT supply_inventory.supply_item_id, supply_item_count, supply_restocking_code, supply_item_name FROM supply_restocking, supply_inventory WHERE supply_restocking.supply_item_id = supply_inventory.supply_item_id AND supply_restocking_id = ?";
 	    $select_query = $this->db->query($sql, [$supply_restocking_id]);
 		foreach ($select_query->result() as $row) {
  			$supply_item_id = $row->supply_item_id;
  			$supply_item_count = $row->supply_item_count;
  			$supply_restocking_code = $row->supply_restocking_code;
+ 			$supply_item_name = $row->supply_item_name;
 		}
         
         $sql = "UPDATE supply_inventory SET supply_item_stock = supply_item_stock - ? WHERE supply_item_id = ?";
@@ -2201,6 +2284,14 @@ class Sys_model extends CI_Model {
 				$query = $this->db->query($sql, [$supply_restocking_code]);
 				$result = $query->row();
 				$supply_restocking_count = $result->total;
+
+				$activity_type = "Restock Item Voided";
+	        	$supply_code = $supply_restocking_code;
+		        $activity = "
+		            Voided $supply_item_name * $supply_item_count from '$supply_restocking_code'.
+		        ";
+		        $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
+		        $this->db->query($sql, [$activity_type, $supply_code, $activity]);
 
 				if ($supply_restocking_count == 0) {
 		    		echo "success-null";
@@ -2218,7 +2309,7 @@ class Sys_model extends CI_Model {
 	    }
 	}
 	public function void_supply_restocking(){
-	    $supply_restocking_code = $_POST['supply_restocking_code'];
+	    $supply_restocking_code = $_supplyT['supply_restocking_code'];
 	
 	    $sql = "SELECT supply_item_id, supply_item_count FROM supply_restocking WHERE supply_restocking_code = ?";
 	    $select_query = $this->db->query($sql, [$supply_restocking_code]);
@@ -2235,6 +2326,13 @@ class Sys_model extends CI_Model {
 		    $delete_query = $this->db->query($sql, [$supply_restocking_code]);	 
 
 		    if ($delete_query) {
+		        $activity_type = "Restock Voided";
+	        	$supply_code = $supply_restocking_code;
+		        $activity = "
+		            Voided the whole restocking with code '$supply_restocking_code'.
+		        ";
+		        $sql = "INSERT INTO supply_logs (supply_activity_type, supply_code, supply_activity) VALUES (?, ?, ?)";
+		        $this->db->query($sql, [$activity_type, $supply_code, $activity]);
 	    		echo "success";
 	       	}
 	       	else {

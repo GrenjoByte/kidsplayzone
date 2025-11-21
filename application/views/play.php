@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<?php
+	date_default_timezone_set('Asia/Manila');
+?>
 <html>
 <head>
 	<meta charset="utf-8">
@@ -175,7 +178,12 @@
 			overflow: hidden;
 			box-sizing: border-box;
 		}
-
+		.low_stock {
+		    border: 1px solid orange !important;
+		}
+		.no_stock {
+		    border: 1px dashed red !important;
+		}
 		/*html {
 		    transform: scale(0.9);
 		    transform-origin: top left;
@@ -209,20 +217,20 @@
 			<div class="ui column grid centered">
 				<div class="fourteen wide mobile fourteen wide tablet twelve wide computer column centered">
 					<div class="ui secondary labeled icon pointing tabular menu fluid item three">
-						<a class="gray item" data-tab="time_manager_tab" id="time_manager_tab">
-							<h3 class="ui header center aligned pointered">Time Manager</h3>
+						<a class="active teal item" data-tab="time_manager_tab" id="time_manager_tab">
+							<h3 class="ui header center aligned pointered">Playtime Manager</h3>
 						</a>
-						<a class="active gray item" data-tab="pos_tab" id="pos_tab">
+						<a class="blue item" data-tab="pos_tab" id="pos_tab">
 							<h3 class="ui header center aligned pointered">Sales</h3>
 						</a>
-						<a class="gray item" data-tab="supply_tab" id="supply_tab">
-							<h3 class="ui header center aligned pointered">Inventory</h3>
+						<a class="green item" data-tab="supply_tab" id="supply_tab">
+							<h3 class="ui header center aligned pointered">Supplies</h3>
 						</a>	
 					</div>
-					<div class="ui bottom attached tab" data-tab="time_manager_tab">
+					<div class="ui bottom attached tab active" data-tab="time_manager_tab">
 						<div class="ui transition fifteen wide column centered" id="time_manager_section">
 							<h2 class="ui teal header big center aligned pointered time_manager_header">
-			                    Active Clients
+			                    Active Playtimes
 			                </h2>
 			                <!-- <div class="ui right aligned segment">
 			                	<div class="ui right aligned category search">
@@ -245,7 +253,10 @@
 					        </div>
 						</div>
 					</div>
-					<div class="ui bottom attached tab active" data-tab="pos_tab">
+					<div class="ui bottom attached tab" data-tab="pos_tab">
+						<h2 class="ui blue header big center aligned pointered pos_header">
+		                    Sales Inventory
+		                </h2>
 						<div class="ui secondary menu">
 							<div class="right menu">
 								<div class="ui search item" id="pos_inventory_search">
@@ -276,6 +287,9 @@
 				        </div>
 					</div>	
 					<div class="ui bottom attached tab" data-tab="supply_tab">
+						<h2 class="ui green header big center aligned pointered supply_header">
+		                    Supplies Inventory
+		                </h2>
 						<div class="ui secondary menu">
 							<div class="right menu">
 								<div class="ui search item" id="supply_inventory_search">
@@ -311,66 +325,67 @@
 				</div>
 			</div>	
 			<div class="ui mini modal" id="profile_modal">
-		        <div class="ui header center aligned">
-		            <a class="break-text" id="profile_header">Child Profile Creation</a>
-		        </div>
-		        <div class="scrolling content">
-		        	<form class="ui padded basic segment form" id="signup_form">
-		        		<div class="required field">
-					        <label>Guardian's Name</label>
-					        <input type="text" name="guardian_name" placeholder="e.g. Juan A. Cruz">
-					    </div>
-		        		<div class="required field">
-					        <label>Guardian's Contact Number</label>
-					        <input type="text" name="guardian_contact" placeholder="09**-***-****">
-					    </div>
-					    <div class="required field">
-					        <label>Child's Full Name</label>
-					        <input type="text" name="full_name" placeholder="e.g. Juan A. Cruz">
-					    </div>
-					    <div class="required field">
-					        <label>Child's Gender</label>
-					        <div class="ui icon selection dropdown button basic small" id="gender_drop">
-					            <i class="venus mars icon"></i>&emsp;
-					            <input type="hidden" name="gender" id="gender">
-					            <div class="default text">Child's Gender</div>
-					            <div class="menu">
-					                <div class="item" data-value="M">Male <i class="mars icon"></i></div>
-					                <div class="item" data-value="F">Female <i class="venus icon"></i></div>
-					            </div>
-					        </div>
-					    </div>
-					    <div class="required field">
-					        <label>Child's Birthdate</label>
-					        <input type="date" name="birthdate" placeholder="YYYY-MM-DD">
-					    </div>
-					    <!-- Webcam Section -->
-					    <div class="required field">
-						    <label> Child's Profile Image</label>
-			                <input class="invisible" type="text" readonly name="profile_image_name" id="profile_image_name" value="">
+			    <div class="ui header center aligned">
+			        <a class="break-text" id="profile_header">Child Profile Creation</a>
+			    </div>
+			    <div class="scrolling content">
+			        <form class="ui padded basic segment form" id="signup_form">
+			            <div class="required field">
+			                <label>Guardian's Name</label>
+			                <input type="text" name="guardian_name" id="guardian_name" placeholder="e.g. Juan A. Cruz">
+			            </div>
+			            <div class="required field">
+			                <label>Guardian's Contact Number</label>
+			                <input type="text" name="guardian_contact" id="guardian_contact" placeholder="09**-***-****">
+			            </div>
+			            <div class="required field">
+			                <label>Child's Full Name</label>
+			                <input type="text" name="full_name" id="full_name" placeholder="e.g. Juan A. Cruz">
+			            </div>
+			            <div class="required field">
+			                <label>Child's Gender</label>
+			                <div class="ui icon selection dropdown button basic small" id="gender_drop">
+			                    <input type="hidden" name="gender" id="gender">
+			                    <div class="default text">Child's Gender</div>
+			                    <div class="menu">
+			                        <div class="item" data-value="M">Male <i class="mars icon"></i></div>
+			                        <div class="item" data-value="F">Female <i class="venus icon"></i></div>
+			                    </div>
+			                </div>
+			            </div>
+			            <div class="required field">
+			                <label>Child's Birthdate</label>
+			                <input type="date" name="birthdate" id="birthdate" placeholder="YYYY-MM-DD">
+			            </div>
 
+			            <!-- Webcam Section (Optional) -->
+			            <div class="field">
+			                <label>Child's Profile Image (Optional)</label>
+			                <input type="text" readonly name="profile_image_name" id="profile_image_name" value="">
 			                <div class="ui segment center aligned">
-							    <video id="camera_stream" autoplay></video>
-							    <canvas id="captured_canvas" style="display:none;"></canvas>
-							    <div class="ui mini buttons">
-							        <button type="button" id="capture_button" class="ui teal button">Capture</button>
-							        <button type="button" id="retake_button" class="ui yellow button" style="display:none;">Retake</button>
-							    </div>
-							</div>
-						</div>
-					    <!-- Hidden field to store base64 image -->
-					    <input type="hidden" name="profile_image" id="profile_image">
-					</form>
-		        </div>
-		        <div class="actions modal-actions">
-		            <div class="ui orange right corner deny pointered small label">
-		                <i class="ui times pointered big icon"></i>
-		            </div>
-				    <button class="ui button green small button" form="signup_form" type="submit">
-				    	Confirm
-				    </button>
-		        </div>
-		    </div>
+				                <input type="hidden" id="profile_image_base64" name="profile_image_base64">
+			                    <video id="camera_stream" autoplay></video>
+			                    <canvas id="captured_canvas" style="display:none;"></canvas>
+			                    <div class="ui mini buttons">
+			                        <button type="button" id="capture_button" class="ui teal button">Capture</button>
+			                        <button type="button" id="retake_button" class="ui yellow button" style="display:none;">Retake</button>
+			                    </div>
+			                </div>
+			            </div>
+
+			            <!-- Hidden field to store base64 image or default -->
+			            <input type="hidden" name="profile_image" id="profile_image" value="kidsplayzone/photos/icons/avatar.jpg">
+			        </form>
+			    </div>
+			    <div class="actions modal-actions">
+			        <div class="ui orange right corner deny pointered small label">
+			            <i class="ui times pointered big icon"></i>
+			        </div>
+			        <button class="ui button green small button" form="signup_form" type="submit">
+			            Confirm
+			        </button>
+			    </div>
+			</div>
 		    <div class="ui mini modal" id="profile_update_modal">
 			    <div class="ui header center aligned">
 			        <a class="break-text" id="profile_update_header">Update Profile</a>
@@ -459,11 +474,10 @@
 		        <div class="content">
 		        	<form class="ui padded basic segment form" id="new_client_form">
 		        		<div class="required field">
-	                        <label>Child's Name</label>
-	                        <div class="ui icon selection dropdown button basic small" id="new_client_drop">
-	                            <span class="transition" id="new_client_icon"><i class="user icon"></i>&nbsp;&nbsp;</span>
+	                        <label>Playmate's Name</label>
+	                        <div class="ui icon search selection dropdown button basic small" id="new_client_drop">
 	                            <input type="hidden" name="client_id" id="client_id" value="">
-	                            <div class="default text">Child's Name</div>
+	                            <div class="default text">Select a Playmate</div>
 	                            <div class="menu" id="new_client_drop_menu">
 	                                
 	                            </div>
@@ -472,7 +486,6 @@
 	                    <div class="required field">
 	                        <label>Time</label>
 	                        <div class="ui icon selection dropdown button basic small" id="time_drop">
-	                            <span class="transition" id="time_icon"><i class="clock icon"></i>&nbsp;&nbsp;</span>
 	                            <input type="hidden" name="time_rate" id="time_rate" value="">
 	                            <div class="default text">Time</div>
 	                            <div class="menu" id="time_drop_menu">
@@ -498,10 +511,10 @@
 		        <div class="content">
 		        	<form class="ui padded basic segment form" id="extend_time_form">
 		        		<div class="required field">
-	                        <label>Child's Name</label>
-	                        <div class="ui icon selection dropdown button basic small" id="extend_client_drop">
+	                        <label>Playmate's Name</label>
+	                        <div class="ui icon search selection dropdown button basic small" id="extend_client_drop">
 	                            <input type="hidden" name="extend_client_id" id="extend_client_id" value="">
-	                            <div class="default text">Child's Name</div>
+	                            <div class="default text">Select a Playmate</div>
 	                            <div class="menu" id="extend_client_drop_menu">
 	                                
 	                            </div>
@@ -510,7 +523,6 @@
 	                    <div class="required field">
 	                        <label>Time</label>
 	                        <div class="ui icon selection dropdown button basic small" id="extend_time_drop">
-	                            <span class="transition" id="extend_time_icon"><i class="clock icon"></i>&nbsp;&nbsp;</span>
 	                            <input type="hidden" name="extend_time_rate" id="extend_time_rate" value="">
 	                            <div class="default text">Time</div>
 	                            <div class="menu" id="extend_time_drop_menu">
@@ -1710,38 +1722,68 @@
 <script type="text/javascript">
     $('.menu .item').tab();
 
-    function monitor_item_stock(on_change_callback) {
-	    function attach_observer(item) {
-	        const observer = new MutationObserver(function(mutations) {
-	            mutations.forEach(function() {
-	                on_change_callback(item);
-	            });
-	        });
-
-	        observer.observe(item, {
-	            childList: true,  // watches added/removed text nodes
-	            characterData: true, // watches changes to text nodes
-	            subtree: true       // watches inside the element
-	        });
+    function apostrophe(name) {
+	    if (!name) return ''; // handle empty string
+	    name = name.trim();
+	    const lastChar = name.charAt(name.length - 1).toLowerCase();
+	    if (lastChar === 's') {
+	        return name + "'"; // just apostrophe if ends with s
+	    } else {
+	        return name + "'s"; // otherwise 's
 	    }
-
-	    // Attach to existing items
-	    document.querySelectorAll('.item_stock').forEach(attach_observer);
-
-	    // Watch for newly added items
-	    const dom_observer = new MutationObserver(function(mutations) {
-	        mutations.forEach(function(mutation) {
-	            mutation.addedNodes.forEach(function(node) {
-	                if (node.nodeType === 1) {
-	                    if (node.classList.contains('item_stock')) attach_observer(node);
-	                    node.querySelectorAll('.item_stock').forEach(attach_observer);
-	                }
-	            });
-	        });
-	    });
-
-	    dom_observer.observe(document.body, { childList: true, subtree: true });
 	}
+
+    function monitor_item_stock(on_change_callback) {
+
+        function attach_observer($item) {
+            const item = $item[0]; // raw element needed for observer
+
+            const observer = new MutationObserver(function(mutations) {
+                // Only trigger callback once per batch of mutations
+                on_change_callback($item);
+            });
+
+            observer.observe(item, {
+                childList: true,
+                characterData: true,
+                subtree: true
+            });
+        }
+
+        // Attach to existing elements
+        $('.item_stock').each(function() {
+            attach_observer($(this));
+        });
+
+        // Watch DOM for newly added elements
+        const dom_observer = new MutationObserver(function(mutations) {
+            const new_items = $(); // empty jQuery set
+
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) {
+                        const $node = $(node);
+
+                        if ($node.hasClass('item_stock')) {
+                            new_items.push(node);
+                        }
+
+                        $node.find('.item_stock').each(function() {
+                            new_items.push(this);
+                        });
+                    }
+                });
+            });
+
+            // Attach observers to new items
+            $(new_items).each(function() {
+                attach_observer($(this));
+            });
+        });
+
+        dom_observer.observe(document.body, { childList: true, subtree: true });
+    }
+
 
 
 	function check_active_tab() {
@@ -2110,7 +2152,20 @@
                     let pos_item_unit = value.pos_item_unit;
                     let pos_item_low = value.pos_item_low;
                     let pos_item_status = value.pos_item_status;
+                    let level_class = '';
 
+                    pos_item_stock = parseFloat(pos_item_stock);
+					pos_item_low = parseFloat(pos_item_low);
+
+                    if (pos_item_stock === 0) {
+					    level_class = 'no_stock';
+					} 
+					else if (pos_item_stock <= pos_item_low) {
+					    level_class = 'low_stock';
+					} 
+					else {
+					    level_class = ''; // in case stock is above low level
+					}
 
                     let default_pos_item_unit = pos_item_unit;
 
@@ -2133,7 +2188,7 @@
 					}
 
                     let pos_item = `
-						<div class="ui fluid link card transition item_card" id="pos_item${pos_item_id}" data-pos_item_id="${pos_item_id}" data-pos_item_name="${pos_item_name}" data-pos_item_price="${pos_item_price}" data-pos_item_image="${pos_item_image}" data-pos_item_stock="${pos_item_stock}" data-pos_item_unit="${default_pos_item_unit}" data-pos_item_low="${pos_item_low}" data-pos_item_status="${pos_item_status}">
+						<div class="ui fluid link card transition item_card ${level_class}" id="pos_item${pos_item_id}" data-pos_item_id="${pos_item_id}" data-pos_item_name="${pos_item_name}" data-pos_item_price="${pos_item_price}" data-pos_item_image="${pos_item_image}" data-pos_item_stock="${pos_item_stock}" data-pos_item_unit="${default_pos_item_unit}" data-pos_item_low="${pos_item_low}" data-pos_item_status="${pos_item_status}">
 						    <div class="blurring dimmable image image-container">
 								<div class="ui dimmer">
 									<div class="content">
@@ -2995,41 +3050,45 @@
 
     $('#pos_checkout_submit').on('dblclick', function(e) {
 	    e.preventDefault();
-
-	    if (!pos_cart_array || pos_cart_array.length === 0) {
+    	
+    	if (!pos_cart_array || pos_cart_array.length === 0) {
 	        alert('Cart is empty.');
 	        return;
 	    }
 
-	    let formData = new FormData();
-	    formData.append('cart_items', JSON.stringify(pos_cart_array)); // send cart as JSON string
+    	let confirmed = confirm('Please confirm that all cart items are correct.');
 
-	    $.ajax({
-	        url: '<?php echo base_url(); ?>i.php/sys_control/pos_checkout',
-	        method: 'POST',
-	        data: formData,
-	        processData: false,  // important for FormData
-	        contentType: false,  // important for FormData
-	        success: function (response) {
-	            if (response === 'success') {
-	                pos_cart_array = []; // clear current cart
-			    	$('#pos_checkout_cart_empty_message').addClass('hidden');
-			    	$('#pos_checkout_cart_empty_message').removeClass('visible');
-			    	$('#pos_checkout_cart_content').html('');
-	                alert('Checkout successful!');
-	            } 
-	            else if (response === 'empty_cart') {
-	                alert('Cart is empty. Nothing to checkout.');
-	            }
-	            else {
-	                alert('Checkout failed. Try again.');
-	            }
-	        },
-	        error: function (xhr, status, error) {
-	            console.error(xhr.responseText);
-	            alert('AJAX error during checkout.');
-	        }
-	    });
+    	if (confirmed) {
+    		let formData = new FormData();
+		    formData.append('cart_items', JSON.stringify(pos_cart_array)); // send cart as JSON string
+
+		    $.ajax({
+		        url: '<?php echo base_url(); ?>i.php/sys_control/pos_checkout',
+		        method: 'POST',
+		        data: formData,
+		        processData: false,  // important for FormData
+		        contentType: false,  // important for FormData
+		        success: function (response) {
+		            if (response === 'success') {
+		                pos_cart_array = []; // clear current cart
+				    	$('#pos_checkout_cart_empty_message').addClass('hidden');
+				    	$('#pos_checkout_cart_empty_message').removeClass('visible');
+				    	$('#pos_checkout_cart_content').html('');
+		                alert('Checkout successful!');
+		            } 
+		            else if (response === 'empty_cart') {
+		                alert('Cart is empty. Nothing to checkout.');
+		            }
+		            else {
+		                alert('Checkout failed. Try again.');
+		            }
+		        },
+		        error: function (xhr, status, error) {
+		            console.error(xhr.responseText);
+		            alert('AJAX error during checkout.');
+		        }
+		    });
+    	}
 	});
 
 
@@ -3268,20 +3327,22 @@
 		initialize_supply_item_camera();
 		initialize_supply_item_update_camera();
 
-		monitor_item_stock(function(el) {
-		    var current_stock = parseFloat(el.textContent.trim());
-		    var low_stock = parseFloat(el.dataset.item_low);
-		    var item_id = parseFloat(el.dataset.item_id);
+		monitor_item_stock(function($el) { var current_stock = parseFloat($.trim($el.text())) || 0; var low_stock = parseFloat($el.data('item_low')) || 0; var item_id = parseFloat($el.data('item_id')) || 0; console.log("Stock changed:", current_stock); 
 
-		    // Example: log it
-		    console.log("Stock changed:", current_stock);
+			var $item_card = $el.closest('.item_card'); 
 
-		    // Example: add a class if low
-		    if (current_stock <= low_stock) {
-		        el.classList.add('low_stock');
-		    } else {
-		        el.classList.remove('low_stock');
-		    }
+			if (current_stock <= low_stock && current_stock != 0) { 
+				$item_card.removeClass('no_stock'); 
+				$item_card.addClass('low_stock'); 
+			} 
+			else if (current_stock == 0) { 
+				$item_card.removeClass('low_stock'); 
+				$item_card.addClass('no_stock'); 
+			} 
+			else { 
+				$item_card.removeClass('low_stock'); 
+				$item_card.removeClass('no_stock'); 
+			} 
 		});
 	});
 
@@ -3321,7 +3382,7 @@
 	                    	load_pos_inventory();
 	                    }
 	                    else {
-	                        alert('Time Profile creation failed. Please try again.')
+	                        alert('Item Creation failed. Please verify that the item does not have a duplicate and try again.')
 	                    }
 	                })
 	            ;
@@ -3895,7 +3956,20 @@
                     let supply_item_unit = value.supply_item_unit;
                     let supply_item_low = value.supply_item_low;
                     let supply_item_status = value.supply_item_status;
+                    let level_class = '';
 
+                    supply_item_stock = parseFloat(supply_item_stock);
+					supply_item_low = parseFloat(supply_item_low);
+
+                    if (supply_item_stock === 0) {
+					    level_class = 'no_stock';
+					} 
+					else if (supply_item_stock <= supply_item_low) {
+					    level_class = 'low_stock';
+					} 
+					else {
+					    level_class = ''; // in case stock is above low level
+					}
 
                     let default_supply_item_unit = supply_item_unit;
 
@@ -3918,7 +3992,7 @@
 					}
 
                     let supply_item = `
-						<div class="ui fluid link card transition item_card" id="supply_item${supply_item_id}" data-supply_item_id="${supply_item_id}" data-supply_item_name="${supply_item_name}" data-supply_item_price="${supply_item_price}" data-supply_item_image="${supply_item_image}" data-supply_item_stock="${supply_item_stock}" data-supply_item_unit="${default_supply_item_unit}" data-supply_item_low="${supply_item_low}" data-supply_item_status="${supply_item_status}">
+						<div class="ui fluid link card transition item_card ${level_class}" id="supply_item${supply_item_id}" data-supply_item_id="${supply_item_id}" data-supply_item_name="${supply_item_name}" data-supply_item_price="${supply_item_price}" data-supply_item_image="${supply_item_image}" data-supply_item_stock="${supply_item_stock}" data-supply_item_unit="${default_supply_item_unit}" data-supply_item_low="${supply_item_low}" data-supply_item_status="${supply_item_status}">
 						    <div class="blurring dimmable image image-container">
 								<div class="ui dimmer">
 									<div class="content">
@@ -3936,14 +4010,15 @@
 						    <div class="content">
 					    		<input type="text" class="supply_card_focus_handler file_input" data-item_id="${supply_item_id}">
 						    	<div class="item">
-									<h5 class="no-break supply_item_name" data-content="${supply_item_name}" data-position="bottom left">${supply_item_name}</h5>
+									<h5 class="no-break supply_item_name" data-content="${supply_item_name}" data-supplyition="bottom left">${supply_item_name}</h5>
 								    <div class="content">
 										<a class="ui tiny grey header"><x class="item_stock supply_item_stock" data-item_low="${supply_item_low}" data-item_id="${supply_item_id}">${supply_item_stock}</x> <x class="supply_item_unit">${supply_item_unit}</x></a>
+										<a class="ui yellow right floated tag label small">₱ ${formatted_item_price}</a>
 								    </div>
 								</div>
 						    </div>
 						    <div class="extra content">
-						    	<div class="ui left floated small buttons">
+						    	<div class="ui left floated tiny buttons">
 									<button class="ui basic compact mini button supply_count_minus">
 										<i class="left floated small minus icon"></i>
 									</button>
@@ -3952,7 +4027,7 @@
 										<i class="right floated small plus icon"></i>
 									</button>
 								</div>
-								<div class="ui right floated basic small button add_to_supply_cart invisible">
+								<div class="ui compact right floated basic small button add_to_supply_cart invisible">
 									Add
 									<i class="right cart plus icon"></i>
 								</div>
@@ -3971,10 +4046,10 @@
             		$(`#supply_restocking_menu`).append(supply_restocking_item);
 		      		search_content.push({id:supply_item_id,title:supply_item_name,description:"₱ "+formatted_item_price});
                 })
-
-                $('.supply_item_name').popup({
+				$('.supply_item_name').popup({
                 	on: 'click'
                 });
+
 				let supply_restocking_array = [];
 				let supply_restocking_list_item = '';
 				let supply_list_restock_date = '';
@@ -5080,7 +5155,7 @@
 	                    	load_supply_inventory();
 	                    }
 	                    else {
-	                        alert('Time Profile creation failed. Please try again.')
+	                        alert('Item Creation failed. Please verify that the item does not have a duplicate and try again.')
 	                    }
 	                })
 	            ;
@@ -5334,39 +5409,70 @@
 
 
 
+	function url_to_base64(url, callback) {
+	    const img = new Image();
+	    img.crossOrigin = 'Anonymous'; // allow reading
+	    img.onload = function () {
+	        const canvas = document.createElement('canvas');
+	        canvas.width = img.width;
+	        canvas.height = img.height;
 
+	        const ctx = canvas.getContext('2d');
+	        ctx.drawImage(img, 0, 0);
 
+	        const base64 = canvas.toDataURL('image/png');
+	        callback(base64);
+	    };
+	    img.src = url;
+	}
 
     function initialize_time_manager_camera() {
-		const video = $('#camera_stream')[0];
+	    const video = $('#camera_stream')[0];
 	    const canvas = $('#captured_canvas')[0];
 	    const context = canvas.getContext('2d');
 	    const capture_button = $('#capture_button');
 	    const retake_button = $('#retake_button');
 
-	    // Force 5:4 aspect ratio on the live video
-	    $('#camera_stream').css({
-	        'aspect-ratio': '5 / 4',
-	        'width': '100%',
-	        'height': 'auto',
-	        'object-fit': 'cover'
+	    const default_avatar = "<?php echo base_url();?>photos/icons/avatar.jpg";
+
+		url_to_base64(default_avatar, function(base64img){
+		    $('#profile_image_base64').val(base64img);
+		});
+
+
+	    // Hide video initially
+	    $('#camera_stream').hide();
+
+	    // Initialize canvas with default avatar
+	    const default_img = new Image();
+	    default_img.src = default_avatar;
+	    default_img.onload = function() {
+	        canvas.width = default_img.width;
+	        canvas.height = default_img.height;
+	        context.drawImage(default_img, 0, 0, default_img.width, default_img.height);
+	        $('#captured_canvas').show();
+	    };
+
+	    $('#full_name, #birthdate').on('input', function() {
+	    	let full_name = $('#full_name').val().replace(/\s+/g, '_');
+	        let birthdate = $('#birthdate').val().replace(/-/g, '_');
+	        let file_name = `${full_name}_${birthdate}.png`;	
+	        $('#profile_image_name').val(file_name);
 	    });
+
+	    $('#captured_canvas').on('dblclick', function() {
+        	start_camera();
+	        $('#camera_stream').show();
+	        $('#captured_canvas').hide();
+		});
+		$('#camera_stream').on('dblclick', function() {
+        	stop_camera();
+	        $('#camera_stream').hide();
+	        $('#captured_canvas').show();
+		});
 
 	    // Capture with 5:4 aspect ratio
 	    capture_button.on('click', function() {
-	        let full_name = $('input[name="full_name"]').val().replace(/\s+/g, '_');
-	        let birthdate = $('input[name="birthdate"]').val().replace(/-/g, '_');
-	        let file_name = `${full_name}_${birthdate}.png`;
-	    
-	        $('#profile_image_name').val(file_name);
-	        image_name = $('#profile_image_name').val();
-
-	        if (image_name != '') {
-		        $('#profile_image_name').removeClass('invisible');
-	        }
-	        else {
-		        $('#profile_image_name').addClass('invisible');
-	        }
 
 	        const aspect_w = 5;
 	        const aspect_h = 4;
@@ -5394,27 +5500,37 @@
 	        capture_button.hide();
 	        retake_button.show();
 
+	        // if ($('#profile_image_name').val() !== '') {
+	        //     $('#profile_image_name').removeClass('invisible');
+	        // } else {
+	        //     $('#profile_image_name').addClass('invisible');
+	        // }
+
 	        $('#profile_image').val(canvas.toDataURL('image/png'));
 	    });
 
 	    // Retake logic
 	    retake_button.on('click', function() {
-	        $('#captured_canvas').hide();
-	        $('#camera_stream').show();
+	        $('#captured_canvas').show();
+	        $('#camera_stream').hide();
 	        capture_button.show();
 	        retake_button.hide();
-	        $('#profile_image').val('');
-	        $('#profile_image_name').val('');
 
-	        image_name = $('#profile_image_name').val();
-	        if (image_name != '') {
-		        $('#profile_image_name').removeClass('invisible');
-	        }
-	        else {
-		        $('#profile_image_name').addClass('invisible');
-	        }
+	        // Reset to default avatar
+	        const default_img = new Image();
+	        default_img.src = default_avatar;
+	        default_img.onload = function() {
+	            canvas.width = default_img.width;
+	            canvas.height = default_img.height;
+	            context.drawImage(default_img, 0, 0, default_img.width, default_img.height);
+	        };
+	        $('#profile_image').val(default_avatar);
+	        $('#profile_image_name').val('');
+	        // $('#profile_image_name').addClass('invisible');
 	    });
 	}
+
+
 	
 	function initialize_time_manager_update_camera() {
 		const video = $('#update_camera_stream')[0];
@@ -5495,15 +5611,15 @@
 
 	$('.time_manager_header').on('dblclick', function () {
 		let active_label = $(this).html().trim();
-		if (active_label == 'Active Clients') {
+		if (active_label == 'Active Playtimes') {
 			load_registered_clients();
 		}
-		else if (active_label == 'Registered Clients') {
+		else if (active_label == 'Registered Playmates') {
 			load_archived_clients();
 		}
-		else if (active_label == 'Archived Clients') {
+		else if (active_label == 'Archived Profiles') {
 			load_active_clients();
-			$(this).html('Active Clients');
+			$(this).html('Active Playtimes');
 		}
 	})
 
@@ -5718,7 +5834,7 @@
 	}
 
 	function load_active_clients() {
-		$('.time_manager_header').html('Active Clients');
+		$('.time_manager_header').html('Active Playtimes');
         var ajax = $.ajax({
             method: 'POST',
             url   : '<?php echo base_url();?>i.php/sys_control/load_active_clients'
@@ -5761,7 +5877,7 @@
                     }
                     else {
                     	supervision_check = '';
-                    	// supervision_check = ' (Needs Adult supervision)';
+                    	// supervision_check = ' (Supervise)';
                     }
 
 	    			if (age > 1) {
@@ -5845,11 +5961,10 @@
                         onChange: function() {
                             var input_value = $('#client_id').val();
                             var input_text = $('#new_client_drop').dropdown('get text');
-                            $('#new_client_icon').addClass('hidden');
                         }
                     })
                 ;
-                $('.extend_time').on('dblclick', function() {
+                $('.extend_time').on('click', function() {
                 	let client_id = $(this).data('client_id');
                 	$('#extend_client_drop').dropdown('set selected', String(client_id));
 
@@ -5871,55 +5986,63 @@
 			    });
 			    $('.end_time').on('dblclick', function() {
 			    	var client_id = $(this).data('client_id');
-			    	var full_name = $(this).data('full_name');
+			    	var full_name = apostrophe($(this).data('full_name'));
 
-			    	var ajax = $.ajax({
-		                method: 'POST',
-		                url   : '<?php echo base_url();?>i.php/sys_control/end_client_time',
-		                data  : { client_id:client_id }
-		            });
-		            var jqxhr = ajax
-		                .always(function() {
-		                    var response = jqxhr.responseText;
-		                    if (response == 'success') {
-		                        alert(`${full_name} time Ended`);
-		                        load_active_clients();
-		                    }
-		                    else {
-		                        alert('An error occurred. Please try again.')
-		                    }
-		                })
-		            ;
+			    	let confirmed = confirm(`Are you sure you want to prematurely end ${full_name} time?`);
+			    	
+			    	if (confirmed) {
+			    		var ajax = $.ajax({
+			                method: 'POST',
+			                url   : '<?php echo base_url();?>i.php/sys_control/end_client_time',
+			                data  : { client_id:client_id }
+			            });
+			            var jqxhr = ajax
+			                .always(function() {
+			                    var response = jqxhr.responseText;
+			                    if (response == 'success') {
+			                        alert(`${full_name} time Ended`);
+			                        load_active_clients();
+			                    }
+			                    else {
+			                        alert('An error occurred. Please try again.')
+			                    }
+			                })
+			            ;
+			    	}
 			    });
 			    $('.remove_time').on('dblclick', function() {
 			    	var client_id = $(this).data('client_id');
-			    	var full_name = $(this).data('full_name');
+			    	var full_name = apostrophe($(this).data('full_name'));
 			    	var hour = $(this).data('hour');
 			    	var minute = $(this).data('minute');
 			    	var price = $(this).data('price');
 
-			    	var ajax = $.ajax({
-		                method: 'POST',
-		                url   : '<?php echo base_url();?>i.php/sys_control/remove_client_time',
-		                data  : { 
-		                	client_id:client_id,
-		                	hour:hour,
-		                	minute:minute,
-		                	price:price
-		                }
-		            });
-		            var jqxhr = ajax
-		                .always(function() {
-		                    var response = jqxhr.responseText;
-		                    if (response == 'success') {
-		                        alert(`${full_name} Time Profile Removed`);
-		                        load_active_clients();
-		                    }
-		                    else {
-		                        alert('An error occurred. Please try again.')
-		                    }
-		                })
-		            ;
+			    	let confirmed = confirm(`Are you sure you want to remove ${full_name} time?`);
+
+			    	if (confirmed) {
+			    		var ajax = $.ajax({
+			                method: 'POST',
+			                url   : '<?php echo base_url();?>i.php/sys_control/remove_client_time',
+			                data  : { 
+			                	client_id:client_id,
+			                	hour:hour,
+			                	minute:minute,
+			                	price:price
+			                }
+			            });
+			            var jqxhr = ajax
+			                .always(function() {
+			                    var response = jqxhr.responseText;
+			                    if (response == 'success') {
+			                        alert(`${full_name} Time Profile Removed`);
+			                        load_active_clients();
+			                    }
+			                    else {
+			                        alert('An error occurred. Please try again.')
+			                    }
+			                })
+			            ;	
+			    	}
 			    });
             }
             else {
@@ -5929,7 +6052,7 @@
         })
     }
     function load_registered_clients() {
-		$('.time_manager_header').html('Registered Clients');
+		$('.time_manager_header').html('Registered Playmates');
         var ajax = $.ajax({
             method: 'POST',
             url   : '<?php echo base_url();?>i.php/sys_control/load_registered_clients'
@@ -5961,7 +6084,7 @@
                     	supervision_check = '';
                     }
                     else {
-                    	supervision_check = ' (Needs Adult supervision)';
+                    	supervision_check = ' (Supervise)';
                     }
 
 	    			if (age > 1) {
@@ -5983,7 +6106,7 @@
 										<br>
 										<br>
 										<div class="ui orange tiny inverted button archive_client" data-client_id="${client_id}" data-full_name="${full_name}" id="${client_id}archive">
-											Archive Client
+											Archive Profile
 										</div>
 									</div>
 								</div>
@@ -6056,26 +6179,29 @@
 			        ;
 			    });
 			    $('.archive_client').on('dblclick', function() {
-			    	var client_id = $(this).data('client_id');
-			    	var full_name = $(this).data('full_name');
+			    	let confirmed = confirm("Are you sure you want to Archive this profile?");
+			    	if (confirmed) {
+			    		var client_id = $(this).data('client_id');
+				    	var full_name = $(this).data('full_name');
 
-			    	var ajax = $.ajax({
-		                method: 'POST',
-		                url   : '<?php echo base_url();?>i.php/sys_control/archive_client',
-		                data  : { client_id:client_id }
-		            });
-		            var jqxhr = ajax
-		                .always(function() {
-		                    var response = jqxhr.responseText;
-		                    if (response == 'success') {
-		                        alert(`${full_name} Profile Archived`);
-		                        load_registered_clients();
-		                    }
-		                    else {
-		                        alert('An error occurred. Please try again.')
-		                    }
-		                })
-		            ;
+				    	var ajax = $.ajax({
+			                method: 'POST',
+			                url   : '<?php echo base_url();?>i.php/sys_control/archive_client',
+			                data  : { client_id:client_id }
+			            });
+			            var jqxhr = ajax
+			                .always(function() {
+			                    var response = jqxhr.responseText;
+			                    if (response == 'success') {
+			                        alert(`${full_name} Profile Archived`);
+			                        load_registered_clients();
+			                    }
+			                    else {
+			                        alert('An error occurred. Please try again.')
+			                    }
+			                })
+			            ;
+			    	}
 			    });
             }
             else {
@@ -6085,7 +6211,7 @@
         })
     }
     function load_archived_clients() {
-		$('.time_manager_header').html('Archived Clients');
+		$('.time_manager_header').html('Archived Profiles');
         var ajax = $.ajax({
             method: 'POST',
             url   : '<?php echo base_url();?>i.php/sys_control/load_archived_clients'
@@ -6117,7 +6243,7 @@
                     	supervision_check = '';
                     }
                     else {
-                    	supervision_check = ' (Needs Adult supervision)';
+                    	supervision_check = ' (Supervise)';
                     }
 
 	    			if (age > 1) {
@@ -6134,7 +6260,7 @@
 								<div class="ui dimmer">
 									<div class="content">
 										<div class="ui teal tiny inverted button unarchive_client" data-client_id="${client_id}" data-full_name="${full_name}" id="${client_id}archive">
-											Unarchive Client
+											Unarchive Profile
 										</div>
                     					<br>
 										<br>
@@ -6169,45 +6295,53 @@
 			    	var client_id = $(this).data('client_id');
 			    	var full_name = $(this).data('full_name');
 
-			    	var ajax = $.ajax({
-		                method: 'POST',
-		                url   : '<?php echo base_url();?>i.php/sys_control/unarchive_client',
-		                data  : { client_id:client_id }
-		            });
-		            var jqxhr = ajax
-		                .always(function() {
-		                    var response = jqxhr.responseText;
-		                    if (response == 'success') {
-		                        alert(`${full_name} Profile Restored`);
-		                        load_archived_clients();
-		                    }
-		                    else {
-		                        alert('An error occurred. Please try again.')
-		                    }
-		                })
-		            ;
+			    	let confirmed = confirm("Are you sure you want to Unarchive this profile?");
+
+			    	if (confirmed) {
+			    		var ajax = $.ajax({
+			                method: 'POST',
+			                url   : '<?php echo base_url();?>i.php/sys_control/unarchive_client',
+			                data  : { client_id:client_id }
+			            });
+			            var jqxhr = ajax
+			                .always(function() {
+			                    var response = jqxhr.responseText;
+			                    if (response == 'success') {
+			                        alert(`${full_name} Profile Restored`);
+			                        load_archived_clients();
+			                    }
+			                    else {
+			                        alert('An error occurred. Please try again.')
+			                    }
+			                })
+			            ;
+			    	}
 			    });
 			    $('.delete_client').on('dblclick', function() {
 			    	var client_id = $(this).data('client_id');
 			    	var full_name = $(this).data('full_name');
 
-			    	var ajax = $.ajax({
-		                method: 'POST',
-		                url   : '<?php echo base_url();?>i.php/sys_control/delete_client',
-		                data  : { client_id:client_id }
-		            });
-		            var jqxhr = ajax
-		                .always(function() {
-		                    var response = jqxhr.responseText;
-		                    if (response == 'success') {
-		                        alert(`${full_name} Profile Deleted`);
-		                        load_archived_clients();
-		                    }
-		                    else {
-		                        alert('An error occurred. Please try again.')
-		                    }
-		                })
-		            ;
+			    	let confirmed = confirm("Are you sure you want to Delete this profile? Doing so will permanently remove this profile, but previous profile interactions will be retained for records purposes.");
+
+			    	if (confirmed) {
+				    	var ajax = $.ajax({
+			                method: 'POST',
+			                url   : '<?php echo base_url();?>i.php/sys_control/delete_client',
+			                data  : { client_id:client_id }
+			            });
+			            var jqxhr = ajax
+			                .always(function() {
+			                    var response = jqxhr.responseText;
+			                    if (response == 'success') {
+			                        alert(`${full_name} Profile Deleted`);
+			                        load_archived_clients();
+			                    }
+			                    else {
+			                        alert('An error occurred. Please try again.')
+			                    }
+			                })
+			            ;
+			        }
 			    });
             }
             else {
@@ -6686,9 +6820,6 @@
 
 	    $('#new_client_drop').dropdown('clear');
 	    $('#time_drop').dropdown('clear');
-
-	    $('#new_client_icon').html('<i class="user icon"></i>&nbsp;&nbsp;');
-	    $('#time_icon').html('<i class="clock icon"></i>&nbsp;&nbsp;');
 	}
 	function reset_extend_time_form() {
 	    const form = $('#extend_time_form');
@@ -6698,8 +6829,6 @@
 
 	    $('#extend_time_drop').dropdown('clear');
 	    $('#time_drop').dropdown('clear');
-
-	    $('#extend_time_icon').html('<i class="user icon"></i>&nbsp;&nbsp;');
 	}
 	
 	function load_inactive_clients() {
@@ -6734,7 +6863,6 @@
                         onChange: function() {
                             var input_value = $('#client_id').val();
                             var input_text = $('#new_client_drop').dropdown('get text');
-                            $('#new_client_icon').addClass('hidden');
                         }
                     })
                 ;
@@ -6821,11 +6949,11 @@
 	    $('#gender_drop').dropdown('clear');
 
 	    // Clear the hidden base64 image field
-	    $('#profile_image').val('');
+	    // $('#profile_image').val('');
 
 	    // Reset preview: hide captured canvas, show live stream
-	    $('#captured_canvas').hide();
-	    $('#camera_stream').show();
+	    $('#captured_canvas').show();
+	    $('#camera_stream').hide();
 	}
 	let camera_stream = null;
 	function start_camera() {
@@ -6904,10 +7032,8 @@
                 blurring: true,
                 closable: false,
                 onHide: function() {
-		            stop_camera();
 		        },
 		        onShow: function(){
-		        	start_camera();
 		        }
             })
             .modal('show')
@@ -6974,7 +7100,6 @@
             onChange: function() {
                 // var input_value = $('#client_id').val();
                 // var input_text = $('#new_client_drop').dropdown('get text');
-                // $('#new_client_icon').addClass('hidden');
             }
         })
     ;
