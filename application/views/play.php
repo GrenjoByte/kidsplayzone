@@ -566,7 +566,7 @@
 					        <!-- Report Date Button -->
 					        <div class="field">
 							    <label>Report Date</label>
-							    <input type="date" name="report_date" id="report_date" placeholder="Report Date" value="<?= date('Y-m-d'); ?>">
+							    <input type="date" name="report_date" id="report_date" placeholder="Report Date">
 						  	</div>
 					    </div>
 					</div>
@@ -663,7 +663,7 @@
 					        <!-- log Date Button -->
 					        <div class="field">
 							    <label>Log Date</label>
-							    <input type="date" name="log_date" id="log_date" placeholder="log Date" value="<?= date('Y-m-d'); ?>">
+							    <input type="date" name="log_date" id="log_date" placeholder="log Date">
 						  	</div>
 					    </div>
 					</div>
@@ -898,7 +898,7 @@
 
 			                <div class="field">
 			                    <label>Sales Date</label>
-			                    <input type="date" name="pos_checkouts_date" id="pos_checkouts_date" placeholder="Sales Date" value="<?= date('Y-m-d'); ?>">
+			                    <input type="date" name="pos_checkouts_date" id="pos_checkouts_date" placeholder="Sales Date">
 			                </div>
 			            </div>
 			        </div>
@@ -969,7 +969,7 @@
 			                <div class="fields">
 			                    <div class="six wide required pos_restocking_date_field field">
 			                        <label>Restocking Date</label>
-			                        <input type="date" name="pos_restocking_date" id="pos_restocking_date" required placeholder="Restocking Date" value="<?= date('Y-m-d'); ?>">
+			                        <input type="date" name="pos_restocking_date" id="pos_restocking_date" required placeholder="Restocking Date">
 			                    </div>
 			                </div>
 
@@ -1020,7 +1020,7 @@
 
 			                    <div class="field">
 			                        <label>Restock Date</label>
-			                        <input type="date" name="pos_restocking_report_date" id="pos_restocking_report_date" placeholder="Restock Date" value="<?= date('Y-m-d'); ?>">
+			                        <input type="date" name="pos_restocking_report_date" id="pos_restocking_report_date" placeholder="Restock Date">
 			                    </div>
 			                </div>
 			            </div>
@@ -1107,7 +1107,7 @@
 					        <!-- log Date Button -->
 					        <div class="field">
 							    <label>Log Date</label>
-							    <input type="date" name="pos_log_date" id="pos_log_date" placeholder="Log Date" value="<?= date('Y-m-d'); ?>">
+							    <input type="date" name="pos_log_date" id="pos_log_date" placeholder="Log Date">
 						  	</div>
 					    </div>
 					</div>
@@ -1390,7 +1390,7 @@
 
 			                <div class="field">
 			                    <label>Date</label>
-			                    <input type="date" name="supply_checkouts_date" id="supply_checkouts_date" placeholder="Date" value="<?= date('Y-m-d'); ?>">
+			                    <input type="date" name="supply_checkouts_date" id="supply_checkouts_date" placeholder="Date">
 			                </div>
 			            </div>
 			        </div>
@@ -1461,7 +1461,7 @@
 			                <div class="fields">
 			                    <div class="six wide required supply_restocking_date_field field">
 			                        <label>Restocking Date</label>
-			                        <input type="date" name="supply_restocking_date" id="supply_restocking_date" required placeholder="Restocking Date" value="<?= date('Y-m-d'); ?>">
+			                        <input type="date" name="supply_restocking_date" id="supply_restocking_date" required placeholder="Restocking Date">
 			                    </div>
 			                </div>
 
@@ -1512,7 +1512,7 @@
 
 			                    <div class="field">
 			                        <label>Restock Date</label>
-			                        <input type="date" name="supply_restocking_report_date" id="supply_restocking_report_date" placeholder="Restock Date" value="<?= date('Y-m-d'); ?>">
+			                        <input type="date" name="supply_restocking_report_date" id="supply_restocking_report_date" placeholder="Restock Date">
 			                    </div>
 			                </div>
 			            </div>
@@ -1599,7 +1599,7 @@
 					        <!-- log Date Button -->
 					        <div class="field">
 							    <label>Log Date</label>
-							    <input type="date" name="supply_log_date" id="supply_log_date" placeholder="Log Date" value="<?= date('Y-m-d'); ?>">
+							    <input type="date" name="supply_log_date" id="supply_log_date" placeholder="Log Date">
 						  	</div>
 					    </div>
 					</div>
@@ -1669,9 +1669,9 @@
 			                <tr>
 			                    <th class="sorted descending">No.</th>
 			                    <th>Item Name</th>
-			                    <th>Item Price</th>
+			                    <th>Item Cost</th>
 			                    <th>Quantity</th>
-			                    <th>Total Price</th>
+			                    <th>Total Cost</th>
 			                </tr>
 			            </thead>
 			            <tbody id="supply_transaction_view_container"></tbody>
@@ -2143,6 +2143,8 @@
 			    var search_content = [];
         		$(`#pos_items_container`).html('');
                 $('#pos_empty_message').addClass('invisible');
+        		$(`#pos_restocking_menu`).html('');
+
                 $.each(response_data, function(key, value) {
                     let pos_item_id = value.pos_item_id;
                     let pos_item_name = value.pos_item_name;
@@ -2209,7 +2211,7 @@
 									<h5 class="no-break pos_item_name" data-content="${pos_item_name}" data-position="bottom left">${pos_item_name}</h5>
 								    <div class="content">
 										<a class="ui tiny grey header"><x class="item_stock pos_item_stock" data-item_low="${pos_item_low}" data-item_id="${pos_item_id}">${pos_item_stock}</x> <x class="pos_item_unit">${pos_item_unit}</x></a>
-										<a class="ui yellow right floated tag label small">₱ ${formatted_item_price}</a>
+										<a class="ui blue right floated tag label small">₱ ${formatted_item_price}</a>
 								    </div>
 								</div>
 						    </div>
@@ -3320,6 +3322,11 @@
 	}
 
 	$(document).ready(function() {
+		var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+	    $('input[type="date"]').each(function() {
+	        if (!$(this).val()) $(this).val(today);
+	    });
+
 		initialize_time_manager_camera();
 		initialize_time_manager_update_camera();
 		initialize_pos_item_camera();
@@ -3947,6 +3954,7 @@
 			    var search_content = [];
         		$(`#supply_items_container`).html('');
                 $('#supply_empty_message').addClass('invisible');
+        		$(`#supply_restocking_menu`).html('');
                 $.each(response_data, function(key, value) {
                     let supply_item_id = value.supply_item_id;
                     let supply_item_name = value.supply_item_name;
@@ -4013,7 +4021,7 @@
 									<h5 class="no-break supply_item_name" data-content="${supply_item_name}" data-supplyition="bottom left">${supply_item_name}</h5>
 								    <div class="content">
 										<a class="ui tiny grey header"><x class="item_stock supply_item_stock" data-item_low="${supply_item_low}" data-item_id="${supply_item_id}">${supply_item_stock}</x> <x class="supply_item_unit">${supply_item_unit}</x></a>
-										<a class="ui yellow right floated tag label small">₱ ${formatted_item_price}</a>
+										<a class="ui green right floated tag label small">₱ ${formatted_item_price}</a>
 								    </div>
 								</div>
 						    </div>
@@ -5427,6 +5435,8 @@
 	}
 
     function initialize_time_manager_camera() {
+        $('#capture_button').hide();
+    	
 	    const video = $('#camera_stream')[0];
 	    const canvas = $('#captured_canvas')[0];
 	    const context = canvas.getContext('2d');
@@ -5464,11 +5474,13 @@
         	start_camera();
 	        $('#camera_stream').show();
 	        $('#captured_canvas').hide();
+	        $('#capture_button').show();
 		});
 		$('#camera_stream').on('dblclick', function() {
         	stop_camera();
 	        $('#camera_stream').hide();
 	        $('#captured_canvas').show();
+	        $('#capture_button').hide();
 		});
 
 	    // Capture with 5:4 aspect ratio
@@ -5912,10 +5924,10 @@
                             	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
 							</div>
 						    <div class="content">
-						        <a class="header">${full_name}</a>
+						        <h5 class="header no-break child_name" data-content="${full_name}">${full_name}</h5>
 						        <div class="meta">
 						            <span class="ui ${gender_color} tiny circular label">${gender}</span>
-						            <span class="ui tag label">${age}</span>
+						            <span class="ui right floated teal tag label">${age}</span>
 						        </div>
 						        <a class="ui tiny header description">
 						            <u>${guardian_name}</u>
@@ -5936,6 +5948,9 @@
 						    </div>
 						</div>
                     `;
+                    $('.child_name').popup({
+	                	on: 'click'
+	                });
 
                     let client_item = `
                         <div class="item client_option" data-value="${client_id}">
@@ -5988,7 +6003,7 @@
 			    	var client_id = $(this).data('client_id');
 			    	var full_name = apostrophe($(this).data('full_name'));
 
-			    	let confirmed = confirm(`Are you sure you want to prematurely end ${full_name} time?`);
+			    	let confirmed = confirm(`Are you sure you want to end ${full_name} time?`);
 			    	
 			    	if (confirmed) {
 			    		var ajax = $.ajax({
@@ -6101,7 +6116,7 @@
 								<div class="ui dimmer">
 									<div class="content">
 										<div class="ui teal tiny inverted button manage_client" data-client_id="${client_id}" data-guardian_name="${guardian_name}" data-guardian_contact="${guardian_contact}" data-full_name="${full_name}" data-gender="${gender}" data-birthdate="${birthdate}" data-profile_image="${profile_image}" id="${client_id}manage">
-											Manage Client Details
+											Manage Details
 										</div>
 										<br>
 										<br>
@@ -6113,10 +6128,10 @@
                             	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
 							</div>
 						    <div class="content">
-						        <a class="header">${full_name}</a>
+						        <h5 class="header no-break child_name" data-content="${full_name}">${full_name}</h5>
 						        <div class="meta">
 						            <span class="ui ${gender_color} tiny circular label">${gender}</span>
-						            <span class="ui tag label">${age}</span>
+						            <span class="ui right floated teal tag label">${age}</span>
 						        </div>
 						        <a class="ui tiny header description">
 						            <u>${guardian_name}</u>
@@ -6131,7 +6146,10 @@
                     $('.special.cards .image').dimmer({
 					  	on: 'hover'
 					});
-                })
+                });
+                $('.child_name').popup({
+                	on: 'click'
+                });
                 function open_update_modal(data) {
 			        $('#update_client_id').val(data.client_id);
 			        $('#update_guardian_name').val(data.guardian_name);
@@ -6272,10 +6290,10 @@
                             	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
 							</div>
 						    <div class="content">
-						        <a class="header">${full_name}</a>
+						        <h5 class="header no-break child_name" data-content="${full_name}">${full_name}</h5>
 						        <div class="meta">
 						            <span class="ui ${gender_color} tiny circular label">${gender}</span>
-						            <span class="ui tag label">${age}</span>
+						            <span class="ui right floated teal tag label">${age}</span>
 						        </div>
 						        <a class="ui tiny header description">
 						            <u>${guardian_name}</u>
@@ -6290,7 +6308,10 @@
                     $('.special.cards .image').dimmer({
 					  	on: 'hover'
 					});
-                })
+                });
+                $('.child_name').popup({
+                	on: 'click'
+                });
 			    $('.unarchive_client').on('dblclick', function() {
 			    	var client_id = $(this).data('client_id');
 			    	var full_name = $(this).data('full_name');
@@ -6516,6 +6537,9 @@
 	$('input[name="guardian_contact"]').on('input', function () {
 	    format_mobile_number(this);
 	});
+	$('input[name="update_guardian_contact"]').on('input', function () {
+	    format_mobile_number(this);
+	});
 	
 	function toggle_capture_button() {
 	    let guardian_name = $('input[name="guardian_name"]').val();
@@ -6530,8 +6554,8 @@
 	        $('#capture_button').hide();
 	    }
 	}
-	$('input[name="guardian_name"], input[name="guardian_contact"], input[name="full_name"], input[name="birthdate"]').on('input change', toggle_capture_button);
-	$('input[name="gender"]').on('change', toggle_capture_button);
+	// $('input[name="guardian_name"], input[name="guardian_contact"], input[name="full_name"], input[name="birthdate"]').on('input change', toggle_capture_button);
+	// $('input[name="gender"]').on('change', toggle_capture_button);
 
 	
 
@@ -7022,7 +7046,7 @@
 	}
 
 	$('.new_profile_activator').on('click', function (event) {
-        toggle_capture_button();
+        // toggle_capture_button();
         reset_signup_form();
         $('#profile_modal')
             .modal({

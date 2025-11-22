@@ -98,7 +98,7 @@ class Sys_model extends CI_Model {
 	    $gender             = $_POST['gender'];
 	    $birthdate          = $_POST['birthdate'];
 
-	    // Correct field name
+	    $profile_image = $_POST['profile_image'] ?? null;
 	    $profile_image_base64 = $_POST['profile_image_base64'] ?? null;
 
 	    // Check if profile already exists
@@ -110,16 +110,18 @@ class Sys_model extends CI_Model {
 	        return;
 	    }
 
+	    if (empty($profile_image)) {
+	    	$profile_image = $profile_image_base64;
+	    }
 	    // Default value
 	    $saved_file_name = null;
 
-	    // Process base64 image if provided
-	    if (!empty($profile_image_base64)) {
+	    if (!empty($profile_image)) {
 
 	        // Expected format: data:image/png;base64,XXXXXX
-	        if (strpos($profile_image_base64, 'base64,') !== false) {
+	        if (strpos($profile_image, 'base64,') !== false) {
 
-	            list($meta, $content) = explode('base64,', $profile_image_base64);
+	            list($meta, $content) = explode('base64,', $profile_image);
 
 	            $image_binary = base64_decode($content);
 
