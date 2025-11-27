@@ -97,6 +97,7 @@ class Sys_model extends CI_Model {
 	    $full_name          = $_POST['full_name'];
 	    $gender             = $_POST['gender'];
 	    $birthdate          = $_POST['birthdate'];
+	    $profile_image_name = $_POST['profile_image_name'];
 
 	    $profile_image = $_POST['profile_image'] ?? null;
 	    $profile_image_base64 = $_POST['profile_image_base64'] ?? null;
@@ -113,31 +114,24 @@ class Sys_model extends CI_Model {
 	    if (empty($profile_image)) {
 	    	$profile_image = $profile_image_base64;
 	    }
-	    // Default value
-	    $saved_file_name = null;
 
 	    if (!empty($profile_image)) {
 
-	        // Expected format: data:image/png;base64,XXXXXX
 	        if (strpos($profile_image, 'base64,') !== false) {
 
 	            list($meta, $content) = explode('base64,', $profile_image);
 
 	            $image_binary = base64_decode($content);
 
-	            // Safe generated name
-	            $saved_file_name = 'profile_' . time() . '.png';
 	            $upload_path = FCPATH . 'photos/profile_pictures/';
 
 	            if (!is_dir($upload_path)) {
 	                mkdir($upload_path, 0755, true);
 	            }
 
-	            file_put_contents($upload_path . $saved_file_name, $image_binary);
+	            file_put_contents($upload_path . $profile_image_name, $image_binary);
 	        }
 	    }
-
-	    // Insert client profile
 	    $sql = "INSERT INTO client_profiles 
 	            (guardian_name, guardian_contact, full_name, gender, birthdate, profile_image)
 	            VALUES (?, ?, ?, ?, ?, ?)";
@@ -148,7 +142,7 @@ class Sys_model extends CI_Model {
 	        $full_name,
 	        $gender,
 	        $birthdate,
-	        $saved_file_name
+	        $profile_image_name
 	    ]);
 
 	    if ($this->db->affected_rows() > 0) {
@@ -485,7 +479,6 @@ class Sys_model extends CI_Model {
 	    $this->db->query($sql, array($time_rate, $client_id));
 
 	    if ($this->db->affected_rows() > 0) {
-	        echo "success";
 	        $sql = "SELECT hour, minute, price FROM time_rates WHERE rate_id = ?";
 			$query = $this->db->query($sql, [$_POST['extend_time_rate']]);
 			foreach ($query->result() as $row) {
@@ -508,6 +501,7 @@ class Sys_model extends CI_Model {
 	        $sql = "INSERT INTO time_logs (client_id, activity)
 	            VALUES (?, ?)";
 	    	$this->db->query($sql, array($client_id, $activity));
+	    	echo $client_id;
 	    } else {
 	        echo "error";
 	    }	
@@ -549,7 +543,7 @@ class Sys_model extends CI_Model {
 		$query = $this->db->query($sql, [$client_id]);
 
 		if ($query) {
-		    echo 'success';
+		    echo $client_id;
 		} else {
 		    echo 'error';
 		}
@@ -580,7 +574,8 @@ class Sys_model extends CI_Model {
 	        $sql = "INSERT INTO time_logs (client_id, activity)
 	            VALUES (?, ?)";
 	    	$this->db->query($sql, array($client_id, $activity));
-		    echo 'success';
+	    	
+		    echo $client_id;
 		} else {
 		    echo 'error';
 		}

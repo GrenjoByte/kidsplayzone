@@ -301,7 +301,7 @@
 								</div>
 								<div class="ui item" tabindex="0">
 									<i class="icons large link" id="supply_checkout_cart_activator" data-tooltip="Supply Checkout" data-position="bottom left" data-variation="mini">
-										<i class="shopping cart icon green link"></i>
+										<i class="shopping basket icon green link"></i>
 										<div class="floating ui mini orange label transition hidden" id="supply_checkout_cart_counter">0</div>
 									</i>
 								</div>
@@ -469,7 +469,7 @@
 
 		    <div class="ui mini modal" id="new_client_modal">
 		        <div class="ui header center aligned">
-		            <a class="break-text" id="new_client_header">Time Profile</a>
+		            <a class="break-text" id="new_client_header">New Playtime</a>
 		        </div>
 		        <div class="content">
 		        	<form class="ui padded basic segment form" id="new_client_form">
@@ -1695,24 +1695,6 @@
 		            </div>
 		        </div>
 		    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
 		</main>
 		<footer>
 			<?php include 'esses/footer.php';?>
@@ -1721,7 +1703,25 @@
 </div>
 <script type="text/javascript">
     $('.menu .item').tab();
+    $(document).ready(function() {
+    	// Initialize tabs
+	    $('.menu .item').tab();
 
+	    // Check if a last tab is saved in localStorage
+	    const last_tab_id = localStorage.getItem('last_tab_id');
+	    if (last_tab_id) {
+	        $('.menu .item').removeClass('active');
+	        $('#' + last_tab_id).addClass('active');
+	        const tab_name = $('#' + last_tab_id).data('tab');
+	        $('.ui.tab').removeClass('active').filter('[data-tab="' + tab_name + '"]').addClass('active');
+	    }
+
+	    // Save clicked tab to localStorage
+	    $('.menu .item').on('click', function() {
+	        const clicked_id = $(this).attr('id');
+	        localStorage.setItem('last_tab_id', clicked_id);
+	    });
+	});
     function apostrophe(name) {
 	    if (!name) return ''; // handle empty string
 	    name = name.trim();
@@ -2166,7 +2166,7 @@
 					    level_class = 'low_stock';
 					} 
 					else {
-					    level_class = ''; // in case stock is above low level
+					    level_class = '';
 					}
 
                     let default_pos_item_unit = pos_item_unit;
@@ -2431,6 +2431,21 @@
 				        }
 				    })
 				;
+				function reset_pos_restocking_form() {
+				    $('#pos_restocking_form')[0].reset();
+
+				    const today = new Date().toISOString().split('T')[0];
+				    $('#pos_restocking_date').val(today);
+
+				    $('#pos_restocking_items_drop')
+				        .dropdown('clear')
+				        .dropdown('restore defaults')
+				        .removeClass('disabled')
+				    ;
+
+				    $('#pos_restocking_list').empty();
+				}
+
 
 				$('#pos_restocking_submit').on('dblclick', function(e) {
 				    e.preventDefault();
@@ -2453,11 +2468,9 @@
 				        success: function (response) {
 				            if (response === 'success') {
 				                pos_restocking_array = []; // clear current cart
-						    	$('#pos_checkout_cart_empty_message').addClass('hidden');
-						    	$('#pos_checkout_cart_empty_message').removeClass('visible');
-						    	$('#pos_checkout_cart_content').html('');
 				                alert('Restocking successful! Inventory content will reload shortly...');
 				                load_pos_inventory();
+				            	reset_pos_restocking_form();
 				                $('#pos_restocking_modal').modal('hide')
 				            } 
 				            else if (response === 'empty_cart') {
@@ -3073,8 +3086,8 @@
 		        success: function (response) {
 		            if (response === 'success') {
 		                pos_cart_array = []; // clear current cart
-				    	$('#pos_checkout_cart_empty_message').addClass('hidden');
-				    	$('#pos_checkout_cart_empty_message').removeClass('visible');
+				    	$('#pos_checkout_cart_empty_message').removeClass('hidden');
+				    	$('#pos_checkout_cart_empty_message').addClass('visible');
 				    	$('#pos_checkout_cart_content').html('');
 		                alert('Checkout successful!');
 		            } 
@@ -4242,6 +4255,21 @@
 				    })
 				;
 
+				function reset_supply_restocking_form() {
+				    $('#supply_restocking_form')[0].reset();
+
+				    const today = new Date().toISOString().split('T')[0];
+				    $('#supply_restocking_date').val(today);
+
+				    $('#supply_restocking_items_drop')
+				        .dropdown('clear')
+				        .dropdown('restore defaults')
+				        .removeClass('disabled')
+				    ;
+
+				    $('#supply_restocking_list').empty();
+				}
+
 				$('#supply_restocking_submit').on('dblclick', function(e) {
 				    e.preventDefault();
 
@@ -4262,10 +4290,8 @@
 				        contentType: false,  // important for FormData
 				        success: function (response) {
 				            if (response === 'success') {
-				                supply_restocking_array = []; // clear current cart
-						    	$('#supply_checkout_cart_empty_message').addClass('hidden');
-						    	$('#supply_checkout_cart_empty_message').removeClass('visible');
-						    	$('#supply_checkout_cart_content').html('');
+				                supply_restocking_array = [];
+				                reset_supply_restocking_form()
 				                alert('Restocking successful! Inventory content will reload shortly...');
 				                load_supply_inventory();
 				                $('#supply_restocking_modal').modal('hide')
@@ -4880,8 +4906,8 @@
 	        success: function (response) {
 	            if (response === 'success') {
 	                supply_cart_array = []; // clear current cart
-			    	$('#supply_checkout_cart_empty_message').addClass('hidden');
-			    	$('#supply_checkout_cart_empty_message').removeClass('visible');
+			    	$('#supply_checkout_cart_empty_message').removeClass('hidden');
+			    	$('#supply_checkout_cart_empty_message').addClass('visible');
 			    	$('#supply_checkout_cart_content').html('');
 	                alert('Checkout successful!');
 	            } 
@@ -5517,7 +5543,7 @@
 	        // } else {
 	        //     $('#profile_image_name').addClass('invisible');
 	        // }
-
+	        
 	        $('#profile_image').val(canvas.toDataURL('image/png'));
 	    });
 
@@ -5866,16 +5892,54 @@
                     var gender = value.gender;
                     var birthdate = value.birthdate;
                     var profile_image = value.profile_image;
-                    var start_time = value.start_time;
-                    var hour = value.total_hours;
-                    var minute = value.total_minutes;
-                    var price = value.total_price;
-	    			var age = get_age(birthdate);
+					var start_time = value.start_time;
+					var hour = Number(value.total_hours) || 0;
+					var minute = Number(value.total_minutes) || 0;
+					var price = value.total_price;
+					var age = get_age(birthdate);
 
-	    			const [hours, minutes] = start_time.split(':').map(Number);
-    				const am_pm = hours >= 12 ? 'PM' : 'AM';
-    				const formatted_hours = hours % 12 || 12; // convert 0 to 12
-    				formatted_start_time = `${formatted_hours}:${String(minutes).padStart(2, '0')} ${am_pm}`;
+					function parse_time_to_minutes(time_str) {
+					  if (!time_str || typeof time_str !== 'string') return 0;
+					  time_str = time_str.trim();
+
+					  const ampm_match = time_str.match(/\b(AM|PM)\b/i);
+					  if (ampm_match) {
+					    const parts = time_str.split(/\s+/);
+					    const time_part = parts[0];
+					    const ampm = parts[1].toUpperCase();
+
+					    const t = time_part.split(':').map(Number);
+					    let h = t[0] || 0;
+					    let m = t[1] || 0;
+
+					    if (ampm === 'PM' && h < 12) h += 12;
+					    if (ampm === 'AM' && h === 12) h = 0;
+					    return h * 60 + m;
+					  } 
+					  else {
+					    const t = time_str.split(':').map(Number);
+					    const h = t[0] || 0;
+					    const m = t[1] || 0;
+					    return (h * 60) + m;
+					  }
+					}
+
+					function minutes_to_12hr(total_minutes) {
+					  total_minutes = ((total_minutes % 1440) + 1440) % 1440;
+					  const h24 = Math.floor(total_minutes / 60);
+					  const m = total_minutes % 60;
+					  const am_pm = h24 >= 12 ? 'PM' : 'AM';
+					  const h12 = h24 % 12 || 12;
+					  return `${h12}:${String(m).padStart(2, '0')} ${am_pm}`;
+					}
+
+					const start_total_minutes = parse_time_to_minutes(String(start_time));
+
+					const formatted_start_time = minutes_to_12hr(start_total_minutes);
+
+					const added_minutes = (Number(hour) * 60) + Number(minute);
+					const end_total_minutes = start_total_minutes + added_minutes;
+					const formatted_end_time = minutes_to_12hr(end_total_minutes);
 
                     if (gender == 'F') {
                     	gender_color = 'pink';
@@ -5889,7 +5953,6 @@
                     }
                     else {
                     	supervision_check = '';
-                    	// supervision_check = ' (Supervise)';
                     }
 
 	    			if (age > 1) {
@@ -5902,7 +5965,7 @@
 	    			var current_time = get_current_time();
                     
                     let client_card = `
-						<div class="ui fluid link card">
+						<div class="ui fluid link card" data-client_id="${client_id}" data-full_name="${full_name}">
 						    <div class="blurring dimmable image image-container">
 								<div class="ui dimmer">
 									<div class="content">
@@ -5924,16 +5987,12 @@
                             	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
 							</div>
 						    <div class="content">
-						        <h5 class="header no-break child_name" data-content="${full_name}">${full_name}</h5>
-						        <div class="meta">
+						        <h5 class="header no-break tm_popup_click" data-content="${full_name}">${full_name}</h5>
+						        <div class="meta tm_popup_click" data-html="<a class='ui tiny header description'><u>${guardian_name}</u><br>${guardian_contact}</a>">
 						            <span class="ui ${gender_color} tiny circular label">${gender}</span>
 						            <span class="ui right floated teal tag label">${age}</span>
 						        </div>
-						        <a class="ui tiny header description">
-						            <u>${guardian_name}</u>
-                					<br>
-						            ${guardian_contact}
-						        </a>
+						        
 						    </div>
 						    <div class="extra content">
 						        <div class="ui small black header">
@@ -5941,16 +6000,13 @@
 							            <i class="clock outline icon"></i><x class="transition" id="${client_id}time"></x>
                     				</div>
                     				<div class="content">
-							            <i class="hourglass start icon"></i>${formatted_start_time}
+							            <i class="hourglass end icon"></i>${formatted_end_time}
                     				</div>
 						            
 						        </div>
 						    </div>
 						</div>
                     `;
-                    $('.child_name').popup({
-	                	on: 'click'
-	                });
 
                     let client_item = `
                         <div class="item client_option" data-value="${client_id}">
@@ -5963,14 +6019,16 @@
 
                     $('#times_container').append(client_card);
                     
-                    
                     $('#extend_client_drop_menu').append(client_item);
 
                     $('.special.cards .image').dimmer({
 					  	on: 'hover'
 					});
 					start_countdown(start_time, hour, minute, client_id);
-                })
+                });
+				$('.tm_popup_click').popup({
+                	on: 'click'
+                });
 				$('#extend_client_drop')
                     .dropdown({
                         onChange: function() {
@@ -6000,10 +6058,11 @@
 			        ;
 			    });
 			    $('.end_time').on('dblclick', function() {
-			    	var client_id = $(this).data('client_id');
-			    	var full_name = apostrophe($(this).data('full_name'));
+			    	let client_id = $(this).data('client_id');
+			    	let full_name = $(this).data('full_name');
+			    	let apostrophed = apostrophe(full_name);
 
-			    	let confirmed = confirm(`Are you sure you want to end ${full_name} time?`);
+			    	let confirmed = confirm(`Are you sure you want to end ${apostrophed} time?`);
 			    	
 			    	if (confirmed) {
 			    		var ajax = $.ajax({
@@ -6014,12 +6073,12 @@
 			            var jqxhr = ajax
 			                .always(function() {
 			                    var response = jqxhr.responseText;
-			                    if (response == 'success') {
-			                        alert(`${full_name} time Ended`);
+			                    if (response != 'error') {
 			                        load_active_clients();
+	                        		delete time_out_names[response];
 			                    }
 			                    else {
-			                        alert('An error occurred. Please try again.')
+			                        alert('An error occurred. Please try again.');
 			                    }
 			                })
 			            ;
@@ -6048,8 +6107,8 @@
 			            var jqxhr = ajax
 			                .always(function() {
 			                    var response = jqxhr.responseText;
-			                    if (response == 'success') {
-			                        alert(`${full_name} Time Profile Removed`);
+			                    if (response != 'success') {
+	                        		delete time_out_names[response];
 			                        load_active_clients();
 			                    }
 			                    else {
@@ -6128,7 +6187,7 @@
                             	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
 							</div>
 						    <div class="content">
-						        <h5 class="header no-break child_name" data-content="${full_name}">${full_name}</h5>
+						        <h5 class="header no-break tm_popup_click" data-content="${full_name}">${full_name}</h5>
 						        <div class="meta">
 						            <span class="ui ${gender_color} tiny circular label">${gender}</span>
 						            <span class="ui right floated teal tag label">${age}</span>
@@ -6147,7 +6206,7 @@
 					  	on: 'hover'
 					});
                 });
-                $('.child_name').popup({
+                $('.tm_popup_click').popup({
                 	on: 'click'
                 });
                 function open_update_modal(data) {
@@ -6290,7 +6349,7 @@
                             	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
 							</div>
 						    <div class="content">
-						        <h5 class="header no-break child_name" data-content="${full_name}">${full_name}</h5>
+						        <h5 class="header no-break tm_popup_click" data-content="${full_name}">${full_name}</h5>
 						        <div class="meta">
 						            <span class="ui ${gender_color} tiny circular label">${gender}</span>
 						            <span class="ui right floated teal tag label">${age}</span>
@@ -6309,7 +6368,7 @@
 					  	on: 'hover'
 					});
                 });
-                $('.child_name').popup({
+                $('.tm_popup_click').popup({
                 	on: 'click'
                 });
 			    $('.unarchive_client').on('dblclick', function() {
@@ -6373,7 +6432,33 @@
     }
 
     // Store timers globally by client_id
+    let sound_unlocked = false;
+
+	$(document).one('click', function () {
+	    console.log("Attempting to unlock sound...");
+
+        const sound_effect = new Audio('<?php echo base_url(); ?>audio/coin.mp3');
+	    sound_effect.volume = 0;
+
+	    sound_effect.play()
+	        .then(() => {
+	            // Immediately stop the silent sound
+	            sound_effect.pause();
+	            sound_effect.currentTime = 0;
+	            sound_effect.volume = 1;
+
+	            sound_unlocked = true;
+	            console.log("Sound unlocked successfully.");
+	        })
+	        .catch(err => {
+	            console.warn("Sound unlock failed:", err);
+	        });
+	});
+
+
 	const countdown_timers = {};
+	const time_out_names = {};
+	let is_sound_playing = false;
 
 	function start_countdown(start_time, hour, minute, client_id) {
 	    // Clear any existing timer for this client
@@ -6414,32 +6499,40 @@
 	            const timer_element = $(`#${client_id}time`);
 	            timer_element.text('00:00:00');
 
-	            const card_element = timer_element.closest('.card');
 	            const sound_effect = new Audio('<?php echo base_url(); ?>audio/coin.mp3');
+	            const card_element = timer_element.closest('.card');
+
+	            let full_name = card_element.data('full_name');
+				time_out_names[client_id] = full_name;
+
 	            let is_paused = false;
 	            let bounce_timeout;
 
 	            function bounce_with_sound() {
-	                if (is_paused) return;
+				    if (is_paused) return;
 
-	                const animation_duration = 2000;
-	                const sound_delay = animation_duration / 2.5;
+				    const animation_duration = 2000;
+				    const sound_delay = animation_duration / 2.5;
 
-	                card_element.transition({
-	                    animation: 'bounce',
-	                    duration: `${animation_duration}ms`,
-	                    onStart: () => {
-	                        setTimeout(() => {
-	                            if (!is_paused) {
-	                                sound_effect.currentTime = 0;
-	                                sound_effect.play();
-	                            }
-	                        }, sound_delay);
+				    card_element.transition({
+				        animation: 'pulse',
+				        duration: `${animation_duration}ms`,
+				        onStart: () => {
+		                    is_sound_playing = true;
+		                    sound_effect.currentTime = 0;
+							for (const id in time_out_names) {
+								const name = time_out_names[id]
+		                        announce(`${name}, Time Ended!`);
+							}	
+				            bounce_timeout = setTimeout(bounce_with_sound, animation_duration);
+				        }
+				    }); 
 
-	                        bounce_timeout = setTimeout(bounce_with_sound, animation_duration);
-	                    }
-	                });
-	            }
+				    // When sound ends, unlock
+				    sound_effect.onended = () => {
+				        is_sound_playing = false;
+				    };
+				}
 
 	            bounce_with_sound();
 
@@ -6729,6 +6822,15 @@
 	    })
 	;
 
+	function announce(message) {
+	    const msg = new SpeechSynthesisUtterance(`${message}`);
+	    msg.rate = 1;
+	    msg.pitch = 5;    
+	    msg.volume = 5;   
+
+	    speechSynthesis.speak(msg);
+	}
+
 	$('#new_client_form')
 	    .form({
 	        on: 'change',
@@ -6751,11 +6853,11 @@
 	                        reset_new_client_form();
 	                        load_active_clients();
 	                        load_inactive_clients();
-	                        alert('New Time Profile added successfully.')
+	                        alert('New Playtime added successfully.');
 	                        $('#new_client_modal').modal('hide');
 	                    }
 	                    else {
-	                        alert('Time Profile creation failed. Please try again.')
+	                        alert('Playtime creation failed. Please try again.')
 	                    }
 	                })
 	            ;
@@ -6801,11 +6903,12 @@
 	            var jqxhr = ajax
 	                .always(function() {
 	                    var response = jqxhr.responseText;
-	                    if (response == 'success') {
+	                    if (response != 'error') {
 	                        reset_extend_time_form();
 	                        load_active_clients();
 	                        load_inactive_clients();
-	                        alert('Time Profile extended successfully.')
+	                        alert('Time Profile extended successfully.');
+	                        delete time_out_names[response];
 	                    }
 	                    else {
 	                        alert('Time Profile extension failed. Please try again.')
@@ -6907,41 +7010,47 @@
                     var minute = value.minute;
                     var price = value.price;
 
-                    if (hour > 1) {
-                    	hour = `${hour} hours`
-                    }
-                    else if (hour == 0) {
-                    	hour = '';
-                    }
-                    else {
-                    	hour = `${hour} hour`
-                    }
+                    if (price != 0) {
+	                    if (hour > 1) {
+	                    	hour = `${hour} hours`
+	                    }
+	                    else if (hour == 0) {
+	                    	hour = '';
+	                    }
+	                    else {
+	                    	hour = `${hour} hour`
+	                    }
 
-                    if (minute > 1) {
-                    	minute = `${minute} minutes`
-                    }
-                    else if (minute == 0) {
-                    	minute = '';
-                    }
-                    else {
-                    	minute = `${minute} minute`
-                    }
+	                    if (minute > 1) {
+	                    	minute = `${minute} minutes`
+	                    }
+	                    else if (minute == 0) {
+	                    	minute = '';
+	                    }
+	                    else {
+	                    	minute = `${minute} minute`
+	                    }
 
-                    if (hour == 0 && minute == 0) {
-                    	time = 'Unlimited';
+	                    if (hour == 0 && minute == 0) {
+	                    	time = 'Unlimited';
+	                    }
+	                    else {
+	    	                time = `${hour} ${minute}`
+	                    }
                     }
                     else {
-    	                time = `${hour} ${minute}`
+                    	time = 'Loyalty';
                     }
 
 
                     let client_item = `
                         <div class="item time_options" data-value="${rate_id}" data-text="${time}-₱${price}">
-                        	<div class="right floated content">
-	                            <span>₱${price}</span>
-                        	</div>
                         	<div class="content">
-	                            <span>${time}</span>
+	                            <strong>${time}</strong>
+                        	</div>
+                    		-
+                    		<div class="left floated content">
+	                            <small>₱${price}</small>
                         	</div>
                         </div>
                     `;
