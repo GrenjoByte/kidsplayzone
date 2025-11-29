@@ -440,14 +440,19 @@ class Sys_model extends CI_Model {
 		 			$price = $row->price;
 				}
 				$time = '';
-				if ($hour > 0 && $minute > 0) {
-				    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
-				} elseif ($hour > 0) {
-				    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
-				} elseif ($minute > 0) {
-				    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
-				} else {
-				    $time = 'Unlimited';
+				if ($price != 0) {
+					if ($hour > 0 && $minute > 0) {
+					    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+					} elseif ($hour > 0) {
+					    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+					} elseif ($minute > 0) {
+					    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+					} else {
+					    $time = 'Unlimited';
+					}
+				}
+				else {
+					$time = 'Loyalty';
 				}
 
 	        	$activity = "<strong>Time Created:</strong><br>Time: ".$time.", "."Rate: ₱".$price;
@@ -487,14 +492,19 @@ class Sys_model extends CI_Model {
 	 			$price = $row->price;
 			}
 			$time = '';
-			if ($hour > 0 && $minute > 0) {
-			    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
-			} elseif ($hour > 0) {
-			    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
-			} elseif ($minute > 0) {
-			    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
-			} else {
-			    $time = 'Unlimited';
+			if ($price != 0) {
+				if ($hour > 0 && $minute > 0) {
+				    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+				} elseif ($hour > 0) {
+				    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+				} elseif ($minute > 0) {
+				    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+				} else {
+				    $time = 'Unlimited';
+				}
+			}
+			else {
+				$time = 'Loyalty';
 			}
 
 	        $activity = "<strong>Time Extended:</strong><br>Time: ".$time.", "."Rate: ₱".$price;
@@ -525,15 +535,21 @@ class Sys_model extends CI_Model {
 	    $this->db->query($sql, array($client_id, $time, $rate));
 
 	    $time = '';
-		if ($hour > 0 && $minute > 0) {
-		    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
-		} elseif ($hour > 0) {
-		    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
-		} elseif ($minute > 0) {
-		    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
-		} else {
-		    $time = 'Unlimited';
+	    if ($price != 0) {
+			if ($hour > 0 && $minute > 0) {
+			    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+			} elseif ($hour > 0) {
+			    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+			} elseif ($minute > 0) {
+			    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+			} else {
+			    $time = 'Unlimited';
+			}
 		}
+		else {
+			$time = 'Loyalty';
+		}
+
 	    $activity = "<strong>Time Ended:</strong><br>Time: ".$time.", "."Rate: ₱".$rate;
         $sql = "INSERT INTO time_logs (client_id, activity)
             VALUES (?, ?)";
@@ -560,14 +576,19 @@ class Sys_model extends CI_Model {
 
 		if ($query) {
 		    $time = '';
-			if ($hour > 0 && $minute > 0) {
-			    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
-			} elseif ($hour > 0) {
-			    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
-			} elseif ($minute > 0) {
-			    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
-			} else {
-			    $time = 'Unlimited';
+			if ($price != 0) {
+				if ($hour > 0 && $minute > 0) {
+				    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+				} elseif ($hour > 0) {
+				    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+				} elseif ($minute > 0) {
+				    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+				} else {
+				    $time = 'Unlimited';
+				}
+			}
+			else {
+				$time = 'Loyalty';
 			}
 
         	$activity = "<strong>Time Cancelled:</strong><br>Time: ".$time.", "."Rate: ₱".$price;

@@ -330,6 +330,10 @@
 			    </div>
 			    <div class="scrolling content">
 			        <form class="ui padded basic segment form" id="signup_form">
+			        	<div class="required field">
+			                <label>Child's Full Name</label>
+			                <input type="text" name="full_name" id="full_name" placeholder="e.g. Juan A. Cruz">
+			            </div>
 			            <div class="required field">
 			                <label>Guardian's Name</label>
 			                <input type="text" name="guardian_name" id="guardian_name" placeholder="e.g. Juan A. Cruz">
@@ -337,10 +341,6 @@
 			            <div class="required field">
 			                <label>Guardian's Contact Number</label>
 			                <input type="text" name="guardian_contact" id="guardian_contact" placeholder="09**-***-****">
-			            </div>
-			            <div class="required field">
-			                <label>Child's Full Name</label>
-			                <input type="text" name="full_name" id="full_name" placeholder="e.g. Juan A. Cruz">
 			            </div>
 			            <div class="required field">
 			                <label>Child's Gender</label>
@@ -475,7 +475,7 @@
 		        	<form class="ui padded basic segment form" id="new_client_form">
 		        		<div class="required field">
 	                        <label>Playmate's Name</label>
-	                        <div class="ui icon search selection dropdown button basic small" id="new_client_drop">
+	                        <div class="ui search dropdown button basic fluid small" id="new_client_drop">
 	                            <input type="hidden" name="client_id" id="client_id" value="">
 	                            <div class="default text">Select a Playmate</div>
 	                            <div class="menu" id="new_client_drop_menu">
@@ -512,7 +512,7 @@
 		        	<form class="ui padded basic segment form" id="extend_time_form">
 		        		<div class="required field">
 	                        <label>Playmate's Name</label>
-	                        <div class="ui icon search selection dropdown button basic small" id="extend_client_drop">
+	                        <div class="ui search dropdown button basic fluid small" id="extend_client_drop">
 	                            <input type="hidden" name="extend_client_id" id="extend_client_id" value="">
 	                            <div class="default text">Select a Playmate</div>
 	                            <div class="menu" id="extend_client_drop_menu">
@@ -1703,25 +1703,25 @@
 </div>
 <script type="text/javascript">
     $('.menu .item').tab();
-    $(document).ready(function() {
-    	// Initialize tabs
-	    $('.menu .item').tab();
+    // $(document).ready(function() {
+    // 	// Initialize tabs
+	//     $('.menu .item').tab();
 
-	    // Check if a last tab is saved in localStorage
-	    const last_tab_id = localStorage.getItem('last_tab_id');
-	    if (last_tab_id) {
-	        $('.menu .item').removeClass('active');
-	        $('#' + last_tab_id).addClass('active');
-	        const tab_name = $('#' + last_tab_id).data('tab');
-	        $('.ui.tab').removeClass('active').filter('[data-tab="' + tab_name + '"]').addClass('active');
-	    }
+	//     // Check if a last tab is saved in localStorage
+	//     const last_tab_id = localStorage.getItem('last_tab_id');
+	//     if (last_tab_id) {
+	//         $('.menu .item').removeClass('active');
+	//         $('#' + last_tab_id).addClass('active');
+	//         const tab_name = $('#' + last_tab_id).data('tab');
+	//         $('.ui.tab').removeClass('active').filter('[data-tab="' + tab_name + '"]').addClass('active');
+	//     }
 
-	    // Save clicked tab to localStorage
-	    $('.menu .item').on('click', function() {
-	        const clicked_id = $(this).attr('id');
-	        localStorage.setItem('last_tab_id', clicked_id);
-	    });
-	});
+	//     // Save clicked tab to localStorage
+	//     $('.menu .item').on('click', function() {
+	//         const clicked_id = $(this).attr('id');
+	//         localStorage.setItem('last_tab_id', clicked_id);
+	//     });
+	// });
     function apostrophe(name) {
 	    if (!name) return ''; // handle empty string
 	    name = name.trim();
@@ -2359,9 +2359,11 @@
 
 										if ($('#pos_restocking_menu .item').length === $('#pos_restocking_menu .item.invisible').length) {
 										    $('#pos_restocking_items_drop').addClass('disabled');
+										    $('#pos_restock_quantity').addClass('disabled');
 										} 
 										else {
 										    $('#pos_restocking_items_drop').removeClass('disabled');
+										    $('#pos_restock_quantity').removeClass('disabled');
 										}
 									}
 								});
@@ -3090,6 +3092,7 @@
 				    	$('#pos_checkout_cart_empty_message').addClass('visible');
 				    	$('#pos_checkout_cart_content').html('');
 		                alert('Checkout successful!');
+		                $('#pos_checkout_cart_modal').modal('hide');
 		            } 
 		            else if (response === 'empty_cart') {
 		                alert('Cart is empty. Nothing to checkout.');
@@ -4182,9 +4185,12 @@
 
 										if ($('#supply_restocking_menu .item').length === $('#supply_restocking_menu .item.invisible').length) {
 										    $('#supply_restocking_items_drop').addClass('disabled');
+										    $('.supply_restocking_quantity_field').addClass('disabled');
+
 										} 
 										else {
 										    $('#supply_restocking_items_drop').removeClass('disabled');
+										    $('.supply_restocking_quantity_field').removeClass('disabled');
 										}
 									}
 								});
@@ -4277,37 +4283,39 @@
 				        alert('Cart is empty.');
 				        return;
 				    }
-
-				    let formData = new FormData();
-				    formData.append('supply_restocking_items', JSON.stringify(supply_restocking_array)); // send cart as JSON string
-					formData.append('supply_restocking_date', $('#supply_restocking_date').val());
-				    
-				    $.ajax({
-				        url: '<?php echo base_url(); ?>i.php/sys_control/supply_restock',
-				        method: 'POST',
-				        data: formData,
-				        processData: false,  // important for FormData
-				        contentType: false,  // important for FormData
-				        success: function (response) {
-				            if (response === 'success') {
-				                supply_restocking_array = [];
-				                reset_supply_restocking_form()
-				                alert('Restocking successful! Inventory content will reload shortly...');
-				                load_supply_inventory();
-				                $('#supply_restocking_modal').modal('hide')
-				            } 
-				            else if (response === 'empty_cart') {
-				                alert('Restocking is empty. Nothing to insert.');
-				            }
-				            else {
-				                alert('Restocking failed. Try again.');
-				            }
-				        },
-				        error: function (xhr, status, error) {
-				            console.error(xhr.responseText);
-				            alert('AJAX error during checkout.');
-				        }
-				    });
+				    let confirmed = confirm('Please review all restocking entries. Click OK once everything is verified.');
+	            	if (confirmed) {
+					    let formData = new FormData();
+					    formData.append('supply_restocking_items', JSON.stringify(supply_restocking_array)); // send cart as JSON string
+						formData.append('supply_restocking_date', $('#supply_restocking_date').val());
+					    
+					    $.ajax({
+					        url: '<?php echo base_url(); ?>i.php/sys_control/supply_restock',
+					        method: 'POST',
+					        data: formData,
+					        processData: false,  // important for FormData
+					        contentType: false,  // important for FormData
+					        success: function (response) {
+					            if (response === 'success') {
+					                supply_restocking_array = [];
+					                reset_supply_restocking_form()
+					                alert('Restocking successful! Inventory content will reload shortly...');
+					                load_supply_inventory();
+					                $('#supply_restocking_modal').modal('hide')
+					            } 
+					            else if (response === 'empty_cart') {
+					                alert('Restocking is empty. Nothing to insert.');
+					            }
+					            else {
+					                alert('Restocking failed. Try again.');
+					            }
+					        },
+					        error: function (xhr, status, error) {
+					            console.error(xhr.responseText);
+					            alert('AJAX error during checkout.');
+					        }
+					    });
+					}
 				});
 
                 $('#supply_inventory_search')
@@ -4893,36 +4901,41 @@
 	        alert('Cart is empty.');
 	        return;
 	    }
+	    let confirmed = confirm('Please confirm that all cart items are correct.');
 
-	    let formData = new FormData();
-	    formData.append('cart_items', JSON.stringify(supply_cart_array)); // send cart as JSON string
+    	if (confirmed) {
 
-	    $.ajax({
-	        url: '<?php echo base_url(); ?>i.php/sys_control/supply_checkout',
-	        method: 'POST',
-	        data: formData,
-	        processData: false,  // important for FormData
-	        contentType: false,  // important for FormData
-	        success: function (response) {
-	            if (response === 'success') {
-	                supply_cart_array = []; // clear current cart
-			    	$('#supply_checkout_cart_empty_message').removeClass('hidden');
-			    	$('#supply_checkout_cart_empty_message').addClass('visible');
-			    	$('#supply_checkout_cart_content').html('');
-	                alert('Checkout successful!');
-	            } 
-	            else if (response === 'empty_cart') {
-	                alert('Cart is empty. Nothing to checkout.');
-	            }
-	            else {
-	                alert('Checkout failed. Try again.');
-	            }
-	        },
-	        error: function (xhr, status, error) {
-	            console.error(xhr.responseText);
-	            alert('AJAX error during checkout.');
-	        }
-	    });
+		    let formData = new FormData();
+		    formData.append('cart_items', JSON.stringify(supply_cart_array)); // send cart as JSON string
+
+		    $.ajax({
+		        url: '<?php echo base_url(); ?>i.php/sys_control/supply_checkout',
+		        method: 'POST',
+		        data: formData,
+		        processData: false,  // important for FormData
+		        contentType: false,  // important for FormData
+		        success: function (response) {
+		            if (response === 'success') {
+		                supply_cart_array = []; // clear current cart
+				    	$('#supply_checkout_cart_empty_message').removeClass('hidden');
+				    	$('#supply_checkout_cart_empty_message').addClass('visible');
+				    	$('#supply_checkout_cart_content').html('');
+		                alert('Checkout successful!');
+		                $('#supply_checkout_cart_modal').modal('hide');
+		            } 
+		            else if (response === 'empty_cart') {
+		                alert('Cart is empty. Nothing to checkout.');
+		            }
+		            else {
+		                alert('Checkout failed. Try again.');
+		            }
+		        },
+		        error: function (xhr, status, error) {
+		            console.error(xhr.responseText);
+		            alert('AJAX error during checkout.');
+		        }
+		    });
+	   	}
 	});
 
 
@@ -5717,15 +5730,20 @@
                     let minute_text;
 
                     let time = '';
-					if (total_hours > 0 && total_minutes > 0) {
-					    time = total_hours + ' hour' + (total_hours > 1 ? 's ' : ' ') + total_minutes + ' min' + (total_minutes > 1 ? 's' : '');
-					} else if (total_hours > 0) {
-					    time = total_hours + ' hour' + (total_hours > 1 ? 's' : '');
-					} else if (total_minutes > 0) {
-					    time = total_minutes + ' min' + (total_minutes > 1 ? 's' : '');
-					} else {
-					    time = 'Unlimited';
+                    if (total_rate != 0) {
+						if (total_hours > 0 && total_minutes > 0) {
+						    time = total_hours + ' hour' + (total_hours > 1 ? 's ' : ' ') + total_minutes + ' min' + (total_minutes > 1 ? 's' : '');
+						} else if (total_hours > 0) {
+						    time = total_hours + ' hour' + (total_hours > 1 ? 's' : '');
+						} else if (total_minutes > 0) {
+						    time = total_minutes + ' min' + (total_minutes > 1 ? 's' : '');
+						} else {
+						    time = 'Unlimited';
+						}
 					}
+                    else {
+                    	time = 'Loyalty';
+                    }
 
                     final_rate = Number(total_rate)+Number(final_rate);
 	                total_time = `${total_hours} ${hour_text} ${total_minutes} ${minute_text}`
