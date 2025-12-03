@@ -100,7 +100,6 @@ class Sys_model extends CI_Model {
 	    $profile_image_name = $_POST['profile_image_name'];
 
 	    $profile_image = $_POST['profile_image'] ?? null;
-	    $profile_image_base64 = $_POST['profile_image_base64'] ?? null;
 
 	    // Check if profile already exists
 	    $sql = "SELECT client_id FROM client_profiles WHERE full_name = ? AND birthdate = ?";
@@ -112,10 +111,9 @@ class Sys_model extends CI_Model {
 	    }
 
 	    if (empty($profile_image)) {
-	    	$profile_image = $profile_image_base64;
+	    	$profile_image_name = 'avatar.jpg';
 	    }
-
-	    if (!empty($profile_image)) {
+	    elseif (!empty($profile_image)) {
 
 	        if (strpos($profile_image, 'base64,') !== false) {
 
@@ -535,19 +533,14 @@ class Sys_model extends CI_Model {
 	    $this->db->query($sql, array($client_id, $time, $rate));
 
 	    $time = '';
-	    if ($price != 0) {
-			if ($hour > 0 && $minute > 0) {
-			    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
-			} elseif ($hour > 0) {
-			    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
-			} elseif ($minute > 0) {
-			    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
-			} else {
-			    $time = 'Unlimited';
-			}
-		}
-		else {
-			$time = 'Loyalty';
+		if ($hour > 0 && $minute > 0) {
+		    $time = $hour . ' hour' . ($hour > 1 ? 's ' : ' ') . $minute . ' min' . ($minute > 1 ? 's' : '');
+		} elseif ($hour > 0) {
+		    $time = $hour . ' hour' . ($hour > 1 ? 's' : '');
+		} elseif ($minute > 0) {
+		    $time = $minute . ' min' . ($minute > 1 ? 's' : '');
+		} else {
+		    $time = 'Unlimited';
 		}
 
 	    $activity = "<strong>Time Ended:</strong><br>Time: ".$time.", "."Rate: ₱".$rate;
@@ -830,8 +823,8 @@ class Sys_model extends CI_Model {
 	        $image_parts = explode(";base64,", $pos_item_image_b64);
 	        if (count($image_parts) == 2) {
 	            $image_base64 = base64_decode($image_parts[1]);
-	            $file_name = 'pos_item_' . time() . '.png';
-	            $upload_path = FCPATH . 'photos/pos_items/';
+	            $file_name = $pos_item_image_name;
+	            $upload_path = FCPATH . 'photos/pos_images/';
 
 	            if (!is_dir($upload_path)) {
 	                mkdir($upload_path, 0755, true);
@@ -839,7 +832,7 @@ class Sys_model extends CI_Model {
 
 	            file_put_contents($upload_path . $file_name, $image_base64);
 	            $pos_item_image_name = $file_name;
-	            $file_path = 'photos/pos_items/' . $file_name;
+	            $file_path = 'photos/pos_images/' . $file_name;
 	        }
 	    }
 
@@ -1666,8 +1659,8 @@ class Sys_model extends CI_Model {
 	        $image_parts = explode(";base64,", $supply_item_image_b64);
 	        if (count($image_parts) == 2) {
 	            $image_base64 = base64_decode($image_parts[1]);
-	            $file_name = 'supply_item_' . time() . '.png';
-	            $upload_path = FCPATH . 'photos/supply_items/';
+	            $file_name = $supply_item_image_name;
+	            $upload_path = FCPATH . 'photos/supply_images/';
 
 	            if (!is_dir($upload_path)) {
 	                mkdir($upload_path, 0755, true);
@@ -1675,7 +1668,7 @@ class Sys_model extends CI_Model {
 
 	            file_put_contents($upload_path . $file_name, $image_base64);
 	            $supply_item_image_name = $file_name;
-	            $file_path = 'photos/supply_items/' . $file_name;
+	            $file_path = 'photos/supply_images/' . $file_name;
 	        }
 	    }
 

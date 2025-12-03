@@ -5,7 +5,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=0">
+	<meta name="viewport" content="width=device-width, initial-scale=0.8">
 	<title>KidsPlayZone</title>
 	<style>
 		.floater-button{
@@ -19,7 +19,7 @@
 		}
 
 		.image-container {
-		    aspect-ratio: 5 / 4;
+		    aspect-ratio: 5 / 3;
 		    overflow: hidden;
 		}
 
@@ -123,7 +123,7 @@
 	  		overflow: hidden;
 	  		border-radius: 5px;            /* adjust if you want more/less radius */
 	  		background: #f0f0f0;          /* fallback background */
-	  		aspect-ratio: 5 / 4;          /* enforces 5:4 ratio */
+	  		aspect-ratio: 5 / 3;          /* enforces 5:4 ratio */
 	  		width: 70px;                  /* default size - adjust as needed */
 	  		height: auto;
 		}
@@ -149,7 +149,7 @@
 		  	.ui.item_avatar {
 		    	position: relative;
 		    	width: 70px;
-		    	padding-top: calc(100% * (4/5)); /* keeps 5:4 ratio */
+		    	padding-top: calc(100% * (5/3)); /* keeps 5:4 ratio */
 		    	height: 0;
 		  	}
 		  	.ui.item_avatar img {
@@ -184,13 +184,30 @@
 		.no_stock {
 		    border: 1px dashed red !important;
 		}
+		.aspect-5-4 {
+		    width: 100%;
+		    aspect-ratio: 5 / 3;
+		    object-fit: cover;   /* Crops to fit the aspect ratio */
+		    display: block;
+		}
 		/*html {
 		    transform: scale(0.9);
 		    transform-origin: top left;
 		    width: 111%;
 		}*/
+		@page {
+		    size: auto;
+		    margin: 0;
+		}
 
-	    
+		.receipt {
+		    width: 100%;
+		    max-width: 80mm; /* caps at 80mm printers */
+		    font-family: monospace;
+		    font-size: 11px;
+		    padding: 0;
+		}
+
 	</style>
 </head>
 <?php include 'esses/notifications.php';?>
@@ -331,16 +348,16 @@
 			    <div class="scrolling content">
 			        <form class="ui padded basic segment form" id="signup_form">
 			        	<div class="required field">
-			                <label>Child's Full Name</label>
-			                <input type="text" name="full_name" id="full_name" placeholder="e.g. Juan A. Cruz">
-			            </div>
-			            <div class="required field">
 			                <label>Guardian's Name</label>
 			                <input type="text" name="guardian_name" id="guardian_name" placeholder="e.g. Juan A. Cruz">
 			            </div>
 			            <div class="required field">
 			                <label>Guardian's Contact Number</label>
 			                <input type="text" name="guardian_contact" id="guardian_contact" placeholder="09**-***-****">
+			            </div>
+			        	<div class="required field">
+			                <label>Child's Full Name</label>
+			                <input type="text" name="full_name" id="full_name" placeholder="e.g. Juan A. Cruz">
 			            </div>
 			            <div class="required field">
 			                <label>Child's Gender</label>
@@ -363,7 +380,6 @@
 			                <label>Child's Profile Image (Optional)</label>
 			                <input type="text" readonly name="profile_image_name" id="profile_image_name" value="">
 			                <div class="ui segment center aligned">
-				                <input type="hidden" id="profile_image_base64" name="profile_image_base64">
 			                    <video id="camera_stream" autoplay></video>
 			                    <canvas id="captured_canvas" style="display:none;"></canvas>
 			                    <div class="ui mini buttons">
@@ -374,7 +390,7 @@
 			            </div>
 
 			            <!-- Hidden field to store base64 image or default -->
-			            <input type="hidden" name="profile_image" id="profile_image" value="kidsplayzone/photos/icons/avatar.jpg">
+			            <input type="hidden" name="profile_image" id="profile_image" value="">
 			        </form>
 			    </div>
 			    <div class="actions modal-actions">
@@ -407,7 +423,6 @@
 			            <div class="required field">
 			                <label>Child's Gender</label>
 			                <div class="ui icon selection dropdown button basic small" id="update_gender_drop">
-			                    <i class="venus mars icon"></i>&emsp;
 			                    <input type="hidden" name="update_gender" id="update_gender">
 			                    <div class="default text">Child's Gender</div>
 			                    <div class="menu">
@@ -428,7 +443,7 @@
 			                    <img id="current_profile_image" 
 			                         src="" 
 			                         alt="Current Profile Image"
-			                         style="max-width:100%; aspect-ratio:5/4; object-fit:cover;"/>
+			                         style="max-width:100%; aspect-ratio:5/3; object-fit:cover;"/>
 				                <div class="ui labeled green mini icon button" id="update_image_button">
 			                        <i class="redo icon"></i>
 			                        Retake Image
@@ -747,7 +762,7 @@
 			                <div class="ui segment center aligned">
 			                    <video id="new_pos_camera_stream" autoplay></video>
 			                    <canvas id="new_pos_captured_canvas" style="display:none;"></canvas>
-			                    <img id="new_pos_uploaded_preview" style="aspect-ratio: 5 / 4; display:none; width:100%; height:auto; object-fit:cover;">
+			                    <img id="new_pos_uploaded_preview" style="aspect-ratio: 5 / 3; display:none; width:100%; height:auto; object-fit:cover;">
 
 			                    <!-- Hidden input for file upload -->
 			                    <input type="file" id="new_pos_image_file" accept="image/*" style="display:none;">
@@ -807,7 +822,7 @@
 					            <img id="current_pos_item_image" 
 					                 src="" 
 					                 alt="Current Item Image"
-					                 style="max-width:100%; aspect-ratio:5/4; object-fit:cover;">
+					                 style="max-width:100%; aspect-ratio:5/3; object-fit:cover;">
 					            <div class="ui labeled green mini icon button" id="update_pos_item_image_button">
 					                <i class="redo icon"></i>
 					                Retake Image
@@ -823,7 +838,7 @@
 					        <div class="ui segment center aligned">
 					            <video id="update_pos_camera_stream" autoplay></video>
 					            <canvas id="update_pos_captured_canvas" style="display:none;"></canvas>
-					            <img id="update_pos_uploaded_preview" style="aspect-ratio: 5 / 4; display:none; width:100%; height:auto; object-fit:cover;">
+					            <img id="update_pos_uploaded_preview" style="aspect-ratio: 5 / 3; display:none; width:100%; height:auto; object-fit:cover;">
 					            
 					            <input type="file" id="update_pos_image_file" accept="image/*" style="display:none;">
 					            <div class="ui mini buttons">
@@ -860,8 +875,17 @@
 			                </h2>
 			            </div>
 			        </div>
-		        	<div class="ui relaxed divided list" id="pos_checkout_cart_content">
+		        	<div class="ui  middle aligned divided list" id="pos_checkout_cart_content">
 						
+					</div>
+				</div>
+		        <div class="content">
+			        <div class="ui form">
+
+			        	<div class="field">
+					        <label>Payment</label>
+					        <input type="text" name="update_pos_item_low" id="update_pos_item_low" placeholder="Initial Stock">
+					    </div>
 					</div>
 				</div>
 		        <div class="actions modal-actions">
@@ -1239,7 +1263,7 @@
 			                <div class="ui segment center aligned">
 			                    <video id="new_supply_camera_stream" autoplay></video>
 			                    <canvas id="new_supply_captured_canvas" style="display:none;"></canvas>
-			                    <img id="new_supply_uploaded_preview" style="aspect-ratio: 5 / 4; display:none; width:100%; height:auto; object-fit:cover;">
+			                    <img id="new_supply_uploaded_preview" style="aspect-ratio: 5 / 3; display:none; width:100%; height:auto; object-fit:cover;">
 
 			                    <!-- Hidden input for file upload -->
 			                    <input type="file" id="new_supply_image_file" accept="image/*" style="display:none;">
@@ -1299,7 +1323,7 @@
 					            <img id="current_supply_item_image" 
 					                 src="" 
 					                 alt="Current Item Image"
-					                 style="max-width:100%; aspect-ratio:5/4; object-fit:cover;">
+					                 style="max-width:100%; aspect-ratio:5/3; object-fit:cover;">
 					            <div class="ui labeled green mini icon button" id="update_supply_item_image_button">
 					                <i class="redo icon"></i>
 					                Retake Image
@@ -1315,7 +1339,7 @@
 					        <div class="ui segment center aligned">
 					            <video id="update_supply_camera_stream" autoplay></video>
 					            <canvas id="update_supply_captured_canvas" style="display:none;"></canvas>
-					            <img id="update_supply_uploaded_preview" style="aspect-ratio: 5 / 4; display:none; width:100%; height:auto; object-fit:cover;">
+					            <img id="update_supply_uploaded_preview" style="aspect-ratio: 5/3; display:none; width:100%; height:auto; object-fit:cover;">
 					            
 					            <input type="file" id="update_supply_image_file" accept="image/*" style="display:none;">
 					            <div class="ui mini buttons">
@@ -2023,7 +2047,7 @@
 	                        <td>${key+1}</td>
 	                        <td class="break-text">
 	                			<i class="red pointered x icon  void_pos_checkout_item" data-pos_checkout_id="${pos_checkout_id}" data-pos_item_name="${pos_item_name}"></i>
-	                            <img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui avatar image">
+	                            <img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui aspect-5-4 avatar image">
 	                            <span>${pos_item_name}</span>
 	                        </td>
 	                        <td class="no-break">₱${formatted_item_price}</td>
@@ -2203,7 +2227,7 @@
 										</div>
 									</div>
 								</div>
-                            	<img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
+                            	<img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui image aspect-5-4">
 							</div>
 						    <div class="content">
 					    		<input type="text" class="pos_card_focus_handler file_input" data-item_id="${pos_item_id}">
@@ -2235,7 +2259,7 @@
 
                     let pos_restocking_item = `
                     	<div class="item pos_restocking_item" data-value="${pos_item_id}" data-pos_item_name="${pos_item_name}" data-pos_item_image="${pos_item_image}">
-							<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
+							<img class="ui mini aspect-5-4 item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
 							<span>${pos_item_name}</span>
 						</div>
                     `;
@@ -2322,7 +2346,7 @@
 										<div class="right floated content">
 						                	<i class="ui x red icon pointered pos_restocking_item_remover"></i>
 										</div>
-			                        	<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_list_item_image}">
+			                        	<img class="ui mini aspect-5-4 item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_list_item_image}">
 								    	<div class="content">
 									      	<a class="header">${pos_list_item_name}</a>
 									    	<div class="description">
@@ -2687,19 +2711,35 @@
 					    total_item_price: total_item_price
 					});
 
+				    // item_data = `
+				    //     <div class="item pos_checkout_cart_item" data-pos_item_id="${pos_item_id}">
+				    //         <img class="ui item_avatar aspect-5-4 image" src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
+				    //         <div class="content">
+				    //             <div class="header pos_cart_item_name">${pos_item_name}</div>
+				    //             <div class="meta">
+				    //                 <span>₱<x class="pos_cart_item_price">${formatted_item_price}</x>
+				    //                 - <x class="pos_cart_item_count">${item_count}</x>
+				    //                 <x class="pos_cart_item_unit">${pos_item_unit}</x></span>
+				    //             </div>
+				    //         </div>
+				    //         <div class="right floated content pos_cart_actions">
+				    //             <i class="ui link red minus circle icon pos_remove_item"></i>
+				    //         </div>
+				    //     </div>`;
+
 				    item_data = `
 				        <div class="item pos_checkout_cart_item" data-pos_item_id="${pos_item_id}">
-				            <img class="ui item_avatar image" src="<?php echo base_url();?>photos/pos_images/${pos_item_image}">
-				            <div class="content">
-				                <div class="header pos_cart_item_name">${pos_item_name}</div>
-				                <div class="meta">
-				                    <span>₱<x class="pos_cart_item_price">${formatted_item_price}</x>
-				                    - <x class="pos_cart_item_count">${item_count}</x>
-				                    <x class="pos_cart_item_unit">${pos_item_unit}</x></span>
-				                </div>
-				            </div>
 				            <div class="right floated content pos_cart_actions">
 				                <i class="ui link red minus circle icon pos_remove_item"></i>
+				            </div>
+				    		<div class="right floated content">
+			                    <span>₱<x class="pos_cart_item_price">${formatted_item_price}</x>
+			                    - <x class="pos_cart_item_count">${item_count}</x>
+			                    <x class="pos_cart_item_unit">${pos_item_unit}</x></span>
+			                </div>
+				    		<div class="content">
+				                <div class="header pos_cart_item_name">${pos_item_name}</div>
+				                
 				            </div>
 				        </div>`;
 
@@ -2768,9 +2808,14 @@
                     var pos_code = value.pos_code;
                     var pos_activity = value.pos_activity;
                     var timestamp = value.timestamp;
+                    class_color = '';
+
+                    if (pos_activity_type == 'Item Updating') {
+                    	class_color = 'active';
+                    }
 
                     let pos_log = `
-						<tr>
+						<tr class="${class_color}">
 							<td class="break-text">${pos_activity_type}</td>
 							<td class="no-break">${pos_code}</td>
 							<td class="break-text">${pos_activity}</td>
@@ -2937,7 +2982,7 @@
 							<td>${key+1}</td>
 							<td class="break-text">
 	                			<i class="red pointered x icon  void_pos_restocking_item" data-pos_restocking_id="${pos_restocking_id}" data-pos_item_name="${pos_item_name}"></i>
-                                <img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui avatar image">
+                                <img src="<?php echo base_url();?>photos/pos_images/${pos_item_image}" class="ui aspect-5-4 avatar image">
                 				<span>${pos_item_name}</span>
 							</td>
 							<td class="no-break">₱${formatted_item_price}</td>
@@ -3141,7 +3186,7 @@
 
 	    // --- Setup video element ---
 	    $('#new_pos_camera_stream').css({
-	        'aspect-ratio': '5 / 4',
+	        'aspect-ratio': '5 / 3',
 	        'width': '100%',
 	        'height': 'auto',
 	        'object-fit': 'cover',
@@ -3238,7 +3283,7 @@
 
 	    // --- Setup video element ---
 	    $('#update_pos_camera_stream').css({
-	        'aspect-ratio': '5 / 4',
+	        'aspect-ratio': '5 / 3',
 	        'width': '100%',
 	        'height': 'auto',
 	        'object-fit': 'cover',
@@ -3850,7 +3895,7 @@
 	                        <td>${key+1}</td>
 	                        <td class="break-text">
 	                			<i class="red pointered x icon  void_supply_checkout_item" data-supply_checkout_id="${supply_checkout_id}" data-supply_item_name="${supply_item_name}"></i>
-	                            <img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}" class="ui avatar image">
+	                            <img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}" class="ui aspect-5-4 avatar image">
 	                            <span>${supply_item_name}</span>
 	                        </td>
 	                        <td class="no-break">₱${formatted_item_price}</td>
@@ -4029,7 +4074,7 @@
 										</div>
 									</div>
 								</div>
-                            	<img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}">
+                            	<img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}" class="ui image aspect-5-4">
 							</div>
 						    <div class="content">
 					    		<input type="text" class="supply_card_focus_handler file_input" data-item_id="${supply_item_id}">
@@ -4061,7 +4106,7 @@
 
                     let supply_restocking_item = `
                     	<div class="item supply_restocking_item" data-value="${supply_item_id}" data-supply_item_name="${supply_item_name}" data-supply_item_image="${supply_item_image}">
-							<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/supply_images/${supply_item_image}">
+							<img class="ui mini item_avatar aspect-5-4 image" src="<?php echo base_url();?>photos/supply_images/${supply_item_image}">
 							<span>${supply_item_name}</span>
 						</div>
                     `;
@@ -4148,7 +4193,7 @@
 										<div class="right floated content">
 						                	<i class="ui x red icon pointered supply_restocking_item_remover"></i>
 										</div>
-			                        	<img class="ui mini item_avatar image" src="<?php echo base_url();?>photos/supply_images/${supply_list_item_image}">
+			                        	<img class="ui mini item_avatar aspect-5-4 image" src="<?php echo base_url();?>photos/supply_images/${supply_list_item_image}">
 								    	<div class="content">
 									      	<a class="header">${supply_list_item_name}</a>
 									    	<div class="description">
@@ -4518,7 +4563,7 @@
 
 				    item_data = `
 				        <div class="item supply_checkout_cart_item" data-supply_item_id="${supply_item_id}">
-				            <img class="ui item_avatar image" src="<?php echo base_url();?>photos/supply_images/${supply_item_image}">
+				            <img class="ui item_avatar aspect-5-4 image" src="<?php echo base_url();?>photos/supply_images/${supply_item_image}">
 				            <div class="content">
 				                <div class="header supply_cart_item_name">${supply_item_name}</div>
 				                <div class="meta">
@@ -4766,7 +4811,7 @@
 							<td>${key+1}</td>
 							<td class="break-text">
 	                			<i class="red pointered x icon  void_supply_restocking_item" data-supply_restocking_id="${supply_restocking_id}" data-supply_item_name="${supply_item_name}"></i>
-                                <img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}" class="ui avatar image">
+                                <img src="<?php echo base_url();?>photos/supply_images/${supply_item_image}" class="ui avatar aspect-5-4 image">
                 				<span>${supply_item_name}</span>
 							</td>
 							<td class="no-break">₱${formatted_item_price}</td>
@@ -4970,7 +5015,7 @@
 
 	    // --- Setup video element ---
 	    $('#new_supply_camera_stream').css({
-	        'aspect-ratio': '5 / 4',
+	        'aspect-ratio': '5 / 3',
 	        'width': '100%',
 	        'height': 'auto',
 	        'object-fit': 'cover',
@@ -5067,7 +5112,7 @@
 
 	    // --- Setup video element ---
 	    $('#update_supply_camera_stream').css({
-	        'aspect-ratio': '5 / 4',
+	        'aspect-ratio': '5 / 3',
 	        'width': '100%',
 	        'height': 'auto',
 	        'object-fit': 'cover',
@@ -5450,29 +5495,6 @@
 
 
 
-
-
-
-
-
-
-	function url_to_base64(url, callback) {
-	    const img = new Image();
-	    img.crossOrigin = 'Anonymous'; // allow reading
-	    img.onload = function () {
-	        const canvas = document.createElement('canvas');
-	        canvas.width = img.width;
-	        canvas.height = img.height;
-
-	        const ctx = canvas.getContext('2d');
-	        ctx.drawImage(img, 0, 0);
-
-	        const base64 = canvas.toDataURL('image/png');
-	        callback(base64);
-	    };
-	    img.src = url;
-	}
-
     function initialize_time_manager_camera() {
         $('#capture_button').hide();
     	
@@ -5483,11 +5505,6 @@
 	    const retake_button = $('#retake_button');
 
 	    const default_avatar = "<?php echo base_url();?>photos/icons/avatar.jpg";
-
-		url_to_base64(default_avatar, function(base64img){
-		    $('#profile_image_base64').val(base64img);
-		});
-
 
 	    // Hide video initially
 	    $('#camera_stream').hide();
@@ -5575,7 +5592,7 @@
 	            canvas.height = default_img.height;
 	            context.drawImage(default_img, 0, 0, default_img.width, default_img.height);
 	        };
-	        $('#profile_image').val(default_avatar);
+	        $('#profile_image').val('');
 	        $('#profile_image_name').val('');
 	        // $('#profile_image_name').addClass('invisible');
 	    });
@@ -5592,7 +5609,7 @@
 
 	    // Force 5:4 aspect ratio
 	    $('#update_camera_stream').css({
-	        'aspect-ratio': '5 / 4',
+	        'aspect-ratio': '5 / 3',
 	        'width': '100%',
 	        'height': 'auto',
 	        'object-fit': 'cover'
@@ -5753,7 +5770,7 @@
                     let client_log = `
 						<tr>
 							<td class="no-break">
-                                <img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="ui avatar image">
+                                <img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="ui avatar aspect-5-4 image">
                 				<span>${full_name}</span>
 							</td>
 							<td class="no-break">${time}</td>
@@ -5825,7 +5842,7 @@
                     let client_log = `
 						<tr>
 							<td class="no-break">
-                                <img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="ui avatar image">
+                                <img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="ui avatar aspect-5-4 image">
                 				<span>${full_name}</span>
 							</td>
 							<td class="break-text">${activity}</td>
@@ -6002,7 +6019,7 @@
 										</div>
 									</div>
 								</div>
-                            	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
+                            	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="ui image aspect-5-4">
 							</div>
 						    <div class="content">
 						        <h5 class="header no-break tm_popup_click" data-content="${full_name}">${full_name}</h5>
@@ -6017,10 +6034,11 @@
                     				<div class="right floated content">
 							            <i class="clock outline icon"></i><x class="transition" id="${client_id}time"></x>
                     				</div>
-                    				<div class="content">
-							            <i class="hourglass end icon"></i>${formatted_end_time}
+                    				<div class="content" id="time_display">
+			  							<i class="hourglass end icon"></i>
+                    					${formatted_end_time}
+							            
                     				</div>
-						            
 						        </div>
 						    </div>
 						</div>
@@ -6029,7 +6047,7 @@
                     let client_item = `
                         <div class="item client_option" data-value="${client_id}">
                             <div class="ui avatar image image_container">
-                                <img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="center middle aligned flowing_image image bordered">
+                                <img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="center middle aligned flowing_image aspect-5-4 image bordered">
                             </div>
                             <span>${full_name}</span>
                         </div>
@@ -6092,8 +6110,10 @@
 			                .always(function() {
 			                    var response = jqxhr.responseText;
 			                    if (response != 'error') {
-			                        load_active_clients();
 	                        		delete time_out_names[response];
+			                        load_active_clients();
+			                        stop_announce();
+	                        		console.log(time_out_names);
 			                    }
 			                    else {
 			                        alert('An error occurred. Please try again.');
@@ -6128,6 +6148,9 @@
 			                    if (response != 'success') {
 	                        		delete time_out_names[response];
 			                        load_active_clients();
+			                        stop_announce();
+	                        		console.log(time_out_names);
+
 			                    }
 			                    else {
 			                        alert('An error occurred. Please try again.')
@@ -6185,7 +6208,8 @@
 	    			else {
 	    				age_text = ' year old';
 	    			}
-	    			var age = age+age_text+supervision_check;
+	    			// var age = age+age_text+supervision_check;
+	    			var age = age+age_text;
                     
                     let client_card = `
 						<div class="ui fluid link card">
@@ -6202,7 +6226,7 @@
 										</div>
 									</div>
 								</div>
-                            	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
+                            	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="ui image aspect-5-4">
 							</div>
 						    <div class="content">
 						        <h5 class="header no-break tm_popup_click" data-content="${full_name}">${full_name}</h5>
@@ -6364,7 +6388,7 @@
 										</div>
 									</div>
 								</div>
-                            	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}">
+                            	<img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="ui image aspect-5-4">
 							</div>
 						    <div class="content">
 						        <h5 class="header no-break tm_popup_click" data-content="${full_name}">${full_name}</h5>
@@ -6452,32 +6476,33 @@
     // Store timers globally by client_id
     let sound_unlocked = false;
 
-	$(document).one('click', function () {
-	    console.log("Attempting to unlock sound...");
+	// $(document).one('click', function () {
+	//     console.log("Attempting to unlock sound...");
 
-        const sound_effect = new Audio('<?php echo base_url(); ?>audio/coin.mp3');
-	    sound_effect.volume = 0;
+    //     const sound_effect = new Audio('<?php echo base_url(); ?>audio/coin.mp3');
+	//     sound_effect.volume = 0;
 
-	    sound_effect.play()
-	        .then(() => {
-	            // Immediately stop the silent sound
-	            sound_effect.pause();
-	            sound_effect.currentTime = 0;
-	            sound_effect.volume = 1;
+	//     sound_effect.play()
+	//         .then(() => {
+	//             // Immediately stop the silent sound
+	//             sound_effect.pause();
+	//             sound_effect.currentTime = 0;
+	//             sound_effect.volume = 1;
 
-	            sound_unlocked = true;
-	            console.log("Sound unlocked successfully.");
-	        })
-	        .catch(err => {
-	            console.warn("Sound unlock failed:", err);
-	        });
-	});
+	//             sound_unlocked = true;
+	//             console.log("Sound unlocked successfully.");
+	//         })
+	//         .catch(err => {
+	//             console.warn("Sound unlock failed:", err);
+	//         });
+	// });
 
 
 	const countdown_timers = {};
 	const time_out_names = {};
 	let is_sound_playing = false;
 
+    const sound_effect = new Audio('<?php echo base_url(); ?>audio/coin.mp3');
 	function start_countdown(start_time, hour, minute, client_id) {
 	    // Clear any existing timer for this client
 	    if (countdown_timers[client_id]) {
@@ -6517,7 +6542,6 @@
 	            const timer_element = $(`#${client_id}time`);
 	            timer_element.text('00:00:00');
 
-	            const sound_effect = new Audio('<?php echo base_url(); ?>audio/coin.mp3');
 	            const card_element = timer_element.closest('.card');
 
 	            let full_name = card_element.data('full_name');
@@ -6529,8 +6553,8 @@
 	            function bounce_with_sound() {
 				    if (is_paused) return;
 
-				    const animation_duration = 2000;
-				    const sound_delay = animation_duration / 2.5;
+				    const animation_duration = 800;
+				    const sound_delay = animation_duration;
 
 				    card_element.transition({
 				        animation: 'pulse',
@@ -6538,10 +6562,11 @@
 				        onStart: () => {
 		                    is_sound_playing = true;
 		                    sound_effect.currentTime = 0;
-							for (const id in time_out_names) {
-								const name = time_out_names[id]
-		                        announce(`${name}, Time Ended!`);
-							}	
+		                    sound_effect.play();
+							// for (const id in time_out_names) {
+							// 	const name = time_out_names[id]
+		                    //     announce(`${name}, Time Ended!`);
+							// }	
 				            bounce_timeout = setTimeout(bounce_with_sound, animation_duration);
 				        }
 				    }); 
@@ -6583,7 +6608,16 @@
 	    update_countdown();
 	    countdown_timers[client_id] = setInterval(update_countdown, 1000);
 	}
+	function stop_announce() {
+        sound_effect.currentTime = 0;
+        sound_effect.pause();
+        is_sound_playing = false;
 
+	    // if ('speechSynthesis' in window) {
+	    //     window.speechSynthesis.cancel();
+        //     is_sound_playing = false;
+	    // }
+	}
 
     function get_current_time() {
 	    const now = new Date();
@@ -6745,15 +6779,6 @@
 	                    {
 	                        type: 'empty',
 	                        prompt: 'Please enter a Purpose.'
-	                    }
-	                ]
-	            },
-	            profile_image: {
-	                identifier: 'profile_image',
-	                rules: [
-	                    {
-	                        type: 'empty',
-	                        prompt: 'Please select a vehicle.'
 	                    }
 	                ]
 	            }
@@ -6927,6 +6952,7 @@
 	                        load_inactive_clients();
 	                        alert('Time Profile extended successfully.');
 	                        delete time_out_names[response];
+	                        console.log(time_out_names);
 	                    }
 	                    else {
 	                        alert('Time Profile extension failed. Please try again.')
@@ -6995,7 +7021,7 @@
                     let client_item = `
                         <div class="item client_option" data-value="${client_id}">
                             <div class="ui avatar image image_container">
-                                <img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="center middle aligned flowing_image image bordered">
+                                <img src="<?php echo base_url();?>photos/profile_pictures/${profile_image}" class="center middle aligned aspect-5-4 flowing_image image bordered">
                             </div>
                             <span>${full_name}</span>
                         </div>
